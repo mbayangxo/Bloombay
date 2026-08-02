@@ -9,78 +9,71 @@ const PINK = "#FF1F7D";
 // ── Avenue data ─────────────────────────────────────────────────────────────────
 interface AvenueConfig {
   signLine1: string;
-  signLine2: string;
   title: string;
   tagline: string;
   href: string;
-  accent: string;
   roomKey: string;
-  icon?: "magazine";
+  emoji: string;
 }
 
+// Every window uses the same brand pink awning/frame — the emoji + sign
+// line are what tell rooms apart, not a different palette per room.
 const AVENUES: AvenueConfig[] = [
   {
     signLine1: "WALL ST.",
-    signLine2: "THE WALL AVE.",
     title: "The Wall",
     tagline: "Post. Share. Vibe.",
     href: "/member/avenue/wall",
-    accent: "#FF1F7D",
     roomKey: "wall",
+    emoji: "📌",
   },
   {
     signLine1: "FASHION AVE.",
-    signLine2: "THE CLOSET BLVD.",
     title: "The Closet",
     tagline: "Fits. Advice. Style.",
     href: "/member/avenue/closet",
-    accent: "#E8007A",
     roomKey: "closet",
+    emoji: "👗",
   },
   {
     signLine1: "BLOOM BLVD.",
-    signLine2: "THE VANITY AVE.",
     title: "The Vanity",
     tagline: "Beauty. Glow. You.",
     href: "/member/avenue/vanity",
-    accent: "#FF1F7D",
     roomKey: "vanity",
+    emoji: "💄",
   },
   {
     signLine1: "LIBRARY LANE",
-    signLine2: "READING ROOM RD.",
     title: "The Reading Room",
     tagline: "Books. Discuss. Share.",
     href: "/member/avenue/reading-room",
-    accent: "#D4A853",
     roomKey: "reading-room",
+    emoji: "📚",
   },
   {
     signLine1: "CINEMA ROW",
-    signLine2: "SCREENING ROOM ST.",
     title: "The Screening Room",
     tagline: "Film. Watch. Review.",
     href: "/member/avenue/screening-room",
-    accent: "#FF1F7D",
     roomKey: "screening",
+    emoji: "🎬",
   },
   {
     signLine1: "FITNESS ROW",
-    signLine2: "GIRL FIT AVE.",
     title: "Girl Fit",
     tagline: "Move. Eat. Glow.",
     href: "/member/avenue/wellness",
-    accent: "#4A7C59",
     roomKey: "wellness",
+    emoji: "🧘",
   },
   {
     signLine1: "CAREER BLVD.",
-    signLine2: "GIRL WORKING ST.",
     title: "Girl Working",
     tagline: "Jobs. Money. Hot Takes.",
     href: "/member/avenue/working",
-    accent: "#1A0A2E",
     roomKey: "working",
+    emoji: "💼",
   },
 ];
 
@@ -124,65 +117,54 @@ function getPostDisplay(post: WallPost, idx: number) {
   };
 }
 
-// ── AvenueArrow ────────────────────────────────────────────────────────────────
-function AvenueArrow({ avenue, count, flip = false }: { avenue: AvenueConfig; count: number | null; flip?: boolean }) {
-  const TIP = 32;
-  const clipRight = `polygon(0 0, calc(100% - ${TIP}px) 0, 100% 50%, calc(100% - ${TIP}px) 100%, 0 100%)`;
-  const clipLeft  = `polygon(${TIP}px 0, 100% 0, 100% 100%, ${TIP}px 100%, 0 50%)`;
-
+// ── StorefrontWindow ──────────────────────────────────────────────────────────
+// Each room reads as its own illuminated shop window on the Avenue — same
+// brand pink awning + glass frame everywhere, differentiated by the emoji,
+// sign line, and a real "open" count, not by a different palette per room.
+function StorefrontWindow({ avenue, count }: { avenue: AvenueConfig; count: number | null }) {
   return (
     <Link href={avenue.href} style={{ textDecoration: "none", display: "block" }}>
       <div style={{
-        clipPath: flip ? clipLeft : clipRight,
-        background: "rgba(255,255,255,0.85)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        borderRadius: 16,
+        overflow: "hidden",
+        background: "white",
         border: "1px solid rgba(26,26,26,0.08)",
-        padding: flip ? `15px 22px 15px ${TIP + 22}px` : `15px ${TIP + 22}px 15px 22px`,
-        display: "flex",
-        alignItems: "center",
-        gap: 11,
-        flexDirection: flip ? "row-reverse" as const : "row" as const,
+        boxShadow: "0 4px 18px rgba(26,26,26,0.07)",
       }}>
-
-        {/* Magazine object icon */}
-        {avenue.icon === "magazine" && (
-          <svg width="20" height="26" viewBox="0 0 20 26" fill="none" style={{ flexShrink: 0 }}>
-            <rect x="1" y="2" width="15" height="20" rx="1" fill="rgba(0,0,0,0.06)" transform="rotate(-4 8 12)"/>
-            <rect x="2" y="1" width="16" height="22" rx="1.5" fill="rgba(0,0,0,0.08)"/>
-            <line x1="5" y1="6"  x2="15" y2="6"  stroke="rgba(255,31,125,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="5" y1="9"  x2="12" y2="9"  stroke="rgba(0,0,0,0.18)" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="5" y1="12" x2="15" y2="12" stroke="rgba(0,0,0,0.14)" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="5" y1="15" x2="11" y2="15" stroke="rgba(0,0,0,0.14)" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="5" y1="18" x2="14" y2="18" stroke="rgba(0,0,0,0.12)" strokeWidth="1" strokeLinecap="round"/>
-          </svg>
-        )}
-
-        <div style={{ flex: 1, textAlign: flip ? "right" as const : "left" as const }}>
-          <p style={{
-            fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900,
-            fontStyle: "italic", color: "#1A1A1A", lineHeight: 1, margin: 0,
-          }}>{avenue.title}</p>
-          <p style={{
-            fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 700,
-            color: "rgba(26,26,26,0.5)", letterSpacing: "0.07em", marginTop: 3,
-          }}>{avenue.tagline}</p>
+        {/* Awning */}
+        <div style={{
+          background: `linear-gradient(150deg, ${PINK} 0%, #FF5BAD 100%)`,
+          padding: "6px 10px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 6.5, fontWeight: 800, letterSpacing: "0.12em", color: "rgba(255,255,255,0.85)" }}>{avenue.signLine1}</span>
+          {count !== null && count > 0 && (
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white" }}>{count} open</span>
+          )}
         </div>
 
-        {count !== null && count > 0 && (
+        {/* Window glass */}
+        <div style={{
+          padding: "18px 14px 16px",
+          background: "linear-gradient(180deg, rgba(255,31,125,0.04) 0%, transparent 60%)",
+          textAlign: "center",
+        }}>
           <div style={{
-            background: "rgba(255,31,125,0.08)",
-            borderRadius: 999, padding: "2px 9px",
-            border: "1px solid rgba(255,31,125,0.2)",
-            flexShrink: 0,
+            width: 44, height: 44, borderRadius: "50%", margin: "0 auto 10px",
+            background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.18)",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
           }}>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 900, color: PINK }}>{count}</span>
+            {avenue.emoji}
           </div>
-        )}
-
-        <svg width="8" height="14" viewBox="0 0 8 14" fill="none" style={{ flexShrink: 0, transform: flip ? "scaleX(-1)" : undefined }}>
-          <path d="M1 1l6 6-6 6" stroke="rgba(26,26,26,0.35)" strokeWidth="1.8" strokeLinecap="round"/>
-        </svg>
+          <p style={{
+            fontFamily: "var(--font-playfair)", fontSize: 17, fontWeight: 900,
+            fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.1, margin: 0,
+          }}>{avenue.title}</p>
+          <p style={{
+            fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700,
+            color: "rgba(26,26,26,0.45)", letterSpacing: "0.04em", marginTop: 5,
+          }}>{avenue.tagline}</p>
+        </div>
       </div>
     </Link>
   );
@@ -371,12 +353,12 @@ export function AvenuePage() {
         )}
       </div>
 
-      {/* ══ THE AVENUE — arrow list ════════════════════════════════════════ */}
+      {/* ══ THE AVENUE — storefront windows ═════════════════════════════════ */}
       <div style={{ marginTop: 32, paddingBottom: 8 }}>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.22em", marginBottom: 16, padding: "0 24px" }}>THE AVENUE</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-          {AVENUES.map((avenue, i) => (
-            <AvenueArrow key={avenue.href} avenue={avenue} count={roomCounts[avenue.roomKey] ?? null} flip={i % 2 === 1} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 24px" }}>
+          {AVENUES.map((avenue) => (
+            <StorefrontWindow key={avenue.href} avenue={avenue} count={roomCounts[avenue.roomKey] ?? null} />
           ))}
         </div>
       </div>

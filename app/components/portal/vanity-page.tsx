@@ -158,6 +158,37 @@ function VanityCard({ post, saved, onSave }: { post: VanityPost; saved: boolean;
   );
 }
 
+// ── Mirror feature — the top-saved post shown "in" an oval vanity mirror,
+// a structural centerpiece rather than a decorative overlay ──────────────────
+function MirrorFeature({ post }: { post: VanityPost }) {
+  const meta = CATEGORY_META[post.category as VanityCategory] ?? CATEGORY_META.skincare;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "22px 24px 6px" }}>
+      <div style={{
+        position: "relative", width: "100%", maxWidth: 280, aspectRatio: "1 / 1.08",
+        borderRadius: "50%", overflow: "hidden",
+        background: `linear-gradient(160deg, ${post.gradientA}22, ${post.gradientB}18)`,
+        border: `6px solid white`,
+        boxShadow: "0 10px 28px rgba(28,27,28,0.16), 0 0 0 1px rgba(255,31,125,0.12)",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        padding: "0 30px", textAlign: "center",
+      }}>
+        {/* glass sheen */}
+        <div style={{ position: "absolute", top: "6%", left: "12%", width: "30%", height: "55%", borderRadius: "50%", background: "rgba(255,255,255,0.35)", filter: "blur(6px)", pointerEvents: "none" }} />
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.16em", color: PINK, marginBottom: 8 }}>✦ TODAY'S REFLECTION</span>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 19, color: "#1C1B1C", lineHeight: 1.25, marginBottom: 6 }}>{post.title}</p>
+        {post.content && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(0,0,0,0.55)", lineHeight: 1.4 }}>{post.content.slice(0, 80)}{post.content.length > 80 ? "…" : ""}</p>
+        )}
+        <span style={{ marginTop: 8, fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: meta.color }}>{meta.label} · {post.author_name ?? "a member"}</span>
+      </div>
+      {/* mirror stand */}
+      <div style={{ width: 3, height: 16, background: "rgba(0,0,0,0.12)" }} />
+      <div style={{ width: 64, height: 3, borderRadius: 2, background: "rgba(0,0,0,0.12)" }} />
+    </div>
+  );
+}
+
 // ── Create sheet ──────────────────────────────────────────────────────────────
 
 function CreateSheet({ onClose, onPosted }: { onClose: () => void; onPosted: () => void }) {
@@ -258,6 +289,12 @@ export function VanityPage() {
     ? posts
     : posts.filter(p => p.category === activeCategory);
 
+  // The most-saved post gets the mirror — a real signal, not a fixed pick.
+  const featured = posts.length > 0
+    ? posts.reduce((best, p) => (p.saves_count > best.saves_count ? p : best), posts[0])
+    : null;
+  const feedPosts = activeCategory === "all" ? filtered.filter(p => p.id !== featured?.id) : filtered;
+
   const cats = Object.entries(CATEGORY_META) as [VanityCategory, { label: string; color: string }][];
 
   function toggleSave(id: string) {
@@ -296,6 +333,9 @@ export function VanityPage() {
         <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.65)" }}>Beauty. Glow. You.</p>
       </div>
 
+      {/* The mirror — a real structural centerpiece, only on the unfiltered view */}
+      {activeCategory === "all" && featured && <MirrorFeature post={featured} />}
+
       {/* Category filter */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(250,246,242,0.96)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,31,125,0.08)" }}>
         <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none" as const, gap: 8, padding: "10px 18px" }}>
@@ -314,12 +354,12 @@ export function VanityPage() {
 
       {/* Feed */}
       <div style={{ padding: "18px 18px 0", display: "flex", flexDirection: "column", gap: 16 }}>
-        {filtered.length === 0 && (
+        {feedPosts.length === 0 && (
           <p style={{ textAlign: "center", color: "rgba(0,0,0,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
             Nothing published yet
           </p>
         )}
-        {filtered.map(post => (
+        {feedPosts.map(post => (
           <VanityCard
             key={post.id} post={post}
             saved={savedIds.has(post.id)}

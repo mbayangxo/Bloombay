@@ -73,6 +73,42 @@ function ClosetTile({ post }: { post: ClosetPost }) {
   );
 }
 
+// ── Featured look — magazine-style lead feature, not just another tile ───────
+function FeaturedLook({ post }: { post: ClosetPost }) {
+  const meta = CATEGORY_META[post.category as Category] ?? CATEGORY_META.fits;
+  const authorName = post.profiles?.display_name ?? "A member";
+  const cover = post.photo_urls[0];
+
+  return (
+    <div style={{ margin: "6px 18px 20px", borderRadius: 22, overflow: "hidden", position: "relative", boxShadow: "0 10px 30px rgba(28,27,28,0.16)" }}>
+      {cover ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={cover} alt="" style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", display: "block" }} />
+      ) : (
+        <div style={{ width: "100%", aspectRatio: "4/5", background: `linear-gradient(160deg, ${PINK}22, #E8007A33)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 48 }}>👗</span>
+        </div>
+      )}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 45%, transparent 70%)" }} />
+      <div style={{ position: "absolute", top: 14, left: 14, background: PINK, borderRadius: 20, padding: "4px 11px" }}>
+        <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.14em", color: "white" }}>✦ LOOK OF THE WEEK</span>
+      </div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 18px 18px" }}>
+        {post.title && (
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "white", lineHeight: 1.1, marginBottom: 6, textShadow: "0 2px 10px rgba(0,0,0,0.4)" }}>{post.title}</p>
+        )}
+        {post.caption && (
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,255,255,0.85)", lineHeight: 1.4, marginBottom: 8 }}>{post.caption}</p>
+        )}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.75)" }}>{meta.emoji} {authorName}</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "white", fontWeight: 700 }}>🌸 {post.blooms}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── ClosetPage ───────────────────────────────────────────────────────────────────
 export function ClosetPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
@@ -92,6 +128,14 @@ export function ClosetPage() {
   }, []);
 
   useEffect(() => { loadPosts(activeCategory); }, [activeCategory, loadPosts]);
+
+  // Lead with whichever photo post has the most blooms — a real "look of
+  // the week," not a fixed/fake pick — and show the rest in the grid.
+  const withPhotos = posts.filter(p => p.photo_urls.length > 0);
+  const featured = withPhotos.length > 0
+    ? withPhotos.reduce((best, p) => (p.blooms > best.blooms ? p : best), withPhotos[0])
+    : null;
+  const rest = posts.filter(p => p.id !== featured?.id);
 
   return (
     <div style={{
@@ -159,31 +203,34 @@ export function ClosetPage() {
         })}
       </div>
 
-      {/* Feed — photo-forward masonry, like a real style board */}
-      <div style={{ padding: "6px 18px 0" }}>
-        {loading ? (
-          <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
-            Loading…
+      {/* Feed — a featured lookbook lead, then a photo-forward style-board grid */}
+      {loading ? (
+        <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>
+          Loading…
+        </p>
+      ) : posts.length === 0 ? (
+        <div style={{
+          margin: "12px 18px 0", borderRadius: 20, border: "1.5px dashed rgba(255,31,125,0.25)",
+          padding: "40px 24px", textAlign: "center",
+        }}>
+          <p style={{ fontSize: 30, marginBottom: 8 }}>👗</p>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 17, color: DARK, marginBottom: 6 }}>
+            Nothing shared yet
           </p>
-        ) : posts.length === 0 ? (
-          <div style={{
-            borderRadius: 20, border: "1.5px dashed rgba(255,31,125,0.25)",
-            padding: "40px 24px", textAlign: "center", marginTop: 12,
-          }}>
-            <p style={{ fontSize: 30, marginBottom: 8 }}>👗</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 17, color: DARK, marginBottom: 6 }}>
-              Nothing shared yet
-            </p>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(28,27,28,0.5)" }}>
-              Post a fit, ask for advice, or drop some inspo — be the first ✦
-            </p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(28,27,28,0.5)" }}>
+            Post a fit, ask for advice, or drop some inspo — be the first ✦
+          </p>
+        </div>
+      ) : (
+        <>
+          {featured && <FeaturedLook post={featured} />}
+          <div style={{ padding: "0 18px" }}>
+            <div style={{ columnCount: 2, columnGap: 12 }}>
+              {rest.map(post => <ClosetTile key={post.id} post={post} />)}
+            </div>
           </div>
-        ) : (
-          <div style={{ columnCount: 2, columnGap: 12 }}>
-            {posts.map(post => <ClosetTile key={post.id} post={post} />)}
-          </div>
-        )}
-      </div>
+        </>
+      )}
 
       {/* The Hanger — sell & swap banner */}
       <div style={{ padding: "16px 18px 0" }}>

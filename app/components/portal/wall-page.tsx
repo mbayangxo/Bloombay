@@ -64,6 +64,26 @@ function avatarColor(id: string, isSeed?: boolean): string {
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
+// Deterministic per-post "pinned at a slight angle" tilt — same id always
+// gets the same tilt, so cards don't jitter on refetch/re-render.
+function pinTilt(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return ((h % 7) - 3) * 0.8; // -2.4deg .. 2.4deg
+}
+
+function Pushpin({ color }: { color: string }) {
+  return (
+    <div style={{
+      position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)",
+      width: 16, height: 16, borderRadius: "50%",
+      background: `radial-gradient(circle at 35% 30%, ${color}, ${color}CC 60%, ${color}88)`,
+      boxShadow: "0 2px 4px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.5)",
+      zIndex: 2,
+    }} />
+  );
+}
+
 // ── PostCard ──────────────────────────────────────────────────────────────────
 function PostCard({
   post,
@@ -141,28 +161,27 @@ function PostCard({
     }
   }
 
+  const tilt = pinTilt(post.id);
+
   return (
-    <div style={{ position: "relative" }}>
-      <div style={{ position: "absolute", inset: 0, background: "#fff", borderRadius: 20, boxShadow: "0 2px 12px rgba(28,27,28,0.06)", transform: "rotate(1.2deg)", zIndex: 0 }} />
-      <div style={{ position: "relative", background: "#fff", borderRadius: 20, boxShadow: "0 3px 20px rgba(28,27,28,0.09)", overflow: "hidden", zIndex: 1 }}>
-        <div style={{ height: 4, background: `linear-gradient(90deg, ${color}, ${color}BB)` }} />
-        <div style={{ padding: "14px 16px 0" }}>
+    <div style={{ position: "relative", breakInside: "avoid", marginBottom: 14, transform: `rotate(${tilt}deg)` }}>
+      <Pushpin color={meta.color} />
+      <div style={{ position: "relative", background: "#fff", borderRadius: 6, boxShadow: "0 6px 16px rgba(28,27,28,0.14), 0 1px 0 rgba(255,255,255,0.4) inset", overflow: "hidden", zIndex: 1, border: "1px solid rgba(28,27,28,0.05)" }}>
+        <div style={{ padding: "16px 14px 12px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg, ${color}, ${color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: "#fff" }}>{authorInitial(post)}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg, ${color}, ${color}BB)`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, color: "#fff" }}>{authorInitial(post)}</span>
               </div>
-              <div>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: DARK, lineHeight: 1.1, margin: 0 }}>{authorName(post)}</p>
-                <span style={{ fontSize: 9, fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: meta.color, background: `${meta.color}14`, borderRadius: 20, padding: "2px 7px", display: "inline-block", marginTop: 2 }}>
-                  {meta.icon} {meta.label}
-                </span>
-              </div>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: DARK, lineHeight: 1.1, margin: 0 }}>{authorName(post)}</p>
             </div>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(28,27,28,0.35)", flexShrink: 0 }}>{timeAgo(post.created_at)}</span>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "rgba(28,27,28,0.32)", flexShrink: 0 }}>{timeAgo(post.created_at)}</span>
           </div>
-          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: DARK, lineHeight: 1.55, margin: "0 0 14px" }}>{post.text}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, borderTop: "1px solid rgba(28,27,28,0.07)", padding: "10px 0 12px" }}>
+          <span style={{ fontSize: 8, fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: meta.color, background: `${meta.color}14`, borderRadius: 20, padding: "2px 7px", display: "inline-block", marginBottom: 8 }}>
+            {meta.icon} {meta.label}
+          </span>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: DARK, lineHeight: 1.5, margin: "0 0 12px" }}>{post.text}</p>
+          <div style={{ display: "flex", alignItems: "center", borderTop: "1px solid rgba(28,27,28,0.07)", paddingTop: 10 }}>
             <FlowerButton
               size="sm"
               units={localUnits}
@@ -329,35 +348,41 @@ export function WallPage() {
         </div>
       </div>
 
-      {/* ── Feed ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "16px 18px 110px" }}>
+      {/* ── Corkboard feed — pinned notes in a staggered grid, not a plain list ── */}
+      <div style={{
+        margin: "14px 14px 0",
+        borderRadius: 18,
+        padding: "18px 12px 90px",
+        background: `repeating-radial-gradient(circle at 20px 20px, rgba(255,31,125,0.05) 0px, rgba(255,31,125,0.05) 1.5px, transparent 1.5px, transparent 20px), ${CREAM}`,
+        boxShadow: "inset 0 2px 10px rgba(28,27,28,0.06), 0 1px 0 rgba(255,255,255,0.4)",
+        border: "1px solid rgba(255,31,125,0.08)",
+      }}>
         {loading && (
           <p style={{ textAlign: "center", color: "rgba(28,27,28,0.4)", fontFamily: "var(--font-caveat)", fontSize: 18, marginTop: 48 }}>Loading…</p>
         )}
         {!loading && posts.length === 0 && (
-          <div style={{ position: "relative", marginTop: 32 }}>
+          <div style={{ position: "relative", marginTop: 24, maxWidth: 260, marginLeft: "auto", marginRight: "auto" }}>
+            <Pushpin color={PINK} />
             <div style={{
-              position: "absolute", top: -6, left: "50%", transform: "translateX(-50%) rotate(-2deg)",
-              width: 44, height: 14, background: "rgba(255,252,195,0.85)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)", zIndex: 1,
-            }} />
-            <div style={{
-              position: "relative", background: "#fff", borderRadius: 16, transform: "rotate(-0.6deg)",
-              boxShadow: "0 6px 24px rgba(28,27,28,0.09)", padding: "32px 24px", textAlign: "center",
+              position: "relative", background: "#fff", borderRadius: 6, transform: "rotate(-1.2deg)",
+              boxShadow: "0 6px 16px rgba(28,27,28,0.14)", padding: "28px 20px", textAlign: "center",
             }}>
-              <p style={{ fontSize: 26, marginBottom: 8 }}>📌</p>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: DARK, marginBottom: 6 }}>Nothing pinned yet</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(28,27,28,0.5)" }}>Tap + to share the first mood, win, or question ✦</p>
+              <p style={{ fontSize: 24, marginBottom: 8 }}>📌</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 17, color: DARK, marginBottom: 6 }}>Nothing pinned yet</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(28,27,28,0.5)" }}>Tap + to share the first mood, win, or question ✦</p>
             </div>
           </div>
         )}
-        {posts.map(post => (
-          <PostCard
-            key={post.id}
-            post={post}
-            myKind={myGifts[post.id] ?? null}
-            onGiftChange={onGiftChange}
-          />
-        ))}
+        <div style={{ columnCount: 2, columnGap: 12 }}>
+          {posts.map(post => (
+            <PostCard
+              key={post.id}
+              post={post}
+              myKind={myGifts[post.id] ?? null}
+              onGiftChange={onGiftChange}
+            />
+          ))}
+        </div>
       </div>
 
       {/* ── FAB ── */}
