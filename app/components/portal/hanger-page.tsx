@@ -97,6 +97,245 @@ const CONDITION_COLORS: Record<string, string> = {
   "good":          "#F59E0B",
 };
 
+// ─── Listing card — shared by the flat grid and the rack rows ────────────────
+function ListingCard({
+  listing,
+  buyingId,
+  hooked = false,
+  onOpenDetail,
+  onBuy,
+  onInquire,
+}: {
+  listing: MockListing;
+  buyingId: string | null;
+  hooked?: boolean;
+  onOpenDetail: () => void;
+  onBuy: () => void;
+  onInquire: (mode: "inquire" | "swap_offer") => void;
+}) {
+  const price = `$${(listing.price_cents / 100).toFixed(0)}`;
+  const conditionColor = CONDITION_COLORS[listing.condition] ?? "rgba(255,255,255,0.4)";
+  const busy = buyingId === listing.id;
+
+  return (
+    <div style={{ position: "relative", paddingTop: hooked ? 14 : 0 }}>
+      {/* A garment "hanging" on the rack — only shown in horizontal rack rows */}
+      {hooked && (
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none" style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", zIndex: 1 }}>
+          <path d="M10 1c2 0 2.5 1.6 1 2.6L4 8" stroke="rgba(28,27,28,0.3)" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+          <line x1="10" y1="4" x2="10" y2="15" stroke="rgba(28,27,28,0.2)" strokeWidth="1" />
+        </svg>
+      )}
+      <div
+        style={{
+          background: "#1a1a1a",
+          borderRadius: 12,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          width: hooked ? 138 : undefined,
+        }}
+      >
+        {/* Image placeholder — 3:4 aspect */}
+        <div
+          onClick={onOpenDetail}
+          style={{
+            aspectRatio: "3 / 4",
+            background: listing.card_gradient,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            cursor: "pointer",
+          }}
+        >
+          <span style={{ fontSize: hooked ? 30 : 40, opacity: 0.6 }}>
+            {(listing.category ? CATEGORY_ICONS[listing.category] : null) ?? "🛍️"}
+          </span>
+
+          {/* Condition badge */}
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              background: `${conditionColor}22`,
+              border: `1px solid ${conditionColor}55`,
+              borderRadius: 6,
+              padding: "2px 7px",
+              fontSize: 9,
+              fontFamily: "var(--font-jost), sans-serif",
+              fontWeight: 700,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              color: conditionColor,
+            }}
+          >
+            {listing.condition}
+          </div>
+
+          {/* Size badge */}
+          {listing.size_display !== "O/S" && (
+            <div
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: "rgba(0,0,0,0.5)",
+                borderRadius: 6,
+                padding: "2px 7px",
+                fontSize: 9,
+                fontFamily: "var(--font-jost), sans-serif",
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.7)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {listing.size_display}
+            </div>
+          )}
+        </div>
+
+        {/* Card body */}
+        <div
+          style={{
+            padding: "10px 10px 12px",
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            gap: 6,
+          }}
+        >
+          {/* Title */}
+          <p
+            style={{
+              margin: 0,
+              fontSize: 11,
+              fontFamily: "var(--font-jost), sans-serif",
+              fontWeight: 700,
+              color: "#fff",
+              letterSpacing: "0.02em",
+              lineHeight: 1.3,
+            }}
+          >
+            {listing.title}
+          </p>
+
+          {/* Price / swap / free label */}
+          {listing.listing_type === "give_away" ? (
+            <span style={{ display: "inline-block", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 800, letterSpacing: "0.08em", color: "#fff", background: FREE_GREEN, padding: "3px 9px", borderRadius: 20 }}>FREE 🎁</span>
+          ) : listing.listing_type === "swap" ? (
+            <span style={{ display: "inline-block", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", background: SWAP_TEAL, padding: "3px 9px", borderRadius: 20 }}>Swap ↔</span>
+          ) : listing.listing_type === "sell_or_swap" ? (
+            <div>
+              <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
+              <span style={{ display: "inline-block", marginTop: 3, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: SWAP_TEAL, background: `${SWAP_TEAL}18`, border: `1px solid ${SWAP_TEAL}44`, padding: "2px 7px", borderRadius: 20 }}>or swap ↔</span>
+            </div>
+          ) : (
+            <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
+          )}
+
+          {/* City */}
+          {listing.city && (
+            <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", color: "rgba(255,255,255,0.35)", letterSpacing: "0.04em" }}>📍 {listing.city}</p>
+          )}
+
+          {/* Seller chip + appreciation counts */}
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Link
+              href={`/member/profile/${listing.seller_id}`}
+              style={{ textDecoration: "none", flexShrink: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  background: listing.seller_gradient,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 8,
+                  fontWeight: 700,
+                  color: "#fff",
+                  fontFamily: "var(--font-jost), sans-serif",
+                }}
+              >
+                {listing.seller_initials}
+              </div>
+            </Link>
+            <span
+              style={{
+                fontSize: 10,
+                fontFamily: "var(--font-jost), sans-serif",
+                color: "rgba(255,255,255,0.45)",
+                fontWeight: 500,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                flex: 1,
+              }}
+            >
+              {listing.seller_name}
+            </span>
+            {/* Appreciation micro-counts */}
+            {(listing.petal_count > 0 || listing.flower_count > 0) && (
+              <span style={{ fontSize: 9, fontFamily: "var(--font-jost), sans-serif", color: "rgba(255,255,255,0.3)", flexShrink: 0, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+                {listing.petal_count > 0 && `🌷${listing.petal_count}`}
+                {listing.petal_count > 0 && listing.flower_count > 0 && " "}
+                {listing.flower_count > 0 && `🌸${listing.flower_count}`}
+              </span>
+            )}
+          </div>
+
+          {/* Action button */}
+          {listing.listing_type === "give_away" ? (
+            <button
+              onClick={() => onInquire("inquire")}
+              style={{ marginTop: "auto", width: "100%", background: FREE_GREEN, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
+            >
+              Inquire 🎁
+            </button>
+          ) : listing.listing_type === "swap" ? (
+            <button
+              onClick={() => onInquire("swap_offer")}
+              style={{ marginTop: "auto", width: "100%", background: SWAP_TEAL, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
+            >
+              Offer a Swap ↔
+            </button>
+          ) : listing.listing_type === "sell_or_swap" ? (
+            <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
+              <button
+                onClick={onBuy}
+                disabled={busy}
+                style={{ flex: 1, background: busy ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: busy ? "not-allowed" : "pointer" }}
+              >
+                {busy ? "…" : `Buy · ${price}`}
+              </button>
+              <button
+                onClick={() => onInquire("swap_offer")}
+                style={{ flex: 1, background: "transparent", color: SWAP_TEAL, border: `1.5px solid ${SWAP_TEAL}`, borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: "pointer" }}
+              >
+                Swap ↔
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onBuy}
+              disabled={busy}
+              style={{ marginTop: "auto", width: "100%", background: busy ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: busy ? "not-allowed" : "pointer" }}
+            >
+              {busy ? "…" : `Buy · ${price}`}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface EarningsRow {
   id: string;
@@ -269,6 +508,17 @@ export function HangerPage() {
     }
     return true;
   });
+
+  // Default overview (All category, no search, no size filter) reads as
+  // racks in a real boutique instead of one flat grid — a "new arrivals"
+  // rail plus one horizontal rail per category that actually has stock.
+  const isOverview = activeCategory === "All" && !activeSize && !searchQuery.trim();
+  const newArrivals = [...browseListings]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 10);
+  const racks = CATEGORIES.filter((c) => c !== "All")
+    .map((cat) => ({ category: cat, items: browseListings.filter((l) => l.category === cat).slice(0, 10) }))
+    .filter((r) => r.items.length > 0);
 
   const sharedInputStyle: React.CSSProperties = {
     width: "100%",
@@ -575,239 +825,92 @@ export function HangerPage() {
         </div>
       )}
 
-      {/* ── 2-column browse grid ──────────────────────────────────────────────── */}
+      {/* ── Browse: racks by default, flat grid once a filter/search narrows it ── */}
       {activeTab === "browse" && (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 10,
-          padding: "0 12px 100px",
-        }}
-      >
-        {listingsLoading ? (
-          [1, 2, 3, 4, 5, 6].map(i => <HangerCardSkeleton key={i} />)
-        ) : filtered.length === 0 ? (
-          <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "48px 0" }}>
-            <p style={{ fontSize: 28, marginBottom: 8 }}>🔍</p>
-            <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 15, color: INK_35 }}>Nothing matching — try a different filter ✦</p>
+        listingsLoading ? (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 12px 100px" }}>
+            {[1, 2, 3, 4, 5, 6].map(i => <HangerCardSkeleton key={i} />)}
           </div>
-        ) : null}
-        {!listingsLoading && filtered.map((listing) => {
-          const price = `$${(listing.price_cents / 100).toFixed(0)}`;
-          const conditionColor = CONDITION_COLORS[listing.condition] ?? "rgba(255,255,255,0.4)";
-
-          return (
-            <div
-              key={listing.id}
-              style={{
-                background: "#1a1a1a",
-                borderRadius: 12,
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {/* Image placeholder — 3:4 aspect */}
-              <div
-                onClick={() => setDetailListing(listing)}
-                style={{
-                  aspectRatio: "3 / 4",
-                  background: listing.card_gradient,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "relative",
-                  cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 40, opacity: 0.6 }}>
-                  {(listing.category ? CATEGORY_ICONS[listing.category] : null) ?? "🛍️"}
-                </span>
-
-                {/* Condition badge */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 8,
-                    left: 8,
-                    background: `${conditionColor}22`,
-                    border: `1px solid ${conditionColor}55`,
-                    borderRadius: 6,
-                    padding: "2px 7px",
-                    fontSize: 9,
-                    fontFamily: "var(--font-jost), sans-serif",
-                    fontWeight: 700,
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                    color: conditionColor,
-                  }}
-                >
-                  {listing.condition}
+        ) : browseListings.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "48px 12px 100px" }}>
+            <p style={{ fontSize: 28, marginBottom: 8 }}>🧺</p>
+            <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 15, color: INK_35 }}>The racks are empty — be the first to list something ✦</p>
+          </div>
+        ) : isOverview ? (
+          <div style={{ paddingBottom: 100 }}>
+            {/* New arrivals rail */}
+            {newArrivals.length > 0 && (
+              <div style={{ marginBottom: 22 }}>
+                <p style={{ margin: "0 12px 10px", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: INK_55 }}>✦ NEW ARRIVALS</p>
+                <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 12px 4px", scrollbarWidth: "none" }}>
+                  {newArrivals.map((listing) => (
+                    <ListingCard
+                      key={listing.id}
+                      listing={listing}
+                      buyingId={buyingId}
+                      hooked
+                      onOpenDetail={() => setDetailListing(listing)}
+                      onBuy={() => void handleBuy(listing.id)}
+                      onInquire={(mode) => { setInquiryMode(mode); setInquiryListing(listing); }}
+                    />
+                  ))}
                 </div>
-
-                {/* Size badge */}
-                {listing.size_display !== "O/S" && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      background: "rgba(0,0,0,0.5)",
-                      borderRadius: 6,
-                      padding: "2px 7px",
-                      fontSize: 9,
-                      fontFamily: "var(--font-jost), sans-serif",
-                      fontWeight: 700,
-                      color: "rgba(255,255,255,0.7)",
-                      letterSpacing: "0.04em",
-                    }}
-                  >
-                    {listing.size_display}
-                  </div>
-                )}
               </div>
+            )}
 
-              {/* Card body */}
-              <div
-                style={{
-                  padding: "10px 10px 12px",
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
-                  gap: 6,
-                }}
-              >
-                {/* Title */}
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 11,
-                    fontFamily: "var(--font-jost), sans-serif",
-                    fontWeight: 700,
-                    color: "#fff",
-                    letterSpacing: "0.02em",
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {listing.title}
-                </p>
-
-                {/* Price / swap / free label */}
-                {listing.listing_type === "give_away" ? (
-                  <span style={{ display: "inline-block", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 800, letterSpacing: "0.08em", color: "#fff", background: FREE_GREEN, padding: "3px 9px", borderRadius: 20 }}>FREE 🎁</span>
-                ) : listing.listing_type === "swap" ? (
-                  <span style={{ display: "inline-block", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: "#fff", background: SWAP_TEAL, padding: "3px 9px", borderRadius: 20 }}>Swap ↔</span>
-                ) : listing.listing_type === "sell_or_swap" ? (
-                  <div>
-                    <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
-                    <span style={{ display: "inline-block", marginTop: 3, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.06em", color: SWAP_TEAL, background: `${SWAP_TEAL}18`, border: `1px solid ${SWAP_TEAL}44`, padding: "2px 7px", borderRadius: 20 }}>or swap ↔</span>
-                  </div>
-                ) : (
-                  <p style={{ margin: 0, fontSize: 16, fontFamily: "var(--font-playfair), serif", fontStyle: "italic", fontWeight: 700, color: PINK }}>{price}</p>
-                )}
-
-                {/* City */}
-                {listing.city && (
-                  <p style={{ margin: 0, fontSize: 9, fontFamily: "var(--font-jost), sans-serif", color: "rgba(255,255,255,0.35)", letterSpacing: "0.04em" }}>📍 {listing.city}</p>
-                )}
-
-                {/* Seller chip + appreciation counts */}
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <Link
-                    href={`/member/profile/${listing.seller_id}`}
-                    style={{ textDecoration: "none", flexShrink: 0 }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div
-                      style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: "50%",
-                        background: listing.seller_gradient,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 8,
-                        fontWeight: 700,
-                        color: "#fff",
-                        fontFamily: "var(--font-jost), sans-serif",
-                      }}
-                    >
-                      {listing.seller_initials}
-                    </div>
-                  </Link>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontFamily: "var(--font-jost), sans-serif",
-                      color: "rgba(255,255,255,0.45)",
-                      fontWeight: 500,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      flex: 1,
-                    }}
-                  >
-                    {listing.seller_name}
-                  </span>
-                  {/* Appreciation micro-counts */}
-                  {(listing.petal_count > 0 || listing.flower_count > 0) && (
-                    <span style={{ fontSize: 9, fontFamily: "var(--font-jost), sans-serif", color: "rgba(255,255,255,0.3)", flexShrink: 0, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
-                      {listing.petal_count > 0 && `🌷${listing.petal_count}`}
-                      {listing.petal_count > 0 && listing.flower_count > 0 && " "}
-                      {listing.flower_count > 0 && `🌸${listing.flower_count}`}
-                    </span>
-                  )}
+            {/* One rack per category that has stock */}
+            {racks.map(({ category, items }) => (
+              <div key={category} style={{ marginBottom: 22 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 12px 10px" }}>
+                  <p style={{ margin: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: INK_55 }}>
+                    {CATEGORY_ICONS[category]} {category.toUpperCase()} RACK
+                  </p>
+                  <button onClick={() => setActiveCategory(category)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: PINK }}>
+                    See all →
+                  </button>
                 </div>
-
-                {/* Action button */}
-                {listing.listing_type === "give_away" ? (
-                  <button
-                    onClick={() => { setInquiryMode("inquire"); setInquiryListing(listing); }}
-                    style={{ marginTop: "auto", width: "100%", background: FREE_GREEN, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
-                  >
-                    Inquire 🎁
-                  </button>
-                ) : listing.listing_type === "swap" ? (
-                  <button
-                    onClick={() => { setInquiryMode("swap_offer"); setInquiryListing(listing); }}
-                    style={{ marginTop: "auto", width: "100%", background: SWAP_TEAL, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}
-                  >
-                    Offer a Swap ↔
-                  </button>
-                ) : listing.listing_type === "sell_or_swap" ? (
-                  <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
-                    <button
-                      onClick={() => void handleBuy(listing.id)}
-                      disabled={buyingId === listing.id}
-                      style={{ flex: 1, background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
-                    >
-                      {buyingId === listing.id ? "…" : `Buy · ${price}`}
-                    </button>
-                    <button
-                      onClick={() => { setInquiryMode("swap_offer"); setInquiryListing(listing); }}
-                      style={{ flex: 1, background: "transparent", color: SWAP_TEAL, border: `1.5px solid ${SWAP_TEAL}`, borderRadius: 8, padding: "9px 0", fontSize: 10, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, cursor: "pointer" }}
-                    >
-                      Swap ↔
-                    </button>
+                {/* The rail itself */}
+                <div style={{ position: "relative", padding: "0 12px 4px" }}>
+                  <div style={{ position: "absolute", top: 8, left: 12, right: 12, height: 3, borderRadius: 2, background: "rgba(28,27,28,0.1)" }} />
+                  <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollbarWidth: "none" }}>
+                    {items.map((listing) => (
+                      <ListingCard
+                        key={listing.id}
+                        listing={listing}
+                        buyingId={buyingId}
+                        hooked
+                        onOpenDetail={() => setDetailListing(listing)}
+                        onBuy={() => void handleBuy(listing.id)}
+                        onInquire={(mode) => { setInquiryMode(mode); setInquiryListing(listing); }}
+                      />
+                    ))}
                   </div>
-                ) : (
-                  <button
-                    onClick={() => void handleBuy(listing.id)}
-                    disabled={buyingId === listing.id}
-                    style={{ marginTop: "auto", width: "100%", background: buyingId === listing.id ? "rgba(255,31,125,0.5)" : PINK, color: "#fff", border: "none", borderRadius: 8, padding: "9px 0", fontSize: 11, fontFamily: "var(--font-jost), sans-serif", fontWeight: 700, letterSpacing: "0.04em", cursor: buyingId === listing.id ? "not-allowed" : "pointer" }}
-                  >
-                    {buyingId === listing.id ? "…" : `Buy · ${price}`}
-                  </button>
-                )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-      )} {/* end activeTab === "browse" */}
+            ))}
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 12px 100px" }}>
+            {filtered.length === 0 ? (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "48px 0" }}>
+                <p style={{ fontSize: 28, marginBottom: 8 }}>🔍</p>
+                <p style={{ fontFamily: "var(--font-caveat), cursive", fontSize: 15, color: INK_35 }}>Nothing matching — try a different filter ✦</p>
+              </div>
+            ) : (
+              filtered.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  buyingId={buyingId}
+                  onOpenDetail={() => setDetailListing(listing)}
+                  onBuy={() => void handleBuy(listing.id)}
+                  onInquire={(mode) => { setInquiryMode(mode); setInquiryListing(listing); }}
+                />
+              ))
+            )}
+          </div>
+        )
+      )}
 
       {/* ── Buy error toast ───────────────────────────────────────────────────── */}
       {buyError && (
