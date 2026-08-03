@@ -194,7 +194,8 @@ export function ClubsPage() {
               <PushPin color="pink" size={14} />
             </div>
 
-            {/* Polaroid */}
+            {/* Polaroid — a real club's cover photo once clubs have loaded, so
+                this isn't just a generic gradient teaser */}
             <div style={{
               background: "white",
               padding: "5px 5px 20px",
@@ -206,34 +207,42 @@ export function ClubsPage() {
               <div style={{
                 width: "100%",
                 height: 72,
-                background: "linear-gradient(145deg,#3D0020,#C80060,#FF5BAD)",
+                background: clubs[0]?.cover_url ? undefined : "linear-gradient(145deg,#3D0020,#C80060,#FF5BAD)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
               }}>
-                <span style={{ fontSize: 32, opacity: 0.7 }}>🌸</span>
+                {clubs[0]?.cover_url ? (
+                  <Image src={thumbUrl(clubs[0].cover_url) ?? clubs[0].cover_url} alt="" fill style={{ objectFit: "cover" }} />
+                ) : (
+                  <span style={{ fontSize: 32, opacity: 0.7 }}>🌸</span>
+                )}
               </div>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "rgba(0,0,0,0.45)", textAlign: "center", marginTop: 4, lineHeight: 1.2 }}>
                 your new favorite<br/>room ♡
               </p>
             </div>
 
-            {/* "you belong here" bubble */}
+            {/* "you belong here" sticker — sized and offset to actually pin
+                to the corner instead of floating off two edges at once */}
             <div style={{
               position: "absolute",
-              bottom: -18,
-              right: -14,
-              width: 62,
-              height: 62,
+              bottom: -12,
+              right: -10,
+              width: 46,
+              height: 46,
               borderRadius: "50%",
               background: `linear-gradient(135deg,${PINK},#FF5BAD)`,
+              border: "2.5px solid white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: `0 4px 16px ${PINK}66`,
+              boxShadow: `0 4px 14px ${PINK}77`,
               zIndex: 5,
             }}>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 10, color: "white", textAlign: "center", lineHeight: 1.3, padding: "0 4px" }}>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 8, fontWeight: 700, color: "white", textAlign: "center", lineHeight: 1.15, padding: "0 2px" }}>
                 you<br/>belong<br/>here
               </p>
             </div>

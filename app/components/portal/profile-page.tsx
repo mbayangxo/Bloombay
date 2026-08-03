@@ -2448,6 +2448,8 @@ export function ProfilePage({ user, defaultTab }: { user: AuthUser; defaultTab?:
               </button>
             </form>
 
+            <PurchaseHistorySection />
+
             {/* New-in-Town */}
             <div style={cardStyle}>
               <p style={sectionLabel}>YOUR CITY STATUS</p>
@@ -2895,6 +2897,92 @@ function InfoRow({ label, value, pink = false }: { label: string; value: string;
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
       <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", color: "#bbb", fontWeight: 600 }}>{label}</p>
       <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: pink ? "#FF1F7D" : "#555" }}>{value}</p>
+    </div>
+  );
+}
+
+// ── PURCHASE HISTORY — lives in Settings, not on the Apartment page ──────────
+
+interface Purchase {
+  id: string;
+  type: string;
+  item_name: string | null;
+  amount_cents: number | null;
+  currency: string;
+  status: string;
+  created_at: string;
+}
+
+const PURCHASE_META: Record<string, { icon: string; label: string }> = {
+  membership:          { icon: "🌺", label: "BloomBay Membership" },
+  platform_membership: { icon: "🌺", label: "BloomBay Membership" },
+  event_ticket:        { icon: "🎟️", label: "Event Ticket" },
+  club_membership:     { icon: "💎", label: "Club Membership" },
+  hanger_purchase:     { icon: "👗", label: "The Hanger" },
+};
+
+function formatPurchaseCurrency(cents: number | null, currency = "gbp") {
+  if (!cents) return "—";
+  const sym = currency === "gbp" ? "£" : "$";
+  return `${sym}${(cents / 100).toFixed(2)}`;
+}
+
+function PurchaseHistorySection() {
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("purchases")
+          .select("id, type, item_name, amount_cents, currency, status, created_at")
+          .order("created_at", { ascending: false })
+          .limit(20);
+        setPurchases((data as Purchase[]) ?? []);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  return (
+    <div style={cardStyle}>
+      <p style={sectionLabel}>PURCHASE HISTORY</p>
+      {loading ? (
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb", textAlign: "center", padding: "8px 0" }}>Loading…</p>
+      ) : purchases.length === 0 ? (
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb", textAlign: "center", padding: "8px 0" }}>No purchases yet</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {purchases.map((p, i) => {
+            const meta = PURCHASE_META[p.type] ?? { icon: "✦", label: p.type };
+            const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+            return (
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderTop: i > 0 ? "1px solid rgba(255,31,125,0.08)" : "none" }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#FFF0F5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>
+                  {meta.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#111", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                    {p.item_name ?? meta.label}
+                  </p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#aaa" }}>{date}</p>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 800, color: PINK }}>
+                    {formatPurchaseCurrency(p.amount_cents, p.currency)}
+                  </p>
+                  {p.status !== "completed" && (
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#F59E0B", fontWeight: 700 }}>{p.status}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

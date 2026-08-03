@@ -278,9 +278,18 @@ export function BottomNav({ user }: { user?: NavUser }) {
 
   return (
     <>
-      {/* ══════ TOP BAR — logo always visible ══════ */}
+      {/* ══════ TOP BAR — logo always visible ══════
+          A translucent, blurred scrim (not fully transparent) so page
+          content scrolling up to y:0 never shows straight through the
+          logo/icons — that transparency was why text under it looked
+          like it was "on top of" the header on scroll. */}
       <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
-        style={{ background: "transparent", paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        style={{
+          background: isDarkPage ? "rgba(18,4,16,0.62)" : "rgba(253,251,247,0.82)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          paddingTop: "env(safe-area-inset-top, 0px)",
+        }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 54 }}>
           <Link href="/member/home" aria-label="BloomBay" style={{ textDecoration: "none" }}>
             <BBLogo size={26} pinkColor={PINK} />

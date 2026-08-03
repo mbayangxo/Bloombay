@@ -31,7 +31,10 @@ export async function uploadAvatar(file: File, userId: string): Promise<string> 
     .from("avatars")
     .upload(path, compressed, { upsert: true, contentType: "image/webp" });
   if (error) throw error;
-  return supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+  const url = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+  // Same filename every re-upload (upsert) means the same public URL, so the
+  // CDN/browser cache would keep serving the old image without this.
+  return `${url}?t=${Date.now()}`;
 }
 
 export async function uploadClubPhoto(file: File, clubId: string): Promise<string> {

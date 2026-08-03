@@ -1267,6 +1267,11 @@ export default function ChatPage() {
         pointerEvents: "none", zIndex: 0,
       }} />
 
+      {/* Ambient glow dots — a lounge has low warm light, not a flat wash */}
+      <div style={{ position: "absolute", top: 60, left: 30, width: 8, height: 8, borderRadius: "50%", background: "rgba(255,255,255,0.5)", filter: "blur(2px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: 140, right: 50, width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.4)", filter: "blur(1.5px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: 100, right: 110, width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.35)", filter: "blur(1.5px)", pointerEvents: "none" }} />
+
       <div style={{ padding: "70px 20px 18px", position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
@@ -1345,14 +1350,22 @@ export default function ChatPage() {
         </div>
       )}
 
+      {/* Scalloped curtain edge — the lounge "opens" into its content instead
+          of a hard rectangle dropping onto the pink */}
+      <div style={{
+        margin: "0 16px", height: 14, position: "relative", zIndex: 1,
+        background: "repeating-radial-gradient(circle at 10px 0, transparent 0 8px, #FFFFFF 8px 10px)",
+        backgroundColor: "transparent",
+      }} />
+
       {loading ? (
-        <div style={{ margin: "0 16px", borderRadius: 20, padding: "48px 24px", textAlign: "center", background: "#FFFFFF", position: "relative", zIndex: 1 }}>
+        <div style={{ margin: "0 16px", borderRadius: "0 0 20px 20px", padding: "48px 24px", textAlign: "center", background: "#FFFFFF", position: "relative", zIndex: 1 }}>
           <p style={{ fontSize: 13, color: "rgba(0,0,0,0.4)" }}>Loading conversations…</p>
         </div>
       ) : shown.length > 0 ? (
         <div style={{
-          margin: "0 16px", borderRadius: 20, overflow: "hidden", background: "#FFFFFF",
-          boxShadow: "0 4px 40px rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.1)", position: "relative", zIndex: 1,
+          margin: "0 16px", borderRadius: "0 0 20px 20px", overflow: "hidden", background: "#FFFFFF",
+          boxShadow: "0 4px 40px rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.1)", borderTop: "none", position: "relative", zIndex: 1,
         }}>
           {shown.map((convo, idx) => (
             <ConvoRow
@@ -1366,14 +1379,19 @@ export default function ChatPage() {
         </div>
       ) : (
         <div style={{
-          margin: "0 16px", borderRadius: 20, padding: "56px 24px", display: "flex", flexDirection: "column",
-          alignItems: "center", gap: 12, background: "#FFFFFF", boxShadow: "0 4px 40px rgba(255,31,125,0.12)",
-          border: "1px solid rgba(255,31,125,0.1)", position: "relative", zIndex: 1,
+          margin: "0 16px", borderRadius: "0 0 20px 20px", padding: "50px 24px 42px", display: "flex", flexDirection: "column",
+          alignItems: "center", background: "#FFFFFF", boxShadow: "0 4px 40px rgba(255,31,125,0.12)",
+          border: "1px solid rgba(255,31,125,0.1)", borderTop: "none", position: "relative", zIndex: 1, overflow: "hidden",
         }}>
-          <div style={{ width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", background: "rgba(255,31,125,0.15)" }}>💬</div>
-          <p style={{ fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.5)" }}>No conversations yet</p>
-          <p style={{ fontSize: "12px", textAlign: "center", color: "rgba(0,0,0,0.35)", maxWidth: 240, lineHeight: 1.5 }}>
-            Tap + to message someone or create a named group chat.
+          {/* A little lounge scene, not a generic bubble-icon empty state */}
+          <div style={{ position: "relative", width: 88, height: 64, marginBottom: 18 }}>
+            <div style={{ position: "absolute", bottom: 0, left: 4, width: 34, height: 34, borderRadius: "50% 50% 4px 4px", background: `linear-gradient(160deg, ${PINK}22, ${PINK}44)`, border: `1.5px solid ${PINK}33` }} />
+            <div style={{ position: "absolute", bottom: 0, right: 4, width: 34, height: 34, borderRadius: "50% 50% 4px 4px", background: `linear-gradient(160deg, ${PINK}22, ${PINK}44)`, border: `1.5px solid ${PINK}33` }} />
+            <div style={{ position: "absolute", bottom: 22, left: "50%", transform: "translateX(-50%)", width: 30, height: 22, borderRadius: "50%", background: "rgba(255,31,125,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>💬</div>
+          </div>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: "18px", fontWeight: 800, color: "#1C1B1C", marginBottom: 6 }}>The seats are empty.</p>
+          <p style={{ fontSize: "12px", textAlign: "center", color: "rgba(0,0,0,0.4)", maxWidth: 250, lineHeight: 1.6 }}>
+            Tap + to message someone or start a named group chat — this is where it&apos;ll live.
           </p>
         </div>
       )}

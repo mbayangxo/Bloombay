@@ -18,98 +18,6 @@ import { normalizeRole } from "@/lib/auth/roles";
 
 const PINK   = "#FF1F7D";
 
-// ── PURCHASE HISTORY ──────────────────────────────────────────────────────────
-
-interface Purchase {
-  id: string;
-  type: string;
-  item_name: string | null;
-  amount_cents: number | null;
-  currency: string;
-  status: string;
-  created_at: string;
-}
-
-const PURCHASE_META: Record<string, { icon: string; label: string }> = {
-  membership:          { icon: "🌺", label: "BloomBay Membership" },
-  platform_membership: { icon: "🌺", label: "BloomBay Membership" },
-  event_ticket:        { icon: "🎟️", label: "Event Ticket" },
-  club_membership:     { icon: "💎", label: "Club Membership" },
-  hanger_purchase:     { icon: "👗", label: "The Hanger" },
-};
-
-function formatCurrency(cents: number | null, currency = "gbp") {
-  if (!cents) return "—";
-  const sym = currency === "gbp" ? "£" : "$";
-  return `${sym}${(cents / 100).toFixed(2)}`;
-}
-
-function PurchaseHistorySection() {
-  const [purchases, setPurchases] = useState<Purchase[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        const supabase = createClient();
-        const { data } = await supabase
-          .from("purchases")
-          .select("id, type, item_name, amount_cents, currency, status, created_at")
-          .order("created_at", { ascending: false })
-          .limit(20);
-        setPurchases((data as Purchase[]) ?? []);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  return (
-    <div style={{ padding: "28px 20px 0" }}>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.28em", color: "rgba(0,0,0,0.28)", marginBottom: 14 }}>
-        ✦ PURCHASE HISTORY
-      </p>
-
-      {loading ? (
-        <div style={{ background: "white", borderRadius: 16, padding: "20px", textAlign: "center" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#bbb" }}>Loading…</p>
-        </div>
-      ) : purchases.length === 0 ? (
-        <div style={{ background: "white", borderRadius: 16, padding: "20px 18px", boxShadow: "0 2px 12px rgba(255,31,125,0.06)" }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#bbb", textAlign: "center" }}>No purchases yet</p>
-        </div>
-      ) : (
-        <div style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
-          {purchases.map((p, i) => {
-            const meta = PURCHASE_META[p.type] ?? { icon: "✦", label: p.type };
-            const date = new Date(p.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-            return (
-              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: i < purchases.length - 1 ? "1px solid #FFF0F5" : "none" }}>
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#FFF0F5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
-                  {meta.icon}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                    {p.item_name ?? meta.label}
-                  </p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#aaa" }}>{date}</p>
-                </div>
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, fontWeight: 800, color: PINK }}>
-                    {formatCurrency(p.amount_cents, p.currency)}
-                  </p>
-                  {p.status !== "completed" && (
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#F59E0B", fontWeight: 700 }}>{p.status}</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
 const DARK   = "#1C1B1C";
 const PAPER  = "#FEFCF7";
 
@@ -164,7 +72,7 @@ function mapBloomie(m: { id: string; first_name: string | null; full_name: strin
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 
-interface LoungeUser { id?: string; name: string; initial: string; neighborhood: string; bio?: string; }
+interface LoungeUser { id?: string; name: string; initial: string; neighborhood: string; bio?: string; avatarUrl?: string; }
 interface BloomieProfile { id: string; name: string; neighborhood: string; color: string; initial: string; since: string; }
 
 // ── APARTMENT DOOR ────────────────────────────────────────────────────────────
@@ -364,10 +272,10 @@ function BloomiesListSheet({ bloomies, onClose, onSelect }: { bloomies: BloomieP
   );
 }
 
-// ── EDIT PROFILE SHEET ────────────────────────────────────────────────────────
+// ── EDIT PROFILE — inline collapsible panel, not a full-screen sheet ─────────
 
-function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
-  name: string; neighborhood: string; bio: string;
+function EditProfilePanel({ open, name, neighborhood, bio, onClose, onSave }: {
+  open: boolean; name: string; neighborhood: string; bio: string;
   onClose: () => void; onSave: (n: string, nb: string, b: string) => void;
 }) {
   const [editName, setEditName] = useState(name);
@@ -388,50 +296,45 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
     else { onSave(editName.trim(), editNbhd.trim(), editBio.trim()); onClose(); }
   }
 
+  if (!open) return null;
+
   return (
-    <>
-      <div className="fixed inset-0 z-[90]" style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={onClose} />
-      <div
-        className="fixed bottom-0 left-0 right-0 z-[100] rounded-t-3xl overflow-hidden"
-        style={{ background: PAPER, maxHeight: "85vh", overflowY: "auto", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}
-      >
-        <div className="flex justify-center pt-3 pb-2"><div className="w-9 h-1 rounded-full" style={{ background: "rgba(0,0,0,0.12)" }} /></div>
-        <div className="px-6 pb-2 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: PINK }}>EDIT PROFILE</p>
-            <p className="text-lg font-bold italic" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Your details.</p>
+    <div style={{ background: "white", borderRadius: 18, padding: "18px 18px 20px", margin: "10px 16px 0", boxShadow: "0 2px 16px rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.1)" }}>
+      <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-1" style={{ color: PINK }}>EDIT PROFILE</p>
+      <p className="text-base font-bold italic mb-4" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>Your details.</p>
+      <div className="flex flex-col gap-4">
+        {[
+          { label: "NAME",         value: editName, set: setEditName, placeholder: "Your first name"   },
+          { label: "NEIGHBORHOOD", value: editNbhd, set: setEditNbhd, placeholder: "Your neighborhood" },
+        ].map(f => (
+          <div key={f.label}>
+            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>{f.label}</p>
+            <input value={f.value} onChange={e => f.set(e.target.value)} placeholder={f.placeholder}
+              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
+              style={{ background: "#FDFAF5", border: "1.5px solid #F0E0E8", color: "#111" }} />
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.07)" }}>
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#666" strokeWidth="1.8" strokeLinecap="round"><path d="M1 1l8 8M9 1l-8 8"/></svg>
-          </button>
+        ))}
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>BIO</p>
+          <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="A few words about you" rows={3}
+            className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
+            style={{ background: "#FDFAF5", border: "1.5px solid #F0E0E8", color: "#111" }} />
         </div>
-        <div className="px-6 pb-8 flex flex-col gap-4 mt-4">
-          {[
-            { label: "NAME",         value: editName, set: setEditName, placeholder: "Your first name"   },
-            { label: "NEIGHBORHOOD", value: editNbhd, set: setEditNbhd, placeholder: "Your neighborhood" },
-          ].map(f => (
-            <div key={f.label}>
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>{f.label}</p>
-              <input value={f.value} onChange={e => f.set(e.target.value)} placeholder={f.placeholder}
-                className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none"
-                style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }} />
-            </div>
-          ))}
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-1.5" style={{ color: "#aaa" }}>BIO</p>
-            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="A few words about you" rows={3}
-              className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none resize-none"
-              style={{ background: "white", border: "1.5px solid #F0E0E8", color: "#111" }} />
-          </div>
-          {error && <p className="text-xs text-red-500">{error}</p>}
+        {error && <p className="text-xs text-red-500">{error}</p>}
+        <div className="flex gap-2">
+          <button onClick={onClose}
+            className="py-3.5 px-5 rounded-2xl font-bold text-sm"
+            style={{ background: "rgba(0,0,0,0.05)", color: "#666" }}>
+            Cancel
+          </button>
           <button onClick={handleSave} disabled={pending}
-            className="w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
+            className="flex-1 py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
             style={{ background: pending ? "#F0E0E8" : PINK, color: pending ? "#C8A0B0" : "white" }}>
             {pending ? "Saving…" : "Save Changes"}
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -440,7 +343,7 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
 function TemplatePickerSheet({ current, displayName, onSelect, onClose }: {
   current: string;
   displayName: string;
-  onSelect: (id: string, bgPhoto?: string | null) => void;
+  onSelect: (id: string) => void;
   onClose: () => void;
 }) {
   const firstName = displayName.split(" ")[0] || "You";
@@ -510,27 +413,12 @@ function TemplatePickerSheet({ current, displayName, onSelect, onClose }: {
         })}
       </div>
 
-      {/* Background photo upload */}
-      <div style={{ padding: "12px 16px 24px" }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>OR ADD YOUR OWN PHOTO</p>
-        <label style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "16px 18px", cursor: "pointer", border: "1.5px dashed rgba(255,255,255,0.14)" }}>
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,31,125,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "white" }}>Upload a background photo</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Replaces the gradient with your image</p>
-          </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-          <input type="file" accept="image/*" onChange={e => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => { onSelect(current, reader.result as string); onClose(); };
-            reader.readAsDataURL(file);
-          }} style={{ display: "none" }} />
-        </label>
-        {/* Safe area bottom padding */}
+      {/* A real photo (not a background swap) is set from the camera button
+          on your Apartment hero — these are just the gradient looks. */}
+      <div style={{ padding: "4px 16px 24px" }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.35)", textAlign: "center" as const, lineHeight: 1.6 }}>
+          Want your own photo instead of a gradient? Tap the camera icon on your Apartment page.
+        </p>
         <div style={{ height: "calc(env(safe-area-inset-bottom,0px) + 20px)" }} />
       </div>
     </div>
@@ -543,6 +431,8 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const [localName, setLocalName] = useState(user?.name         ?? "");
   const [localNbhd, setLocalNbhd] = useState(user?.neighborhood ?? "NYC");
   const [localBio,  setLocalBio]  = useState(user?.bio          ?? "Part of the world made for women.");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl    ?? null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [selectedBloomie, setSelectedBloomie] = useState<BloomieProfile | null>(null);
   const [showBloomies,    setShowBloomies]    = useState(false);
   const [showEdit,        setShowEdit]        = useState(false);
@@ -596,23 +486,51 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const [hasHosted, setHasHosted] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [contentTab, setContentTab] = useState<"about" | "vibes" | "bloom_code">("about");
-  const [templateId, setTemplateId] = useState<string>(() => {
-    if (typeof window === "undefined") return "bloom";
-    return localStorage.getItem("bb_template") ?? "bloom";
-  });
-  const [bgPhoto, setBgPhoto] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("bb_bg_photo");
-  });
+  const [templateId, setTemplateId] = useState<string>("bloom");
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [photoCount, setPhotoCount] = useState<number | null>(null);
 
-  function handleTemplateSelect(id: string, photo?: string | null) {
+  // Real, persisted style choice — this used to only ever write to
+  // localStorage, so it silently reset on any other device/session.
+  useEffect(() => {
+    if (!currentUserId) return;
+    const supabase = createClient();
+    supabase.from("profiles").select("profile_template_id").eq("id", currentUserId).single()
+      .then(
+        ({ data }) => {
+          const saved = (data as { profile_template_id?: string } | null)?.profile_template_id;
+          if (saved) setTemplateId(saved);
+        },
+        () => { /* column may not be migrated yet — falls back to default */ }
+      );
+    supabase.from("profile_photos").select("id", { count: "exact", head: true }).eq("user_id", currentUserId)
+      .then(
+        ({ count }) => setPhotoCount(count ?? 0),
+        () => setPhotoCount(0)
+      );
+  }, [currentUserId]);
+
+  async function handleTemplateSelect(id: string) {
     setTemplateId(id);
-    localStorage.setItem("bb_template", id);
-    if (photo !== undefined) {
-      if (photo) { setBgPhoto(photo); localStorage.setItem("bb_bg_photo", photo); }
-      else { setBgPhoto(null); localStorage.removeItem("bb_bg_photo"); }
+    if (!currentUserId) return;
+    const supabase = createClient();
+    await supabase.from("profiles").update({ profile_template_id: id }).eq("id", currentUserId).then(
+      () => {},
+      () => { /* column may not be migrated yet — selection still applies for this session */ }
+    );
+  }
+
+  async function handleAvatarFile(file: File) {
+    if (!currentUserId) return;
+    setUploadingPhoto(true);
+    try {
+      const { uploadAvatar } = await import("@/lib/storage/upload");
+      const url = await uploadAvatar(file, currentUserId);
+      setAvatarUrl(url);
+    } catch {
+      showToast("Couldn't upload that photo — try again.");
     }
+    setUploadingPhoto(false);
   }
 
   const currentTemplate = PROFILE_TEMPLATES.find(t => t.id === templateId) ?? PROFILE_TEMPLATES[0];
@@ -650,11 +568,12 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
 
       {/* ══════════ PROFILE PHOTO HERO ══════════ */}
       <div style={{ position: "relative", height: 360, overflow: "hidden" }}>
-        {/* Background — selected profile template */}
+        {/* Background — a real photo once you have one, otherwise the
+            chosen template gradient (no more fake localStorage-only photo) */}
         <div style={{
           position: "absolute", inset: 0,
-          ...(bgPhoto
-            ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+          ...(avatarUrl
+            ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
             : { background: currentTemplate.gradient }
           ),
         }} />
@@ -662,19 +581,44 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         <div style={{ position: "absolute", top: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,100,160,0.35) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: 20, right: -30, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,180,200,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        {/* Avatar — large photo placeholder */}
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{
-            width: 140, height: 140, borderRadius: "50%",
-            background: "rgba(255,255,255,0.12)", border: "3px solid rgba(255,255,255,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-          }}>
-            <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 58, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>
-              {displayInitial}
-            </span>
+        {/* Initial placeholder — only when there's genuinely no photo, so it
+            never sits on top of one */}
+        {!avatarUrl && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{
+              width: 140, height: 140, borderRadius: "50%",
+              background: "rgba(255,255,255,0.12)", border: "3px solid rgba(255,255,255,0.3)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+            }}>
+              <span style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 58, fontWeight: 900, color: "rgba(255,255,255,0.95)" }}>
+                {displayInitial}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Real photo upload — the only "add a photo" control on this hero */}
+        <label style={{
+          position: "absolute", bottom: 66, right: 18, zIndex: 11,
+          width: 40, height: 40, borderRadius: "50%",
+          background: "rgba(20,4,20,0.55)", backdropFilter: "blur(6px)",
+          border: "1.5px solid rgba(255,255,255,0.4)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: uploadingPhoto ? "wait" : "pointer",
+        }}>
+          {uploadingPhoto ? (
+            <span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", animation: "spin 0.8s linear infinite" }} />
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          )}
+          <input
+            type="file" accept="image/*" disabled={uploadingPhoto}
+            style={{ display: "none" }}
+            onChange={e => { const f = e.target.files?.[0]; if (f) void handleAvatarFile(f); e.target.value = ""; }}
+          />
+        </label>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
         {/* Apt label only — edit/template actions live below the hero so portal top icons never cover them */}
         <div style={{
@@ -729,19 +673,27 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         </button>
         <button
           type="button"
-          onClick={() => setShowEdit(true)}
+          onClick={() => setShowEdit(v => !v)}
           style={{
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             padding: "12px 14px", borderRadius: 14, cursor: "pointer",
-            background: PINK, border: "none",
-            boxShadow: "0 4px 14px rgba(255,31,125,0.28)",
+            background: showEdit ? "rgba(255,31,125,0.1)" : PINK,
+            border: showEdit ? `1.5px solid ${PINK}` : "none",
+            boxShadow: showEdit ? "none" : "0 4px 14px rgba(255,31,125,0.28)",
             WebkitTapHighlightColor: "transparent",
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "white" }}>EDIT PROFILE</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={showEdit ? PINK : "white"} strokeWidth="2.5" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: showEdit ? PINK : "white" }}>{showEdit ? "CLOSE" : "EDIT PROFILE"}</span>
         </button>
       </div>
+
+      <EditProfilePanel
+        open={showEdit}
+        name={localName} neighborhood={localNbhd} bio={localBio}
+        onClose={() => setShowEdit(false)}
+        onSave={(n, nb, b) => { setLocalName(n); setLocalNbhd(nb); setLocalBio(b); }}
+      />
 
       {/* Work portals linked to this personal account */}
       <div style={{ padding: "12px 16px 0", background: PAPER }}>
@@ -833,14 +785,24 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb" }}>Interest tags will show here when profile vibes ship.</p>
           </div>
 
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 10 }}>YOUR PHOTOS</p>
-          <div style={{
-            background: "rgba(255,31,125,0.04)", border: "1px dashed rgba(255,31,125,0.2)",
-            borderRadius: 16, padding: "28px 16px", marginBottom: 22, textAlign: "center",
-          }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#888" }}>No photos yet</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#bbb", marginTop: 4 }}>Photo grid coming soon.</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)" }}>YOUR PHOTOS{photoCount !== null && photoCount > 0 ? ` · ${photoCount}` : ""}</p>
+            <Link href="/member/you" style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 700, color: PINK, textDecoration: "none" }}>manage →</Link>
           </div>
+          {photoCount !== null && photoCount > 0 ? (
+            <div style={{ background: "rgba(255,31,125,0.04)", border: "1px solid rgba(255,31,125,0.15)", borderRadius: 16, padding: "18px 16px", marginBottom: 22, textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "#666" }}>{photoCount} photo{photoCount === 1 ? "" : "s"} on your profile</p>
+              <Link href="/member/you" style={{ display: "inline-block", marginTop: 8, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, textDecoration: "none" }}>View your gallery →</Link>
+            </div>
+          ) : (
+            <div style={{
+              background: "rgba(255,31,125,0.04)", border: "1px dashed rgba(255,31,125,0.2)",
+              borderRadius: 16, padding: "28px 16px", marginBottom: 22, textAlign: "center",
+            }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#888" }}>No photos yet</p>
+              <Link href="/member/you" style={{ display: "inline-block", marginTop: 6, fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 700, color: PINK, textDecoration: "none" }}>Add photos on your Profile →</Link>
+            </div>
+          )}
         </div>
       )}
 
@@ -1043,9 +1005,6 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
       {/* ══════════ FRIENDSHIP PULSE ══════════ */}
       <FriendshipHealthSection />
 
-      {/* ══════════ PURCHASE HISTORY ══════════ */}
-      <PurchaseHistorySection />
-
       {/* ══════════ TOAST ══════════ */}
       {toast && (
         <div style={{ position: "fixed", bottom: 110, left: "50%", transform: "translateX(-50%)", zIndex: 60, background: DARK, color: "white", borderRadius: 999, padding: "10px 20px", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" as const, boxShadow: "0 4px 16px rgba(0,0,0,0.25)", pointerEvents: "none" }}>
@@ -1060,13 +1019,6 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
           bloomies={bloomies}
           onClose={() => setShowBloomies(false)}
           onSelect={b => { setShowBloomies(false); setTimeout(() => setSelectedBloomie(b), 100); }}
-        />
-      )}
-      {showEdit && (
-        <EditProfileSheet
-          name={localName} neighborhood={localNbhd} bio={localBio}
-          onClose={() => setShowEdit(false)}
-          onSave={(n, nb, b) => { setLocalName(n); setLocalNbhd(nb); setLocalBio(b); }}
         />
       )}
       {showTemplatePicker && (

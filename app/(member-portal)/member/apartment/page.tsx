@@ -9,6 +9,7 @@ export default async function MemberApartmentPage() {
     initial: name[0].toUpperCase(),
     neighborhood: authUser?.neighborhood ?? authUser?.borough ?? "NYC",
     bio: authUser?.bio ?? undefined,
+    avatarUrl: authUser?.avatar_url,
   };
   return <ApartmentPage user={user} />;
 }
