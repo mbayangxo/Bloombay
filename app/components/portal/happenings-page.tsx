@@ -83,12 +83,13 @@ function getPageBg(): string {
   if (h >= 5  && h < 12) return "linear-gradient(170deg, #FF1F7D 0%, #FF69A8 45%, #FFB3D4 100%)";
   if (h >= 12 && h < 17) return "linear-gradient(170deg, #E8006A 0%, #FF4499 45%, #FF9CC8 100%)";
   if (h >= 17 && h < 21) return "linear-gradient(170deg, #C0004A 0%, #E8006A 45%, #FF4499 100%)";
-  return "linear-gradient(170deg, #3A0018 0%, #720034 45%, #C0004A 100%)";
+  // Night — dark Barbie pink, same family as the rest of the site's night mode (not wine/maroon).
+  return "linear-gradient(170deg, #2B0A22 0%, #451638 45%, #C0004A 100%)";
 }
 
 function getNavBg(): string {
   const h = new Date().getHours();
-  if (h >= 21 || h < 5) return "rgba(58,0,24,0.96)";
+  if (h >= 21 || h < 5) return "rgba(43,10,34,0.96)";
   return "rgba(232,0,106,0.96)";
 }
 

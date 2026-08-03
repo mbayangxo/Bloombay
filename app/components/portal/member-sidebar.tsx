@@ -30,17 +30,18 @@ export function MemberSidebar({ user }: { user: SidebarUser }) {
   const isNight   = tod === "evening" || tod === "night";
   const isEvening = tod === "evening";
 
-  const sidebarBg    = isNight ? (isEvening ? "#120D0A" : "#0A0806") : "#FDFAF5";
-  const borderColor  = isNight ? "rgba(255,200,175,0.08)" : "rgba(0,0,0,0.07)";
-  const divider      = isNight ? "rgba(255,200,175,0.05)" : "rgba(0,0,0,0.05)";
-  const brandText    = isNight ? "rgba(255,238,220,0.92)" : "#111111";
-  const mutedText    = isNight ? "rgba(215,175,155,0.38)" : "rgba(0,0,0,0.3)";
-  const navInactive  = isNight ? "rgba(225,190,170,0.58)" : "rgba(0,0,0,0.45)";
-  const navNum       = isNight ? "rgba(205,168,148,0.3)" : "rgba(0,0,0,0.2)";
-  const tagline      = isNight ? "rgba(205,168,148,0.38)" : "rgba(0,0,0,0.22)";
-  const userText     = isNight ? "rgba(255,238,220,0.88)" : "#111111";
-  const userRole     = isNight ? "rgba(215,175,155,0.45)" : "#888";
-  const logoutStroke = isNight ? "rgba(215,175,155,0.35)" : "rgba(0,0,0,0.28)";
+  // Night — dark Barbie pink, same family as the rest of the site's night mode (not brown/sepia).
+  const sidebarBg    = isNight ? (isEvening ? "#33102A" : "#2B0A22") : "#FDFAF5";
+  const borderColor  = isNight ? "rgba(255,107,157,0.10)" : "rgba(0,0,0,0.07)";
+  const divider      = isNight ? "rgba(255,107,157,0.06)" : "rgba(0,0,0,0.05)";
+  const brandText    = isNight ? "rgba(255,235,245,0.95)" : "#111111";
+  const mutedText    = isNight ? "rgba(255,200,230,0.40)" : "rgba(0,0,0,0.3)";
+  const navInactive  = isNight ? "rgba(255,200,230,0.58)" : "rgba(0,0,0,0.45)";
+  const navNum       = isNight ? "rgba(255,200,230,0.30)" : "rgba(0,0,0,0.2)";
+  const tagline      = isNight ? "rgba(255,200,230,0.38)" : "rgba(0,0,0,0.22)";
+  const userText     = isNight ? "rgba(255,235,245,0.90)" : "#111111";
+  const userRole     = isNight ? "rgba(255,200,230,0.48)" : "#888";
+  const logoutStroke = isNight ? "rgba(255,200,230,0.35)" : "rgba(0,0,0,0.28)";
 
   return (
     <aside

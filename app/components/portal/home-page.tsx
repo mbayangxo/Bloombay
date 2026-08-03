@@ -19,19 +19,12 @@ import { ThisOrThatCard } from "./this-or-that-card";
 import { useTheme } from "@/lib/theme/theme-context";
 import { ThemeToggle } from "./theme-toggle";
 
-// ── Time-aware accent ──────────────────────────────────────────────────────────
-function getAccentColor() {
-  const h = new Date().getHours();
-  if (h >= 19 && h < 23) return "#D4336B";
-  if (h < 6 || h >= 23)  return "#A82050";
-  return "#FF1F7D";
-}
-function getBg() {
-  const h = new Date().getHours();
-  return (h >= 19 || h < 6) ? "#FFF0EE" : "#FFF5F7";
-}
-
 const MONTHS_S = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+// A dark accent-card tone in the same pink family as the shared night
+// palette (lib/theme/theme-context.tsx) — used for the few cards on this
+// page that are always dark (poster-style), day or night.
+const DARK_CARD = "#2B0A22";
 
 type Club = { id: string; name: string; slug: string; primary_color: string | null; cover_url: string | null; member_count?: number };
 type ClubBuzz = { id: string; club_name: string; club_color: string | null; media_type: "photo" | "voice_note"; public_url: string; caption: string | null; created_at: string };
@@ -88,8 +81,9 @@ function EditProfileSheet({ name, neighborhood, bio, onClose, onSave }: {
 
 // ── Club badge — circular enamel pin aesthetic ─────────────────────────────────
 function ClubBadge({ club, index }: { club: Club; index: number }) {
+  const { palette } = useTheme();
   const PINK = "#FF1F7D";
-  const colors = ["#FF1F7D","#D4336B","#1A0010","#8B2252","#C4005A","#FF5BAD"];
+  const colors = ["#FF1F7D","#D4336B","#2B0A22","#8B2252","#C4005A","#FF5BAD"];
   const bg = club.primary_color ?? colors[index % colors.length];
   const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -122,11 +116,11 @@ function ClubBadge({ club, index }: { club: Club; index: number }) {
         <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.25) 0%, transparent 55%)", pointerEvents: "none" }} />
       </div>
       <div style={{ textAlign: "center", maxWidth: 72 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em", color: "#1A0010", lineHeight: 1.3 }}>
+        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em", color: palette.textPrimary, lineHeight: 1.3 }}>
           {club.name.toUpperCase()}
         </p>
         {club.member_count && (
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: "rgba(0,0,0,0.35)", marginTop: 1 }}>{club.member_count} members</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", color: palette.textMuted, marginTop: 1 }}>{club.member_count} members</p>
         )}
       </div>
     </Link>
@@ -138,9 +132,8 @@ const DAY_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export function HomePage() {
-  const PINK = getAccentColor();
-  const BG   = getBg();
   const { palette, toggle, mode } = useTheme();
+  const PINK = palette.pink;
   const now   = new Date();
   const month = MONTHS_S[now.getMonth()];
   const day   = now.getDate();
@@ -256,6 +249,15 @@ export function HomePage() {
   const weekDays  = [1,2,3,4,5,6,0].map(d => DAY_SHORT[d]);
   const todayWeek = todayIdx === 0 ? 6 : todayIdx - 1; // Mon=0..Sun=6
 
+  // This calendar week's actual date range (Mon 00:00 through Sun 23:59) —
+  // without this, "YOUR WEEK" matched any event on a given weekday forever
+  // into the future, not just events actually happening this week.
+  const weekStart = new Date(now);
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(now.getDate() - todayWeek);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 7);
+
   // Stats from events
   const dinnerCount = events.filter(e => {
     const t = (e.event_type ?? "").toLowerCase() + e.title.toLowerCase();
@@ -300,7 +302,7 @@ export function HomePage() {
                   <span>{weather.temp}° · {weather.desc}</span>
                 </span>
               )}
-              {weather && <span style={{ color: "rgba(0,0,0,0.18)", fontSize: 10 }}>·</span>}
+              {weather && <span style={{ color: palette.textMuted, fontSize: 10 }}>·</span>}
               <span style={{ fontFamily: "var(--font-caveat)", fontSize: "12px", color: palette.textMuted, fontStyle: "italic" }}>
                 {events.length === 0
                   ? (tod === "night" ? "Easy evening 🌙" : "Slow day in the city")
@@ -321,7 +323,7 @@ export function HomePage() {
               ].map((s, i, arr) => (
                 <div key={s.label} style={{ flex: 1, textAlign: "center", padding: "10px 4px", borderRight: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none" }}>
                   <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: 24, color: PINK, lineHeight: 1 }}>{s.v}</p>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.1em", color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{s.label}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.1em", color: palette.textMuted, marginTop: 2 }}>{s.label}</p>
                 </div>
               ))}
             </div>
@@ -423,14 +425,14 @@ export function HomePage() {
         <div style={{ padding: "24px 16px 0" }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>UP NEXT</p>
-            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: palette.textMuted }}>SEE ALL →</Link>
           </div>
 
           {/* Two-column: dark moody card + TONIGHT ticket */}
           <div style={{ display: "flex", gap: 10 }}>
             {/* Main event card — dark */}
             <div
-              style={{ flex: 1, minWidth: 0, borderRadius: 20, overflow: "hidden", position: "relative", minHeight: 200, background: "#1A0010", boxShadow: "0 20px 52px rgba(0,0,0,0.38)", cursor: "pointer" }}
+              style={{ flex: 1, minWidth: 0, borderRadius: 20, overflow: "hidden", position: "relative", minHeight: 200, background: DARK_CARD, boxShadow: "0 20px 52px rgba(0,0,0,0.38)", cursor: "pointer" }}
               onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.tx = String(e.touches[0].clientX); }}
               onTouchEnd={e => {
                 const sx = Number((e.currentTarget as HTMLElement).dataset.tx ?? 0);
@@ -485,21 +487,23 @@ export function HomePage() {
       <div style={{ padding: "24px 16px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>YOUR WEEK</p>
-          <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>PLANS →</Link>
+          <Link href="/member/plans" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: palette.textMuted }}>PLANS →</Link>
         </div>
         <div style={{ background: palette.card, borderRadius: 20, padding: "14px 12px 16px", boxShadow: "0 6px 24px rgba(255,31,125,0.07), 0 2px 0 rgba(0,0,0,0.03)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
             {weekDays.map((d, i) => {
               const isToday = i === todayWeek;
-              // Find events on this day (simplified: distribute events across week)
+              // Events actually happening this calendar week, on this weekday
               const dayEvents = events.filter(ev => {
-                const evDay = new Date(ev.starts_at).getDay();
+                const start = new Date(ev.starts_at);
+                if (start < weekStart || start >= weekEnd) return false;
+                const evDay = start.getDay();
                 const mapped = evDay === 0 ? 6 : evDay - 1;
                 return mapped === i;
               });
               return (
                 <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em", color: isToday ? PINK : "rgba(0,0,0,0.3)" }}>{d}</p>
+                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.08em", color: isToday ? PINK : palette.textMuted }}>{d}</p>
                   <div style={{
                     width: 30, height: 30, borderRadius: isToday ? 10 : 8,
                     background: isToday ? PINK : dayEvents.length > 0 ? `${PINK}18` : "rgba(0,0,0,0.04)",
@@ -512,7 +516,7 @@ export function HomePage() {
                     )}
                   </div>
                   {dayEvents[0] && (
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: isToday ? PINK : "rgba(0,0,0,0.38)", textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", color: isToday ? PINK : palette.textMuted, textAlign: "center", lineHeight: 1.2, fontWeight: isToday ? 700 : 500, maxWidth: 36, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {dayEvents[0].title.split(" ")[0]}
                     </p>
                   )}
@@ -522,7 +526,7 @@ export function HomePage() {
           </div>
 
           <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.38)" }}>This week looks balanced ✦</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: palette.textMuted }}>This week looks balanced ✦</p>
             <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
               {["FRIENDS","CULTURE","YOU"].map(t => (
                 <div key={t} style={{ padding: "2px 7px", borderRadius: 999, background: `${PINK}12`, fontFamily: "var(--font-jost)", fontSize: "6.5px", fontWeight: 700, color: PINK, letterSpacing: "0.07em" }}>{t}</div>
@@ -537,9 +541,9 @@ export function HomePage() {
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
           <div>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>YOUR CLUBS</p>
-            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>{myClubs.length} joined</p>}
+            {myClubs.length > 0 && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: palette.textMuted, marginTop: 2 }}>{myClubs.length} joined</p>}
           </div>
-          <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+          <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: palette.textMuted }}>SEE ALL →</Link>
         </div>
 
         {!loading && myClubs.length === 0 ? (
@@ -566,9 +570,9 @@ export function HomePage() {
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
             <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>CLUBS BUZZ</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>latest from your clubs</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: palette.textMuted, marginTop: 2 }}>latest from your clubs</p>
             </div>
-            <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>CLUBS →</Link>
+            <Link href="/member/clubs" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: palette.textMuted }}>CLUBS →</Link>
           </div>
           <div className="bb-scroll-x" style={{ display: "flex", gap: 10, overflowX: "auto", padding: "4px 16px 20px" }}>
             {clubBuzz.map(item => (
@@ -609,9 +613,9 @@ export function HomePage() {
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "0 16px", marginBottom: 14 }}>
             <div>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 900, letterSpacing: "0.18em", color: palette.textPrimary }}>AROUND THE CITY</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "rgba(0,0,0,0.35)", marginTop: 2 }}>NYC</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: palette.textMuted, marginTop: 2 }}>NYC</p>
             </div>
-            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.35)" }}>SEE ALL →</Link>
+            <Link href="/member/happenings" style={{ textDecoration: "none", fontFamily: "var(--font-jost)", fontSize: "9px", color: palette.textMuted }}>SEE ALL →</Link>
           </div>
 
           {/* Each event renders as its matching physical object — no boxes */}
@@ -631,7 +635,7 @@ export function HomePage() {
       {recap && (
         <div style={{ margin: "8px 16px 0" }}>
           <div style={{
-            borderRadius: 20, background: "#1A0010",
+            borderRadius: 20, background: DARK_CARD,
             border: "1px solid rgba(255,31,125,0.15)",
             padding: "20px",
             boxShadow: "0 10px 36px rgba(0,0,0,0.22)",

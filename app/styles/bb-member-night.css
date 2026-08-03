@@ -8,27 +8,28 @@
 [data-theme="night"] {
   color-scheme: dark;
 
-  /* Dark rose night — same DNA as blush pink day, just deep */
-  --bb-page-bg: #1A0414;
-  --bb-page-bg-soft: #220618;
-  --bb-page-surface: #2A0A1C;
+  /* Dark Barbie pink night — same DNA as blush pink day, just deep and
+     easy on the eyes. Not wine/maroon/brown — stays in the pink family. */
+  --bb-page-bg: #2B0A22;
+  --bb-page-bg-soft: #33102A;
+  --bb-page-surface: #3D1230;
   --bb-page-ink: rgba(255,235,245,0.95);
   --bb-page-muted: rgba(255,200,230,0.52);
   --bb-page-accent: #FF1F7D;
-  --bb-page-accent-soft: #2A0A20;
+  --bb-page-accent-soft: #3D1230;
   --bb-page-rose: #FF69B4;
 
-  --bb-satin: linear-gradient(165deg, #220618 0%, #1A0414 50%, #120210 100%);
+  --bb-satin: linear-gradient(165deg, #33102A 0%, #2B0A22 50%, #200719 100%);
   --bb-glass: rgba(26, 4, 20, 0.88);
   --bb-glass-border: rgba(255, 31, 125, 0.20);
   --bb-glass-blur: blur(12px);
   --bb-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.4);
   --bb-shadow-lift: 0 10px 32px rgba(0, 0, 0, 0.5);
 
-  --mp-barbie-soft: #1B1108;
-  --mp-white: #221508;
-  --mp-ink: rgba(255,240,218,0.95);
-  --mp-muted: rgba(255,220,190,0.52);
+  --mp-barbie-soft: #33102A;
+  --mp-white: #3D1230;
+  --mp-ink: rgba(255,235,245,0.95);
+  --mp-muted: rgba(255,200,230,0.52);
   --mp-line: rgba(255, 77, 148, 0.2);
   --mp-hot: #FF4D94;
   --bb-hot: #FF4D94;
@@ -36,7 +37,7 @@
 }
 
 .mp-app[data-mp-theme="night"] .mp-header {
-  background: #14080c;
+  background: #200719;
   border-bottom-color: rgba(255, 107, 157, 0.22);
 }
 
@@ -107,7 +108,7 @@
 }
 
 .mp-app[data-mp-theme="night"] .bb-connect-girlmates {
-  background: linear-gradient(165deg, #221018 0%, #181018 100%);
+  background: linear-gradient(165deg, #3D1230 0%, #33102A 100%);
   border-color: rgba(255, 107, 157, 0.2);
 }
 
@@ -156,7 +157,7 @@
 }
 
 .mp-app[data-mp-theme="night"] .mp-happenings-cover .bb-place-cover__sheet {
-  background: linear-gradient(165deg, #221018 0%, #181018 55%, #14080c 100%) !important;
+  background: linear-gradient(165deg, #3D1230 0%, #33102A 55%, #200719 100%) !important;
 }
 
 .mp-app[data-mp-theme="night"] .bb-connect-moment {

@@ -97,9 +97,9 @@
 
 /* ── Night mode overrides ── */
 [data-theme="night"] {
-  --bb-page-bg:         #1A0414;                /* deep dark rose */
-  --bb-page-card:       #260A1C;
-  --bb-page-card-up:    #320C24;
+  --bb-page-bg:         #2B0A22;                /* dark Barbie pink — not wine/maroon/brown */
+  --bb-page-card:       #3A0F2E;
+  --bb-page-card-up:    #451638;
   --bb-page-text:       rgba(255,235,245,0.95);
   --bb-page-text-2:     rgba(255,200,230,0.70);
   --bb-page-text-muted: rgba(255,180,215,0.42);

@@ -32,9 +32,9 @@ const DAY: ThemePalette = {
 };
 
 const NIGHT: ThemePalette = {
-  pageBg:        "#1A0414",                   // deep dark rose — same DNA, just dark
-  card:          "#260A1C",
-  cardElevated:  "#320C24",
+  pageBg:        "#2B0A22",                   // dark Barbie pink — same hue family as day, just dimmed for the eyes at night (not wine/maroon/brown)
+  card:          "#3A0F2E",
+  cardElevated:  "#451638",
   textPrimary:   "rgba(255,235,245,0.95)",
   textSecondary: "rgba(255,200,230,0.70)",
   textMuted:     "rgba(255,180,215,0.42)",

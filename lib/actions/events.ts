@@ -26,6 +26,13 @@ export interface Event {
   badge: string | null;
 }
 
+// Demo/seed rows inserted by supabase/migrations/003_irl_core.sql for local
+// dev — never meant to reach a real member's feed. event_type was added as
+// a nullable column later with no backfill, so these are normally excluded
+// by the event_type filter below already; this is defense-in-depth in case
+// event_type ever gets set on them (host-dashboard edit, re-seed, etc).
+const DEMO_GATHERING_SLUGS = ["sant-ambroeus-soho", "cafe-lume-williamsburg", "loft-house-brooklyn"];
+
 export async function getEvents(): Promise<Event[]> {
   const supabase = await createClient();
 
@@ -33,6 +40,7 @@ export async function getEvents(): Promise<Event[]> {
     .from("gatherings")
     .select("*")
     .not("event_type", "is", null)
+    .not("slug", "in", `(${DEMO_GATHERING_SLUGS.join(",")})`)
     .order("starts_at", { ascending: true });
 
   if (error) {

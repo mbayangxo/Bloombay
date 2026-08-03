@@ -9,7 +9,7 @@
  *  Night: deep dark rose — easy on the eyes, same DNA  */
 export const PAGE_BG      = "#FFF0F6";    // soft baby-pink blush — day pages
 export const PAGE_CARD    = "#FFFFFF";    // white cards on the blush
-export const PAGE_BG_DARK = "#1A0414";   // deep dark rose — night pages
+export const PAGE_BG_DARK = "#2B0A22";   // dark Barbie pink — night pages (not wine/maroon/brown)
 
 /** Brand colours */
 export const PINK        = "#FF1F7D";   // hot pink — energy / primary actions
