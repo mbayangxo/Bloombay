@@ -2,6 +2,10 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getBoardPosts, type BoardPost } from "@/lib/actions/board";
+import { sendInvitation } from "@/lib/actions/invitations";
+import { startConversation } from "@/lib/actions/direct-messages";
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const PINK = "#FF1F7D";
@@ -41,15 +45,51 @@ type Tab = "about" | "board";
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
+  const router = useRouter();
   const [profile, setProfile] = useState<DBProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("about");
+  const [board, setBoard] = useState<BoardPost[]>([]);
+  const [boardLoaded, setBoardLoaded] = useState(false);
+  const [messaging, setMessaging] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteSubject, setInviteSubject] = useState("");
+  const [inviteBody, setInviteBody] = useState("");
+  const [inviteSending, setInviteSending] = useState(false);
+  const [inviteSent, setInviteSent] = useState(false);
 
   useEffect(() => {
     fetch(`/api/member/profile/${username}`)
       .then(r => r.ok ? r.json() : null)
       .then((data: DBProfile | null) => { setProfile(data); setLoading(false); });
   }, [username]);
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    getBoardPosts(profile.id).then(p => { setBoard(p); setBoardLoaded(true); }).catch(() => setBoardLoaded(true));
+  }, [profile?.id]);
+
+  async function handleMessage() {
+    if (!profile?.id) return;
+    setMessaging(true);
+    try {
+      await startConversation(profile.id);
+      router.push("/member/chat");
+    } finally {
+      setMessaging(false);
+    }
+  }
+
+  async function handleSendInvite() {
+    if (!profile?.id || !inviteSubject.trim()) return;
+    setInviteSending(true);
+    const { ok } = await sendInvitation(profile.id, inviteSubject, inviteBody);
+    setInviteSending(false);
+    if (ok) {
+      setInviteSent(true);
+      setTimeout(() => { setInviteSent(false); setShowInvite(false); setInviteSubject(""); setInviteBody(""); }, 1600);
+    }
+  }
 
   const name = profile?.name ?? username.charAt(0).toUpperCase() + username.slice(1);
   const initial = name.charAt(0).toUpperCase();
@@ -184,6 +224,57 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             ))}
           </div>
         )}
+
+        {/* Message / Invite */}
+        {profile?.id && (
+          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+            <button onClick={handleMessage} disabled={messaging} style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              background: PINK, border: "none", borderRadius: 999, padding: "11px 0",
+              cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800,
+              letterSpacing: "0.06em", color: "white", opacity: messaging ? 0.6 : 1,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              Message
+            </button>
+            <button onClick={() => setShowInvite(v => !v)} style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "11px 0",
+              cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800,
+              letterSpacing: "0.06em", color: "white",
+            }}>
+              <span style={{ fontSize: 13 }}>✦</span>
+              Invite
+            </button>
+          </div>
+        )}
+
+        {showInvite && (
+          <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: 14, marginBottom: 20 }}>
+            <input
+              value={inviteSubject}
+              onChange={e => setInviteSubject(e.target.value)}
+              placeholder="Invite her to… (e.g. brunch Saturday)"
+              style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", marginBottom: 8, boxSizing: "border-box" as const, outline: "none" }}
+            />
+            <textarea
+              value={inviteBody}
+              onChange={e => setInviteBody(e.target.value)}
+              placeholder="Add a note (optional)"
+              rows={2}
+              style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", resize: "none" as const, boxSizing: "border-box" as const, outline: "none", marginBottom: 8 }}
+            />
+            <button
+              onClick={handleSendInvite}
+              disabled={!inviteSubject.trim() || inviteSending}
+              style={{
+                width: "100%", padding: "10px", borderRadius: 10, border: "none",
+                background: PINK, color: "white", fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 800,
+                letterSpacing: "0.06em", cursor: "pointer", opacity: (!inviteSubject.trim() || inviteSending) ? 0.5 : 1,
+              }}
+            >{inviteSent ? "Sent to her mailbox ✓" : inviteSending ? "Sending…" : "Send invitation"}</button>
+          </div>
+        )}
       </div>
 
       {/* ── ABOUT / BOARD TOGGLE ─────────────────────────────────────────────── */}
@@ -251,10 +342,36 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         {/* ── BOARD TAB ─────────────────────────────────────────────────────── */}
         {tab === "board" && (
           <div>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 14 }}>HER BOARD · PHOTOS · QUOTES · VOICE NOTES</p>
-            <div style={{ textAlign: "center" as const, padding: "48px 20px" }}>
-              <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, color: "rgba(255,255,255,0.2)" }}>Nothing here yet.</p>
-            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.28)", marginBottom: 14 }}>HER BOARD · PHOTOS · LINKS · VOICE NOTES</p>
+            {!boardLoaded ? (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(255,255,255,0.3)", textAlign: "center" as const, padding: "32px 0" }}>Loading…</p>
+            ) : board.length === 0 ? (
+              <div style={{ textAlign: "center" as const, padding: "48px 20px" }}>
+                <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontSize: 20, color: "rgba(255,255,255,0.2)" }}>Nothing here yet.</p>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+                {board.map(p => (
+                  <div key={p.id} style={{ backgroundImage: DARK_GRAIN, backgroundSize: "160px 160px", backgroundColor: "#130810", borderRadius: 14, padding: "13px 16px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    {p.kind === "photo" && p.image_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.image_url} alt="" style={{ width: "100%", maxHeight: 260, objectFit: "cover", borderRadius: 10, marginBottom: p.body ? 8 : 0 }} />
+                    )}
+                    {p.kind === "voice" && p.voice_url && (
+                      <audio controls src={p.voice_url} style={{ width: "100%", marginBottom: 4 }} />
+                    )}
+                    {p.kind === "link" && p.link_url && (
+                      <a href={p.link_url} target="_blank" rel="noopener noreferrer" style={{ display: "block", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: PINK, marginBottom: p.body ? 6 : 2, wordBreak: "break-all" as const }}>
+                        🔗 {p.link_url}
+                      </a>
+                    )}
+                    {p.body && (
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: 13, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>{p.body}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { markInvitationRead } from "@/lib/actions/invitations";
 
 const PINK = "#FF1F7D";
 const GOLD = "#D4A853";
@@ -640,16 +641,22 @@ function MailboxInner() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from("yande_messages")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(20);
+      const [{ data, error }, { data: invites, error: inviteError }] = await Promise.all([
+        supabase
+          .from("yande_messages")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20),
+        supabase
+          .from("member_invitations")
+          .select("id, subject, body, is_read, created_at, profiles!member_invitations_from_user_id_fkey ( first_name, full_name )")
+          .eq("to_user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20),
+      ]);
 
-      if (error || !data) return;
-
-      const dbItems: MailboxItem[] = data.map((row) => ({
+      const dbItems: MailboxItem[] = error || !data ? [] : data.map((row) => ({
         id: row.id as string,
         type: row.message_type === "introduction" ? "invitation" : "letter",
         from: "Yande",
@@ -662,13 +669,35 @@ function MailboxInner() {
         opened: row.is_read ?? false,
       }));
 
+      type InviteRow = {
+        id: string; subject: string; body: string | null; is_read: boolean; created_at: string;
+        profiles: { first_name: string | null; full_name: string | null } | null;
+      };
+      const inviteItems: MailboxItem[] = inviteError || !invites ? [] : (invites as unknown as InviteRow[]).map((row) => {
+        const senderName = row.profiles?.first_name || row.profiles?.full_name?.split(" ")[0] || "A Bloomie";
+        return {
+          id: `inv-${row.id}`,
+          type: "invitation" as const,
+          from: senderName,
+          initial: senderName[0]?.toUpperCase() ?? "B",
+          color: PINK,
+          subject: row.subject,
+          preview: (row.body ?? "").slice(0, 100),
+          body: row.body ?? undefined,
+          date: formatMessageDate(row.created_at),
+          opened: row.is_read,
+        };
+      });
+
+      const merged = [...dbItems, ...inviteItems];
+
       // Mark already-read DB messages in openedItems
-      const readIds = dbItems.filter(i => i.opened).map(i => i.id);
+      const readIds = merged.filter(i => i.opened).map(i => i.id);
       if (readIds.length > 0) {
         setOpenedItems(prev => new Set([...prev, ...readIds]));
       }
 
-      setAllItems(dbItems);
+      setAllItems(merged);
     }
 
     loadMessages();
@@ -680,7 +709,9 @@ function MailboxInner() {
     setSection("letter");
 
     // Mark read in DB if this is a real DB message (string id)
-    if (typeof item.id === "string") {
+    if (typeof item.id === "string" && item.id.startsWith("inv-")) {
+      await markInvitationRead(item.id.slice(4));
+    } else if (typeof item.id === "string") {
       const supabase = createClient();
       await supabase
         .from("yande_messages")
