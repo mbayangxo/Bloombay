@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { reviewPendingReports } from "@/lib/yande/safety";
+import { reviewPendingReports, checkOverdueSafeCheckins } from "@/lib/yande/safety";
 
 export async function GET(req: NextRequest) {
   // Vercel Cron sends GET with `Authorization: Bearer <CRON_SECRET>`.
@@ -10,6 +10,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = await reviewPendingReports();
-  return NextResponse.json({ ok: true, ...result });
+  const [reports, checkins] = await Promise.all([
+    reviewPendingReports(),
+    checkOverdueSafeCheckins(),
+  ]);
+  return NextResponse.json({ ok: true, ...reports, overdueCheckinsPinged: checkins.pinged });
 }

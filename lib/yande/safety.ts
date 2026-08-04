@@ -100,6 +100,50 @@ Be objective. BloomBay is a women-only community — safety is the top priority.
   return { reviewed, escalated };
 }
 
+// Real enforcement for Safe Check-In: if a member's timer expired and she
+// never marked herself safe, quietly ping her bouquet — same mechanism as
+// the manual "Ping my bouquet" button.
+export async function checkOverdueSafeCheckins(): Promise<{ pinged: number }> {
+  const supabase = admin();
+  const { data: overdue } = await supabase
+    .from("safe_checkins")
+    .select("id, user_id, event_name")
+    .is("resolved_at", null)
+    .eq("overdue_pinged", false)
+    .lt("expires_at", new Date().toISOString())
+    .limit(50);
+
+  if (!overdue?.length) return { pinged: 0 };
+
+  let pinged = 0;
+  for (const checkin of overdue) {
+    try {
+      const { data: bouquet } = await supabase
+        .from("bloom_bouquet")
+        .select("member_id")
+        .eq("owner_id", checkin.user_id);
+
+      const memberIds = (bouquet ?? []).map((b) => (b as { member_id: string }).member_id);
+      if (memberIds.length > 0) {
+        await supabase.from("safety_pings").insert(
+          memberIds.map((recipientId) => ({
+            sender_id: checkin.user_id,
+            recipient_id: recipientId,
+            status: "sent" as const,
+            event_name: checkin.event_name ?? "her safe check-in window",
+          }))
+        );
+        pinged += memberIds.length;
+      }
+      await supabase.from("safe_checkins").update({ overdue_pinged: true }).eq("id", checkin.id);
+    } catch {
+      // skip individual failures, keep sweeping the rest
+    }
+  }
+
+  return { pinged };
+}
+
 export async function deactivateForSafety(userId: string, reason: string): Promise<{ ok: boolean }> {
   // HIGH RISK — logs as pending_approval; a human must approve in the admin panel
   const action = await logAction({

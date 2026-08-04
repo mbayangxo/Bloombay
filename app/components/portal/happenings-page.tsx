@@ -173,25 +173,25 @@ const CSS = `
   .happenings-fixed-nav { top: 0; }
 }
 .happenings-page-content {
-  padding-top: calc(54px + env(safe-area-inset-top, 0px) + 50px);
+  padding-top: calc(54px + env(safe-area-inset-top, 0px) + 86px);
 }
 @media (min-width: 768px) {
-  .happenings-page-content { padding-top: 110px; }
+  .happenings-page-content { padding-top: 146px; }
 }
 @media (min-width: 1024px) {
-  .happenings-page-content { padding-top: 50px; }
+  .happenings-page-content { padding-top: 86px; }
 }
 .happenings-page-content--search {
-  padding-top: calc(54px + env(safe-area-inset-top, 0px) + 104px);
+  padding-top: calc(54px + env(safe-area-inset-top, 0px) + 140px);
 }
 @media (min-width: 768px) {
-  .happenings-page-content--search { padding-top: 164px; }
+  .happenings-page-content--search { padding-top: 200px; }
 }
 @media (min-width: 1024px) {
-  .happenings-page-content--search { padding-top: 104px; }
+  .happenings-page-content--search { padding-top: 140px; }
 }
 .happenings-filter-pill {
-  top: calc(54px + env(safe-area-inset-top, 0px) + 60px);
+  top: calc(54px + env(safe-area-inset-top, 0px) + 96px);
 }
 @media (min-width: 768px) {
   .happenings-filter-pill { top: 120px; }
@@ -1496,15 +1496,6 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
                 {label}
               </button>
             ))}
-            {/* City — goes straight to the real City Guide, not an in-page tab */}
-            <Link href="/member/city" style={{
-              padding: "5px 10px", borderRadius: 999,
-              color: "rgba(255,255,255,0.85)",
-              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
-              letterSpacing: "0.06em", textDecoration: "none",
-            }}>
-              City
-            </Link>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <a
@@ -1533,6 +1524,19 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
             </svg>
           </button>
           </div>
+        </div>
+
+        {/* Row 2: City guide — its own row below the tab pills, not squeezed into them */}
+        <div style={{ padding: "0 14px 10px" }}>
+          <Link href="/member/city" style={{
+            display: "inline-flex", alignItems: "center", gap: 5,
+            padding: "5px 12px", borderRadius: 999,
+            background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.85)",
+            fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800,
+            letterSpacing: "0.06em", textDecoration: "none",
+          }}>
+            📍 City Guide
+          </Link>
         </div>
       </div>}
 
@@ -1568,8 +1572,8 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
 
       {/* ── Collapsible search bar ── */}
       {standalone && searchOpen && (
-        <div className="md:top-[110px] lg:top-[50px] lg:left-60 lg:right-[280px]" style={{
-          position: "fixed", top: 50, left: 0, right: 0, zIndex: 50,
+        <div className="md:top-[146px] lg:top-[86px] lg:left-60 lg:right-[280px]" style={{
+          position: "fixed", top: 86, left: 0, right: 0, zIndex: 50,
           background: getNavBg(), backdropFilter: "blur(20px)",
           padding: "10px 14px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.1)",

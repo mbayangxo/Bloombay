@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/auth/actions";
 import { getTimeOfDay, getGreeting, type TimeOfDay } from "./time-wrapper";
 import { thumbUrl } from "@/lib/images/supabase-transform";
-import { BloomSafetyButton, BloomSafetySheet } from "./bloom-safety";
 import { HostDashCard } from "./host-dash-card";
 import { HostRecapCard } from "./host-recap-card";
 import { getEvents, type Event } from "@/lib/actions/events";
@@ -145,7 +144,6 @@ export function HomePage() {
   const [myClubs,               setMyClubs]               = useState<Club[]>([]);
   const [clubBuzz,              setClubBuzz]              = useState<ClubBuzz[]>([]);
   const [loading,               setLoading]               = useState(true);
-  const [showSafety,            setShowSafety]            = useState(false);
   const [showEdit,              setShowEdit]              = useState(false);
   const [upNextIdx,             setUpNextIdx]             = useState(0);
   const [events,                setEvents]                = useState<Event[]>([]);
@@ -657,8 +655,6 @@ export function HomePage() {
         </div>
       )}
 
-      {/* Safety */}
-      {showSafety && <BloomSafetySheet onClose={() => setShowSafety(false)} />}
       {showEdit && (
         <EditProfileSheet
           name={firstName} neighborhood={neighborhood} bio={bio}
@@ -666,7 +662,6 @@ export function HomePage() {
           onSave={(n, nb, b) => { setFirstName(n); setNeighborhood(nb); setBio(b); }}
         />
       )}
-      <BloomSafetyButton onOpen={() => setShowSafety(true)} />
     </div>
   );
 }

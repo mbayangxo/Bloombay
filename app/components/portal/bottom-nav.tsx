@@ -122,11 +122,25 @@ function IconHappenings({ c, w = 2 }: SVGProps) {
 
 // ── Top bar icons ─────────────────────────────────────────────────────────────
 function IconApt({ c }: SVGProps) {
+  // The Apartment — a couch, not a house front door.
   return (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="2" y1="21" x2="22" y2="21"/>
-      <path d="M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15"/>
-      <circle cx="14.5" cy="13" r="0.7" fill={c} stroke="none"/>
+      <path d="M6 11V8.5A1.5 1.5 0 0 1 7.5 7h9A1.5 1.5 0 0 1 18 8.5V11"/>
+      <path d="M4 11.5A1.5 1.5 0 0 1 5.5 10h13a1.5 1.5 0 0 1 1.5 1.5V15H4v-3.5z"/>
+      <path d="M3 15v2.5A1.5 1.5 0 0 0 4.5 19h15a1.5 1.5 0 0 0 1.5-1.5V15"/>
+      <line x1="5" y1="19" x2="5" y2="21"/>
+      <line x1="19" y1="19" x2="19" y2="21"/>
+    </svg>
+  );
+}
+function IconShield({ c }: SVGProps) {
+  // Bloom Shield — five petal arcs form a shield silhouette (matches bloom-safety.tsx).
+  return (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+      <path d="M12 3 C9 3 5 5 4 8 C3 11 4 15 6 17.5 C8 20 10.5 21.5 12 22 C13.5 21.5 16 20 18 17.5 C20 15 21 11 20 8 C19 5 15 3 12 3Z" fill={c} opacity="0.15"/>
+      <path d="M12 3 C9 3 5 5 4 8 C3 11 4 15 6 17.5 C8 20 10.5 21.5 12 22" stroke={c} strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M12 3 C15 3 19 5 20 8 C21 11 20 15 18 17.5 C16 20 13.5 21.5 12 22" stroke={c} strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M9 12l2 2 4-4" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -298,16 +312,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
             <BBLogo size={26} pinkColor={PINK} />
           </Link>
           {!hideTopBarActions && (
-            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <TopTile href="/member/apartment" label="Apartment">
-                <IconApt c={isDarkPage ? "white" : PINK} />
-              </TopTile>
-              <TopTile href="/member/pin-drops" label="Pin Drops">
-                <IconPin c={isDarkPage ? "white" : PINK} />
-              </TopTile>
-              <TopTile href="/member/messages" label="Mailbox">
-                <IconMail c={isDarkPage ? "white" : PINK} />
-              </TopTile>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <TopTile href="/member/chat" label="Chat" showDot={chatUnread}>
                 {chatUnread ? (
                   <span style={{ animation: "pinkPulse 2s ease-in-out infinite" }}>
@@ -316,6 +321,18 @@ export function BottomNav({ user }: { user?: NavUser }) {
                 ) : (
                   <IconChatBubble c={isDarkPage ? "white" : PINK} />
                 )}
+              </TopTile>
+              <TopTile href="/member/messages" label="Mailbox">
+                <IconMail c={isDarkPage ? "white" : PINK} />
+              </TopTile>
+              <TopTile href="/member/pin-drops" label="Pin Drops">
+                <IconPin c={isDarkPage ? "white" : PINK} />
+              </TopTile>
+              <TopTile href="/member/apartment" label="Apartment">
+                <IconApt c={isDarkPage ? "white" : PINK} />
+              </TopTile>
+              <TopTile href="/member/safety" label="Girl Shield">
+                <IconShield c={isDarkPage ? "white" : PINK} />
               </TopTile>
             </div>
           )}
@@ -332,9 +349,27 @@ export function BottomNav({ user }: { user?: NavUser }) {
           bottom: 0, left: 0, right: 0,
           height: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
           pointerEvents: "none",
-          // zero background — the stem IS the navigation
         }}
       >
+        {/* ─ Backing bar — the stem used to float with zero background, which
+            washed out against busy/colored page content. A solid blurred
+            capsule behind it makes the whole nav pop regardless of what's
+            scrolling underneath. ─ */}
+        <div style={{
+          position: "absolute",
+          left: 8, right: 8,
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 4px)",
+          height: 68,
+          borderRadius: 30,
+          background: isDarkPage ? "rgba(18,4,16,0.90)" : "rgba(253,251,247,0.96)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: `1px solid ${isDarkPage ? "rgba(255,107,157,0.18)" : "rgba(255,31,125,0.10)"}`,
+          boxShadow: isDarkPage
+            ? "0 8px 28px rgba(0,0,0,0.5)"
+            : "0 8px 28px rgba(255,31,125,0.16), 0 2px 8px rgba(0,0,0,0.06)",
+        }} />
+
         {/* ─ Organic wavy stem (SVG path, not a div line) ─ */}
         <svg
           style={{
