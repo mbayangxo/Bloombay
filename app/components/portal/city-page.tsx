@@ -903,6 +903,7 @@ interface EatsPartner {
   rating: string;
   priceRange: string;
   heroColor: string;
+  coverUrl: string | null;
   accentColor: string;
   textColor: string;
   menuHighlights: { item: string; price: string; note?: string }[];
@@ -963,6 +964,7 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
     rating: r.bloom_rating ? String(r.bloom_rating.toFixed(1)) : "—",
     priceRange: r.price_range ?? "$",
     heroColor,
+    coverUrl: r.cover_url ?? r.photo_urls?.[0] ?? null,
     accentColor: heroColor,
     textColor: "#FFF",
     menuHighlights: (r.girl_favorites ?? []).slice(0, 3).map(g => ({ item: g.item, price: "" })),
@@ -1045,8 +1047,8 @@ function EatsPage({ onBack }: { onBack: () => void }) {
         {allPartners.length > 0 ? (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
             {/* Big left card */}
-            <div onClick={() => setProfileId(allPartners[0].id)} style={{ gridRow: "span 2", backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: allPartners[0].heroColor, borderRadius: 18, minHeight: 252, position: "relative", overflow: "hidden", boxShadow: "0 6px 24px rgba(200,80,30,0.25)", cursor: "pointer" }}>
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 30%, rgba(255,180,100,0.3) 0%, transparent 70%)" }}/>
+            <div onClick={() => setProfileId(allPartners[0].id)} style={{ gridRow: "span 2", backgroundImage: allPartners[0].coverUrl ? `url(${allPartners[0].coverUrl})` : PAPER_TEX, backgroundSize: allPartners[0].coverUrl ? "cover" : "200px 200px", backgroundPosition: "center", backgroundColor: allPartners[0].heroColor, borderRadius: 18, minHeight: 252, position: "relative", overflow: "hidden", boxShadow: "0 6px 24px rgba(200,80,30,0.25)", cursor: "pointer" }}>
+              {!allPartners[0].coverUrl && <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 40% 30%, rgba(255,180,100,0.3) 0%, transparent 70%)" }}/>}
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.6) 100%)" }}/>
               <div style={{ position: "absolute", top: 13, right: 11, background: "rgba(255,255,255,0.22)", borderRadius: 999, padding: "3px 8px" }}>
                 <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white" }}>{allPartners[0].saves} saved</span>
@@ -1058,7 +1060,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             </div>
             {/* Top-right */}
             {allPartners[1] && (
-              <div onClick={() => setProfileId(allPartners[1].id)} style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: allPartners[1].heroColor, borderRadius: 18, minHeight: 118, position: "relative", overflow: "hidden", boxShadow: "0 4px 16px rgba(200,80,30,0.18)", cursor: "pointer" }}>
+              <div onClick={() => setProfileId(allPartners[1].id)} style={{ backgroundImage: allPartners[1].coverUrl ? `url(${allPartners[1].coverUrl})` : PAPER_TEX, backgroundSize: allPartners[1].coverUrl ? "cover" : "200px 200px", backgroundPosition: "center", backgroundColor: allPartners[1].heroColor, borderRadius: 18, minHeight: 118, position: "relative", overflow: "hidden", boxShadow: "0 4px 16px rgba(200,80,30,0.18)", cursor: "pointer" }}>
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%)" }}/>
                 <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
                   <p style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.1 }}>{allPartners[1].name}</p>
@@ -1637,18 +1639,22 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
 // ═══════════════════════════════════════════════════════════════════════════════
 // SOLO PAGE  —  morning light, sage & linen, introspective
 // ═══════════════════════════════════════════════════════════════════════════════
-const SOLO_MOODS = ["Quiet", "Creative", "Mindful", "Wandering", "Indulgent"];
-const SOLO_ACTIVITIES = [
-  { id: 1, name: "MoMA Galleries",      type: "ART",        time: "90 min",   note: "Get there at 10am — entire floor to yourself", accent: "#B0CCE8", bg: "#EDF2FA" },
-  { id: 2, name: "The Strand",          type: "BOOKS",      time: "open-ended", note: "Rare books room on the third floor is magic",  accent: "#C9A882", bg: "#FAF2E8" },
-  { id: 3, name: "Central Park Loop",   type: "WALK",       time: "45 min",   note: "Reservoir track at golden hour",                accent: "#9AC98A", bg: "#EDF5EC" },
-  { id: 4, name: "Café Kitsuné",        type: "COFFEE",     time: "∞",        note: "Matcha latte + journal, always a good idea",    accent: "#E8A0B0", bg: "#FAF0F2" },
-  { id: 5, name: "Glossier Flagship",   type: "SELF-CARE",  time: "30 min",   note: "Actually try everything before you commit",     accent: "#F4C0D0", bg: "#FEF4F6" },
-  { id: 6, name: "Jane's Carousel",     type: "DREAMY",     time: "20 min",   note: "Brooklyn Bridge views from the glass pavilion", accent: "#B8C8E8", bg: "#F2F5FD" },
-];
-
 function SoloPage({ onBack }: { onBack: () => void }) {
-  const [mood, setMood] = useState("Quiet");
+  const [items, setItems] = useState<TrendingItem[] | null>(null); // null = loading
+  const [mood, setMood] = useState("All");
+
+  useEffect(() => {
+    createClient()
+      .from("city_trending")
+      .select("id,name,category,description,neighborhood,badge,image_url,save_count")
+      .eq("status", "approved")
+      .order("rank_order", { ascending: true })
+      .limit(30)
+      .then(({ data }) => setItems((data as TrendingItem[] | null) ?? []));
+  }, []);
+
+  const moods = ["All", ...Array.from(new Set((items ?? []).map(i => i.category)))];
+  const shown = (items ?? []).filter(i => mood === "All" || i.category === mood);
 
   return (
     <div style={{
@@ -1681,75 +1687,68 @@ function SoloPage({ onBack }: { onBack: () => void }) {
       </div>
 
       <div style={{ padding: "16px 16px 0" }}>
-        {/* Mood chips */}
+        {/* Mood chips — real categories from what's actually approved */}
         <div style={{ marginBottom: 18 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#9A7A6A", marginBottom: 8 }}>WHAT MOOD ARE YOU IN?</p>
           <div style={{ display: "flex", gap: 7, flexWrap: "wrap" as const }}>
-            {SOLO_MOODS.map(m => (
+            {moods.map(m => (
               <button key={m} onClick={() => setMood(m)} style={{
                 padding: "6px 14px", borderRadius: 999,
                 border: `1.5px solid ${mood === m ? "#7A9A6C" : "rgba(120,90,80,0.2)"}`,
                 background: mood === m ? "#7A9A6C" : "transparent",
                 color: mood === m ? "white" : "#8A6A5A",
                 fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700,
-                letterSpacing: "0.05em", cursor: "pointer",
+                letterSpacing: "0.05em", cursor: "pointer", textTransform: "capitalize" as const,
               }}>{m}</button>
             ))}
           </div>
         </div>
 
-        {/* Activity cards */}
+        {/* Activity cards — real city_trending picks, curated via the city-intelligence cron */}
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#9A7A6A", marginBottom: 10 }}>MADE FOR SOLO TIME</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-          {SOLO_ACTIVITIES.map((act, i) => (
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, marginBottom: 16 }}>
+          {items === null ? (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#9A8A7A", textAlign: "center" as const, padding: "20px 0" }}>Loading…</p>
+          ) : shown.length === 0 ? (
+            <div style={{ textAlign: "center" as const, padding: "32px 20px", color: "#9A8A7A" }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>Nothing here yet</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>CHECK BACK SOON</p>
+            </div>
+          ) : shown.map((act, i) => (
             <div key={act.id} style={{
-              backgroundImage: `${PAPER_TEX}, ${LINEN_TEX}`,
+              backgroundImage: act.image_url ? undefined : `${PAPER_TEX}, ${LINEN_TEX}`,
               backgroundSize: "200px 200px, 80px 80px",
-              backgroundColor: act.bg,
+              backgroundColor: "#F4EFE4",
               borderRadius: 18, overflow: "hidden",
               boxShadow: "0 3px 16px rgba(80,60,40,0.1), inset 0 1px 0 rgba(255,255,255,0.85)",
               display: "flex", gap: 0,
               animation: `soloFade 0.5s ease-out both`,
               animationDelay: `${i * 0.07}s`,
             }}>
-              {/* Accent bar */}
-              <div style={{ width: 5, flexShrink: 0, background: `linear-gradient(180deg, ${act.accent}, ${act.accent}66)` }}/>
+              {act.image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={act.image_url} alt="" style={{ width: 84, flexShrink: 0, objectFit: "cover" }} />
+              )}
+              {!act.image_url && <div style={{ width: 5, flexShrink: 0, background: "linear-gradient(180deg, #B0CCE8, #B0CCE866)" }}/>}
               <div style={{ flex: 1, padding: "14px 14px 12px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
                   <div>
-                    <div style={{ display: "inline-flex", background: `${act.accent}44`, borderRadius: 999, padding: "2px 8px", marginBottom: 5 }}>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#4A3A2A", letterSpacing: "0.1em" }}>{act.type}</span>
+                    <div style={{ display: "inline-flex", background: "rgba(122,154,108,0.2)", borderRadius: 999, padding: "2px 8px", marginBottom: 5 }}>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "#4A3A2A", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>{act.category}</span>
                     </div>
                     <p style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, fontStyle: "italic", color: "#2A1A10", lineHeight: 1.1 }}>{act.name}</p>
                   </div>
-                  <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 8, padding: "4px 8px", marginLeft: 8, flexShrink: 0 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "#6A5A4A", letterSpacing: "0.04em" }}>{act.time}</p>
-                  </div>
+                  {act.badge && (
+                    <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 8, padding: "4px 8px", marginLeft: 8, flexShrink: 0 }}>
+                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 700, color: "#6A5A4A", letterSpacing: "0.04em" }}>{act.badge}</p>
+                    </div>
+                  )}
                 </div>
-                <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12.5, color: "#6A5A4A", lineHeight: 1.4, opacity: 0.9 }}>"{act.note}"</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, color: "#9A8A7A", letterSpacing: "0.04em", marginBottom: act.description ? 4 : 0 }}>{act.neighborhood ?? "NYC"}</p>
+                {act.description && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12.5, color: "#6A5A4A", lineHeight: 1.4, opacity: 0.9 }}>&quot;{act.description}&quot;</p>}
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Solo editorial card */}
-        <div style={{
-          backgroundImage: `${DARK_GRAIN}, linear-gradient(135deg, #1C2814 0%, #283820 60%, #1A2610 100%)`,
-          backgroundSize: "160px 160px, 100% 100%",
-          borderRadius: 18, padding: "22px 20px", marginBottom: 14,
-          boxShadow: "0 8px 32px rgba(30,40,20,0.35)",
-        }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.2em", color: "#A8C97A", marginBottom: 10 }}>THIS WEEK&apos;S SOLO RITUAL</p>
-          <p style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.2, marginBottom: 8 }}>Saturday Morning<br />at the Brooklyn Botanic</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(200,230,180,0.65)", lineHeight: 1.6, marginBottom: 14 }}>
-            Open at 8am for members. Quiet paths, zero crowds, cherry blossoms still holding.
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ background: "#A8C97A", borderRadius: 999, padding: "6px 16px" }}>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.08em" }}>34 BLOOMIES GOING</span>
-            </div>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(200,230,180,0.5)" }}>solo ✦ together</span>
-          </div>
         </div>
       </div>
     </div>
@@ -1759,18 +1758,30 @@ function SoloPage({ onBack }: { onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // GO PAGE  —  gallery white + cobalt, bold architectural
 // ═══════════════════════════════════════════════════════════════════════════════
-const GO_TYPES = ["All", "Museums", "Outdoors", "Markets", "Theater", "Tours"];
-const GO_EXPERIENCES = [
-  { id: 1, name: "The Metropolitan Museum", hood: "UPPER EAST SIDE", type: "MUSEUM",  tag: "FREE THIS WEEK", big: true,  accent: "#3A5FCD", bg: "#E8EEFF" },
-  { id: 2, name: "The High Line",           hood: "WEST CHELSEA",    type: "OUTDOOR", going: 28,             big: false, accent: "#2A9A60", bg: "#E8FFF4" },
-  { id: 3, name: "Brooklyn Flea",           hood: "DUMBO",           type: "MARKET",  tag: "THIS WEEKEND",   big: false, accent: "#C4802A", bg: "#FFF5E8" },
-  { id: 4, name: "MoMA PS1",               hood: "LONG ISLAND CITY", type: "GALLERY", going: 14,             big: false, accent: "#A04090", bg: "#FEF0FF" },
-  { id: 5, name: "Staten Island Ferry",     hood: "LOWER MANHATTAN",  type: "TOUR",   tag: "FREE",           big: false, accent: "#3A5FCD", bg: "#EAF0FF" },
-  { id: 6, name: "The Shed",               hood: "HUDSON YARDS",     type: "THEATER", going: 22,             big: false, accent: "#C43A3A", bg: "#FFF0F0" },
-];
+interface TrendingItem {
+  id: string; name: string; category: string; description: string | null;
+  neighborhood: string | null; badge: string | null; image_url: string | null; save_count: number;
+}
+// GO covers "things to do" — everything that isn't primarily about eating/drinking.
+const GO_CATEGORIES = ["pop-up", "art", "shopping", "wellness", "event", "other"];
 
 function GoPage({ onBack }: { onBack: () => void }) {
+  const [items, setItems] = useState<TrendingItem[] | null>(null); // null = loading
   const [activeType, setActiveType] = useState("All");
+
+  useEffect(() => {
+    createClient()
+      .from("city_trending")
+      .select("id,name,category,description,neighborhood,badge,image_url,save_count")
+      .eq("status", "approved")
+      .in("category", GO_CATEGORIES)
+      .order("rank_order", { ascending: true })
+      .limit(30)
+      .then(({ data }) => setItems((data as TrendingItem[] | null) ?? []));
+  }, []);
+
+  const types = ["All", ...Array.from(new Set((items ?? []).map(i => i.category)))];
+  const shown = (items ?? []).filter(i => activeType === "All" || i.category === activeType);
 
   return (
     <div style={{ background: "#F0F8FF", minHeight: "100vh", paddingBottom: 120 }}>
@@ -1793,81 +1804,71 @@ function GoPage({ onBack }: { onBack: () => void }) {
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, #3A5FCD66, #6BB5F544, transparent)" }}/>
       </div>
 
-      {/* Type filters */}
+      {/* Type filters — real categories from what's actually approved */}
       <div style={{ background: "#E8F4FF", borderBottom: "1px solid rgba(58,95,205,0.15)", paddingBottom: 1 }}>
         <div style={{ display: "flex", gap: 0, overflowX: "auto", padding: "10px 16px", scrollbarWidth: "none" as const }}>
-          {GO_TYPES.map(t => (
+          {types.map(t => (
             <button key={t} onClick={() => setActiveType(t)} style={{
               flexShrink: 0, padding: "6px 14px", borderRadius: 999, marginRight: 6,
               border: `1.5px solid ${activeType === t ? "#3A5FCD" : "rgba(58,95,205,0.25)"}`,
               background: activeType === t ? "#3A5FCD" : "rgba(255,255,255,0.7)",
               color: activeType === t ? "white" : "rgba(40,70,160,0.7)",
-              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.06em", cursor: "pointer",
+              fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.06em", cursor: "pointer", textTransform: "capitalize" as const,
             }}>{t}</button>
           ))}
         </div>
       </div>
 
-      {/* Experience cards */}
+      {/* Experience cards — real city_trending picks, curated via the city-intelligence cron */}
       <div style={{ padding: "14px 14px 0" }}>
-        {GO_EXPERIENCES.map((exp, i) => (
-          <div key={exp.id} style={{
-            backgroundImage: `${PAPER_TEX}`,
+        {items === null ? (
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(40,60,120,0.4)", textAlign: "center" as const, padding: "24px 0" }}>Loading…</p>
+        ) : shown.length === 0 ? (
+          <div style={{ textAlign: "center" as const, padding: "40px 20px" }}>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#28468F" }}>Nothing here yet</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(40,60,120,0.4)", marginTop: 6, letterSpacing: "0.06em" }}>CHECK BACK SOON</p>
+          </div>
+        ) : shown.map((item, i) => (
+          <div key={item.id} style={{
+            backgroundImage: item.image_url ? undefined : `${PAPER_TEX}`,
             backgroundSize: "200px 200px",
-            backgroundColor: exp.bg,
+            backgroundColor: "#EAF2FF",
             borderRadius: 18, marginBottom: 10, overflow: "hidden",
-            height: i === 0 ? 170 : 100,
+            minHeight: i === 0 ? 170 : 100,
             position: "relative",
-            boxShadow: `0 4px 16px rgba(0,0,0,0.1), 0 1px 0 ${exp.accent}44 inset`,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.1), 0 1px 0 rgba(58,95,205,0.27) inset",
           }}>
-            {/* Left accent bar */}
-            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: `linear-gradient(180deg, ${exp.accent}, ${exp.accent}88)` }}/>
-            {/* Glow */}
-            <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 30% 30%, ${exp.accent}18 0%, transparent 60%)` }}/>
-            {/* Content */}
-            <div style={{ position: "absolute", inset: 0, padding: i === 0 ? "22px 20px 18px 18px" : "14px 16px 12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            {item.image_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.image_url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            )}
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: "linear-gradient(180deg, #3A5FCD, #3A5FCD88)" }}/>
+            <div style={{ position: "absolute", inset: 0, background: item.image_url ? "linear-gradient(to top, rgba(6,8,15,0.75) 0%, rgba(6,8,15,0.15) 60%, transparent 100%)" : `radial-gradient(circle at 30% 30%, rgba(58,95,205,0.09) 0%, transparent 60%)` }}/>
+            <div style={{ position: "relative", padding: i === 0 ? "22px 20px 18px 18px" : "14px 16px 12px 14px", display: "flex", flexDirection: "column" as const, justifyContent: "space-between", minHeight: i === 0 ? 170 : 100, boxSizing: "border-box" as const }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <div style={{ background: `${exp.accent}22`, border: `1px solid ${exp.accent}88`, borderRadius: 999, padding: "2px 9px" }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: exp.accent, letterSpacing: "0.1em" }}>{exp.type}</span>
+                  <div style={{ background: item.image_url ? "rgba(255,255,255,0.2)" : "rgba(58,95,205,0.13)", border: "1px solid rgba(58,95,205,0.5)", borderRadius: 999, padding: "2px 9px" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: item.image_url ? "white" : "#3A5FCD", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>{item.category}</span>
                   </div>
-                  {"tag" in exp && exp.tag && (
+                  {item.badge && (
                     <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 999, padding: "2px 9px" }}>
-                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(40,60,120,0.7)", letterSpacing: "0.08em" }}>{exp.tag}</span>
+                      <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, color: "rgba(40,60,120,0.7)", letterSpacing: "0.08em" }}>{item.badge}</span>
                     </div>
                   )}
                 </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontSize: i === 0 ? 22 : 15, fontWeight: 900, fontStyle: "italic", color: DARK, lineHeight: 1.15 }}>{exp.name}</p>
+                <p style={{ fontFamily: "var(--font-playfair)", fontSize: i === 0 ? 22 : 15, fontWeight: 900, fontStyle: "italic", color: item.image_url ? "white" : DARK, lineHeight: 1.15 }}>{item.name}</p>
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: "rgba(40,60,100,0.5)", letterSpacing: "0.1em" }}>{exp.hood}</p>
-                {"going" in exp && exp.going && (
-                  <div style={{ background: `${exp.accent}22`, border: `1px solid ${exp.accent}66`, borderRadius: 999, padding: "3px 10px" }}>
-                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: exp.accent }}>{exp.going} going</span>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 700, color: item.image_url ? "rgba(255,255,255,0.7)" : "rgba(40,60,100,0.5)", letterSpacing: "0.1em" }}>{(item.neighborhood ?? "NYC").toUpperCase()}</p>
+                {item.save_count > 0 && (
+                  <div style={{ background: item.image_url ? "rgba(255,255,255,0.2)" : "rgba(58,95,205,0.13)", border: "1px solid rgba(58,95,205,0.4)", borderRadius: 999, padding: "3px 10px" }}>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: item.image_url ? "white" : "#3A5FCD" }}>{item.save_count} saved</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
         ))}
-
-        {/* This Week editorial */}
-        <div style={{
-          backgroundImage: `${PAPER_TEX}`,
-          backgroundSize: "200px 200px",
-          backgroundColor: "#EAF2FF",
-          borderRadius: 18, padding: "20px 18px", marginBottom: 14,
-          border: "1px solid rgba(58,95,205,0.18)",
-          boxShadow: "0 4px 16px rgba(58,95,205,0.1)",
-        }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#3A5FCD", marginBottom: 8 }}>THIS WEEK IN NYC ✦</p>
-          {["MOMA: New Acquisitions","Brooklyn Botanic: Cherry Blossoms","Jazz at Lincoln Center: Fri/Sat","Governors Ball: Week 2"].map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, paddingBottom: 9, borderBottom: i < 3 ? "1px solid rgba(58,95,205,0.12)" : "none" }}>
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#3A5FCD", flexShrink: 0 }}/>
-              <span style={{ fontFamily: "var(--font-jost)", fontSize: "10px", color: "rgba(30,50,120,0.78)" }}>{item}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
