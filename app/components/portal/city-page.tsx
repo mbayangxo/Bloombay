@@ -254,6 +254,52 @@ function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: strin
   );
 }
 
+// ── Weekly theme spotlight — "Best Croissants This Week", curated by the
+// city-theme-picks cron from REAL approved rows only (never invented). ──────
+interface CitySpotlight { theme: string; blurb: string | null; names: string[] }
+
+function SpotlightBanner({ page, accent }: { page: "eat" | "go" | "solo"; accent: string }) {
+  const [spotlight, setSpotlight] = useState<CitySpotlight | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const supabase = createClient();
+      const { data: row } = await supabase
+        .from("city_spotlights")
+        .select("theme, blurb, trending_ids, partner_ids")
+        .eq("page", page)
+        .order("week_of", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!row || !active) return;
+
+      const r = row as { theme: string; blurb: string | null; trending_ids: string[]; partner_ids: string[] };
+      const [{ data: t }, { data: p }] = await Promise.all([
+        r.trending_ids.length ? supabase.from("city_trending").select("name").in("id", r.trending_ids) : Promise.resolve({ data: [] }),
+        r.partner_ids.length ? supabase.from("restaurant_partners").select("name").in("id", r.partner_ids) : Promise.resolve({ data: [] }),
+      ]);
+      const names = [...(t ?? []), ...(p ?? [])].map((row2) => (row2 as { name: string }).name);
+      if (active && names.length > 0) setSpotlight({ theme: r.theme, blurb: r.blurb, names });
+    })();
+    return () => { active = false; };
+  }, [page]);
+
+  if (!spotlight) return null;
+
+  return (
+    <div style={{ background: `${accent}12`, border: `1px solid ${accent}33`, borderRadius: 16, padding: "14px 16px", marginBottom: 14 }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.16em", color: accent, marginBottom: 4 }}>✦ {spotlight.theme.toUpperCase()}</p>
+      {spotlight.blurb && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#555", marginBottom: 8 }}>{spotlight.blurb}</p>}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+        {spotlight.names.map((n, i) => (
+          <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#444", background: "white", borderRadius: 999, padding: "4px 10px", border: `1px solid ${accent}22` }}>{n}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // NYC BUILDING TILE — single tappable building with facade + windows
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1050,6 +1096,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
 
       {/* Cards */}
       <div style={{ padding: "14px 14px 0" }}>
+        <SpotlightBanner page="eat" accent="#FF9B70" />
 
         {/* Featured grid — first 3 real partners */}
         {allPartners.length > 0 ? (
@@ -1703,6 +1750,8 @@ function SoloPage({ onBack }: { onBack: () => void }) {
           <NeighborhoodPicker value={hood} onChange={setHood} />
         </div>
 
+        <SpotlightBanner page="solo" accent="#7A9A6C" />
+
         {/* Mood chips — real categories from what's actually approved */}
         <div style={{ marginBottom: 18 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#9A7A6A", marginBottom: 8 }}>WHAT MOOD ARE YOU IN?</p>
@@ -1918,6 +1967,7 @@ function GoPage({ onBack }: { onBack: () => void }) {
 
       {/* Experience cards — real city_trending picks, curated via the city-intelligence cron */}
       <div style={{ padding: "14px 14px 0" }}>
+        <SpotlightBanner page="go" accent="#3A5FCD" />
         {items === null ? (
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(40,60,120,0.4)", textAlign: "center" as const, padding: "24px 0" }}>Loading…</p>
         ) : shown.length === 0 ? (

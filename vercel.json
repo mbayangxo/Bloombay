@@ -18,6 +18,10 @@
       "schedule": "0 8 * * 3"
     },
     {
+      "path": "/api/cron/city-theme-picks",
+      "schedule": "0 9 * * 4"
+    },
+    {
       "path": "/api/cron/wall-seeder",
       "schedule": "0 13 * * *"
     },
