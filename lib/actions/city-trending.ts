@@ -82,3 +82,30 @@ export async function approveTrendingSpot(id: string, rankOrder: number): Promis
     rank_order: rankOrder,
   }).eq("id", id);
 }
+
+export async function rejectTrendingSpot(id: string): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("city_trending").update({ status: "archived" }).eq("id", id);
+}
+
+export interface PendingTrendingSpot extends TrendingSpot {
+  submitted_by: string | null;
+  created_at: string;
+  submitter_name: string | null;
+}
+
+export async function getPendingTrendingSpots(): Promise<PendingTrendingSpot[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("city_trending")
+    .select("id,city,neighborhood,name,category,description,source,source_url,image_url,badge,week_of,rank_order,save_count,submitted_by,created_at,profiles!city_trending_submitted_by_fkey(first_name,full_name)")
+    .eq("status", "pending")
+    .order("created_at", { ascending: true })
+    .limit(50);
+
+  type Row = PendingTrendingSpot & { profiles: { first_name: string | null; full_name: string | null } | null };
+  return ((data ?? []) as unknown as Row[]).map((row) => ({
+    ...row,
+    submitter_name: row.profiles?.first_name || row.profiles?.full_name || "A member",
+  }));
+}

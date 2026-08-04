@@ -59,6 +59,7 @@ export const MC_NAV: {
       { label: "Overview", path: "/dashboard", cap: "overview" },
       { label: "Women", path: "/people", cap: "women" },
       { label: "Cities", path: "/cities", cap: "cities" },
+      { label: "City Picks", path: "/city-picks", cap: "cities" },
       { label: "Clubs", path: "/clubs", cap: "clubs" },
       { label: "Happenings", path: "/events", cap: "happenings" },
       { label: "Nights queue", path: "/nights", cap: "happenings" },

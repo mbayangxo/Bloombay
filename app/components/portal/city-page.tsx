@@ -19,6 +19,8 @@ import {
 } from "@/lib/actions/place-gifts";
 import type { GiftKind } from "@/lib/bloom-gifts";
 import { unitsForKind } from "@/lib/bloom-gifts";
+import { getMyNeighborhood, isNearby } from "@/lib/city-neighborhoods";
+import { NeighborhoodPicker } from "@/app/components/portal/neighborhood-picker";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const PINK  = "#FF1F7D";
@@ -989,6 +991,8 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
   const [realPartners, setRealPartners] = useState<EatsPartner[]>([]);
   const [reserveTarget, setReserveTarget] = useState<{ id: string; name: string } | null>(null);
+  const [hood, setHood] = useState<string | null>(null);
+  useEffect(() => { setHood(getMyNeighborhood()); }, []);
 
   useEffect(() => {
     // Fetch real restaurant partners from DB
@@ -1008,8 +1012,9 @@ function EatsPage({ onBack }: { onBack: () => void }) {
     });
   }, []);
 
-  const allPartners = filterEatsPartners(realPartners, activeFilter);
-  const openPartner = allPartners.find(p => p.id === profileId);
+  const filteredByType = filterEatsPartners(realPartners, activeFilter);
+  const allPartners = hood ? filteredByType.filter(p => isNearby(hood, p.hood)) : filteredByType;
+  const openPartner = filteredByType.find(p => p.id === profileId);
   if (openPartner) return <PartnerStorefront partner={openPartner} onBack={() => setProfileId(null)} />;
 
   return (
@@ -1031,7 +1036,10 @@ function EatsPage({ onBack }: { onBack: () => void }) {
 
       {/* Filters */}
       <div style={{ backgroundImage: `${PAPER_TEX}`, backgroundSize: "200px 200px", backgroundColor: "#FFF5F0", paddingBottom: 12 }}>
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 16px 0", scrollbarWidth: "none" as const }}>
+        <div style={{ padding: "10px 16px 8px" }}>
+          <NeighborhoodPicker value={hood} onChange={setHood} />
+        </div>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 16px", scrollbarWidth: "none" as const }}>
           {EATS_FILTERS.map(f => (
             <button key={f} onClick={() => setActiveFilter(f)} style={{ flexShrink: 0, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${activeFilter === f ? "#FF9B70" : "rgba(180,100,60,0.25)"}`, background: activeFilter === f ? "#FF9B70" : "rgba(255,255,255,0.6)", color: activeFilter === f ? "white" : "rgba(160,80,40,0.8)", fontSize: "9px", fontFamily: "var(--font-jost)", fontWeight: 700, letterSpacing: "0.04em", cursor: "pointer" }}>
               {f}
@@ -1080,10 +1088,10 @@ function EatsPage({ onBack }: { onBack: () => void }) {
         ) : (
           <div style={{ textAlign: "center", padding: "32px 20px 20px", color: "rgba(160,80,40,0.45)" }}>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>
-              {realPartners.length === 0 ? "No partner spots yet" : `No spots for “${activeFilter}”`}
+              {realPartners.length === 0 ? "No partner spots yet" : hood ? `Nothing near ${hood} yet` : `No spots for “${activeFilter}”`}
             </p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>
-              {realPartners.length === 0 ? "CHECK BACK SOON" : "TRY ANOTHER FILTER"}
+              {realPartners.length === 0 ? "CHECK BACK SOON" : hood ? "TRY ALL OF NYC" : "TRY ANOTHER FILTER"}
             </p>
           </div>
         )}
@@ -1642,6 +1650,9 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
 function SoloPage({ onBack }: { onBack: () => void }) {
   const [items, setItems] = useState<TrendingItem[] | null>(null); // null = loading
   const [mood, setMood] = useState("All");
+  const [openItem, setOpenItem] = useState<TrendingItem | null>(null);
+  const [hood, setHood] = useState<string | null>(null);
+  useEffect(() => { setHood(getMyNeighborhood()); }, []);
 
   useEffect(() => {
     createClient()
@@ -1653,8 +1664,9 @@ function SoloPage({ onBack }: { onBack: () => void }) {
       .then(({ data }) => setItems((data as TrendingItem[] | null) ?? []));
   }, []);
 
+  const byMood = (items ?? []).filter(i => mood === "All" || i.category === mood);
   const moods = ["All", ...Array.from(new Set((items ?? []).map(i => i.category)))];
-  const shown = (items ?? []).filter(i => mood === "All" || i.category === mood);
+  const shown = hood ? byMood.filter(i => isNearby(hood, i.neighborhood)) : byMood;
 
   return (
     <div style={{
@@ -1687,6 +1699,10 @@ function SoloPage({ onBack }: { onBack: () => void }) {
       </div>
 
       <div style={{ padding: "16px 16px 0" }}>
+        <div style={{ marginBottom: 14 }}>
+          <NeighborhoodPicker value={hood} onChange={setHood} />
+        </div>
+
         {/* Mood chips — real categories from what's actually approved */}
         <div style={{ marginBottom: 18 }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.18em", color: "#9A7A6A", marginBottom: 8 }}>WHAT MOOD ARE YOU IN?</p>
@@ -1711,17 +1727,17 @@ function SoloPage({ onBack }: { onBack: () => void }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#9A8A7A", textAlign: "center" as const, padding: "20px 0" }}>Loading…</p>
           ) : shown.length === 0 ? (
             <div style={{ textAlign: "center" as const, padding: "32px 20px", color: "#9A8A7A" }}>
-              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>Nothing here yet</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>CHECK BACK SOON</p>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15 }}>{hood ? `Nothing near ${hood} yet` : "Nothing here yet"}</p>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, marginTop: 4, letterSpacing: "0.1em" }}>{hood ? "TRY ALL OF NYC" : "CHECK BACK SOON"}</p>
             </div>
           ) : shown.map((act, i) => (
-            <div key={act.id} style={{
+            <div key={act.id} onClick={() => setOpenItem(act)} style={{
               backgroundImage: act.image_url ? undefined : `${PAPER_TEX}, ${LINEN_TEX}`,
               backgroundSize: "200px 200px, 80px 80px",
               backgroundColor: "#F4EFE4",
               borderRadius: 18, overflow: "hidden",
               boxShadow: "0 3px 16px rgba(80,60,40,0.1), inset 0 1px 0 rgba(255,255,255,0.85)",
-              display: "flex", gap: 0,
+              display: "flex", gap: 0, cursor: "pointer",
               animation: `soloFade 0.5s ease-out both`,
               animationDelay: `${i * 0.07}s`,
             }}>
@@ -1751,6 +1767,7 @@ function SoloPage({ onBack }: { onBack: () => void }) {
           ))}
         </div>
       </div>
+      {openItem && <TrendingDetailSheet item={openItem} onClose={() => setOpenItem(null)} />}
     </div>
   );
 }
@@ -1762,12 +1779,88 @@ interface TrendingItem {
   id: string; name: string; category: string; description: string | null;
   neighborhood: string | null; badge: string | null; image_url: string | null; save_count: number;
 }
+
+// Detail view for a GO/SOLO city_trending pick — full description + real save
+// + Bloom Notes, so tapping a card actually goes somewhere instead of nothing.
+function TrendingDetailSheet({ item, onClose }: { item: TrendingItem; onClose: () => void }) {
+  const [saved, setSaved] = useState(false);
+  const [saveCount, setSaveCount] = useState(item.save_count);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setChecking(false); return; }
+      const { data } = await supabase
+        .from("city_trending_saves")
+        .select("trending_id")
+        .eq("trending_id", item.id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (active) { setSaved(!!data); setChecking(false); }
+    })();
+    return () => { active = false; };
+  }, [item.id]);
+
+  async function toggleSave() {
+    const { saveTrendingSpot, unsaveTrendingSpot } = await import("@/lib/actions/city-trending");
+    if (saved) {
+      setSaved(false); setSaveCount(c => Math.max(0, c - 1));
+      await unsaveTrendingSpot(item.id);
+    } else {
+      setSaved(true); setSaveCount(c => c + 1);
+      await saveTrendingSpot(item.id);
+    }
+  }
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }} />
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 301, background: "#FFFBF6", borderRadius: "24px 24px 0 0", maxHeight: "88vh", overflowY: "auto", boxShadow: "0 -12px 48px rgba(0,0,0,0.35)" }}>
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 999, background: "rgba(0,0,0,0.12)" }} />
+        </div>
+        {item.image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.image_url} alt="" style={{ width: "100%", height: 200, objectFit: "cover" }} />
+        )}
+        <div style={{ padding: "18px 20px 40px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.12em", color: PINK, background: "rgba(255,31,125,0.08)", borderRadius: 999, padding: "3px 9px", textTransform: "uppercase" as const }}>{item.category}</span>
+            {item.badge && <span style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, color: "#888", background: "rgba(0,0,0,0.05)", borderRadius: 999, padding: "3px 9px" }}>{item.badge}</span>}
+          </div>
+          <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 24, color: "#1A1A1A", lineHeight: 1.1, marginBottom: 4 }}>{item.name}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "#999", marginBottom: 14 }}>{item.neighborhood ?? "NYC"}</p>
+          {item.description && <p style={{ fontFamily: "var(--font-jost)", fontSize: 14, color: "#444", lineHeight: 1.6, marginBottom: 18 }}>{item.description}</p>}
+
+          <button onClick={toggleSave} disabled={checking} style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%",
+            padding: "12px 0", borderRadius: 999, marginBottom: 22,
+            border: saved ? "none" : "1.5px solid rgba(255,31,125,0.3)",
+            background: saved ? PINK : "white", color: saved ? "white" : PINK,
+            fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", cursor: "pointer",
+          }}>
+            {saved ? "✓ Saved" : "♡ Save this spot"} {saveCount > 0 ? `· ${saveCount}` : ""}
+          </button>
+
+          <BloomNotesBoard placeSlug={`trending-${item.id}`} placeName={item.name} brand={PINK} accent="#FF69B4" />
+        </div>
+      </div>
+    </>
+  );
+}
+
 // GO covers "things to do" — everything that isn't primarily about eating/drinking.
 const GO_CATEGORIES = ["pop-up", "art", "shopping", "wellness", "event", "other"];
 
 function GoPage({ onBack }: { onBack: () => void }) {
   const [items, setItems] = useState<TrendingItem[] | null>(null); // null = loading
   const [activeType, setActiveType] = useState("All");
+  const [openItem, setOpenItem] = useState<TrendingItem | null>(null);
+  const [hood, setHood] = useState<string | null>(null);
+  useEffect(() => { setHood(getMyNeighborhood()); }, []);
 
   useEffect(() => {
     createClient()
@@ -1780,8 +1873,9 @@ function GoPage({ onBack }: { onBack: () => void }) {
       .then(({ data }) => setItems((data as TrendingItem[] | null) ?? []));
   }, []);
 
+  const byType = (items ?? []).filter(i => activeType === "All" || i.category === activeType);
   const types = ["All", ...Array.from(new Set((items ?? []).map(i => i.category)))];
-  const shown = (items ?? []).filter(i => activeType === "All" || i.category === activeType);
+  const shown = hood ? byType.filter(i => isNearby(hood, i.neighborhood)) : byType;
 
   return (
     <div style={{ background: "#F0F8FF", minHeight: "100vh", paddingBottom: 120 }}>
@@ -1806,7 +1900,10 @@ function GoPage({ onBack }: { onBack: () => void }) {
 
       {/* Type filters — real categories from what's actually approved */}
       <div style={{ background: "#E8F4FF", borderBottom: "1px solid rgba(58,95,205,0.15)", paddingBottom: 1 }}>
-        <div style={{ display: "flex", gap: 0, overflowX: "auto", padding: "10px 16px", scrollbarWidth: "none" as const }}>
+        <div style={{ padding: "10px 16px 8px" }}>
+          <NeighborhoodPicker value={hood} onChange={setHood} />
+        </div>
+        <div style={{ display: "flex", gap: 0, overflowX: "auto", padding: "0 16px 10px", scrollbarWidth: "none" as const }}>
           {types.map(t => (
             <button key={t} onClick={() => setActiveType(t)} style={{
               flexShrink: 0, padding: "6px 14px", borderRadius: 999, marginRight: 6,
@@ -1825,17 +1922,17 @@ function GoPage({ onBack }: { onBack: () => void }) {
           <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(40,60,120,0.4)", textAlign: "center" as const, padding: "24px 0" }}>Loading…</p>
         ) : shown.length === 0 ? (
           <div style={{ textAlign: "center" as const, padding: "40px 20px" }}>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#28468F" }}>Nothing here yet</p>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(40,60,120,0.4)", marginTop: 6, letterSpacing: "0.06em" }}>CHECK BACK SOON</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: "#28468F" }}>{hood ? `Nothing near ${hood} yet` : "Nothing here yet"}</p>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(40,60,120,0.4)", marginTop: 6, letterSpacing: "0.06em" }}>{hood ? "TRY ALL OF NYC" : "CHECK BACK SOON"}</p>
           </div>
         ) : shown.map((item, i) => (
-          <div key={item.id} style={{
+          <div key={item.id} onClick={() => setOpenItem(item)} style={{
             backgroundImage: item.image_url ? undefined : `${PAPER_TEX}`,
             backgroundSize: "200px 200px",
             backgroundColor: "#EAF2FF",
             borderRadius: 18, marginBottom: 10, overflow: "hidden",
             minHeight: i === 0 ? 170 : 100,
-            position: "relative",
+            position: "relative", cursor: "pointer",
             boxShadow: "0 4px 16px rgba(0,0,0,0.1), 0 1px 0 rgba(58,95,205,0.27) inset",
           }}>
             {item.image_url && (
@@ -1870,6 +1967,7 @@ function GoPage({ onBack }: { onBack: () => void }) {
           </div>
         ))}
       </div>
+      {openItem && <TrendingDetailSheet item={openItem} onClose={() => setOpenItem(null)} />}
     </div>
   );
 }
@@ -2196,6 +2294,32 @@ function ComingSoon({ band, onBack }: { band: Band; onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function GirlGemsPage({ onBack }: { onBack: () => void }) {
   const [gems, setGems] = useState<GirlGemRow[] | null>(null); // null = loading
+  const [showSubmit, setShowSubmit] = useState(false);
+  const [gemName, setGemName] = useState("");
+  const [gemNeighborhood, setGemNeighborhood] = useState("");
+  const [gemNote, setGemNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  async function submitGem() {
+    if (!gemName.trim()) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    const { submitTrendingSpot } = await import("@/lib/actions/city-trending");
+    const { ok, error } = await submitTrendingSpot({
+      name: gemName,
+      category: "other",
+      neighborhood: gemNeighborhood.trim() || undefined,
+      description: gemNote.trim() || undefined,
+      source: "Bloomie tip",
+    });
+    setSubmitting(false);
+    if (!ok) { setSubmitError(error ?? "Couldn't submit — try again."); return; }
+    setSubmitted(true);
+    setGemName(""); setGemNeighborhood(""); setGemNote("");
+    setTimeout(() => { setSubmitted(false); setShowSubmit(false); }, 2200);
+  }
 
   useEffect(() => {
     createClient()
@@ -2287,14 +2411,33 @@ function GirlGemsPage({ onBack }: { onBack: () => void }) {
           textAlign: "center" as const,
         }}>
           <p style={{ fontFamily: "var(--font-caveat)", fontSize: 18, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>know a hidden gem? ✦</p>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>Bloomies-only submissions</p>
-          <button
-            type="button"
-            disabled
-            title="Gem submissions aren't available yet"
-            style={{ background: "rgba(255,31,125,0.12)", border: "1px solid rgba(255,31,125,0.25)", borderRadius: 999, padding: "9px 22px", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", color: PINK, cursor: "not-allowed", opacity: 0.55 }}>
-            SUBMIT A GEM →
-          </button>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 14 }}>Bloomies-only submissions — reviewed before they go live</p>
+          {!showSubmit ? (
+            <button
+              type="button"
+              onClick={() => setShowSubmit(true)}
+              style={{ background: "rgba(255,31,125,0.15)", border: "1px solid rgba(255,31,125,0.35)", borderRadius: 999, padding: "9px 22px", fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", color: PINK, cursor: "pointer" }}>
+              SUBMIT A GEM →
+            </button>
+          ) : submitted ? (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#A8C97A" }}>Sent for review ✦ thank you!</p>
+          ) : (
+            <div style={{ textAlign: "left" as const }}>
+              <input value={gemName} onChange={e => setGemName(e.target.value)} placeholder="Place name"
+                style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", marginBottom: 8, boxSizing: "border-box" as const, outline: "none" }} />
+              <input value={gemNeighborhood} onChange={e => setGemNeighborhood(e.target.value)} placeholder="Neighborhood (optional)"
+                style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", marginBottom: 8, boxSizing: "border-box" as const, outline: "none" }} />
+              <textarea value={gemNote} onChange={e => setGemNote(e.target.value)} placeholder="Why do you love it?" rows={2}
+                style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", marginBottom: 8, resize: "none" as const, boxSizing: "border-box" as const, outline: "none" }} />
+              {submitError && <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, color: "#FFB3C7", marginBottom: 8 }}>{submitError}</p>}
+              <button
+                onClick={submitGem}
+                disabled={!gemName.trim() || submitting}
+                style={{ width: "100%", background: PINK, border: "none", borderRadius: 999, padding: "10px 0", fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em", color: "white", cursor: "pointer", opacity: (!gemName.trim() || submitting) ? 0.6 : 1 }}>
+                {submitting ? "SENDING…" : "SEND FOR REVIEW →"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

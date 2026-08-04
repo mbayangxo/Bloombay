@@ -17,6 +17,9 @@ import { getIntros, postIntro, flowerIntro, type IntroPost } from "@/lib/actions
 import { FlowerButton } from "@/app/components/shared/flower-button";
 import type { GiftKind } from "@/lib/bloom-gifts";
 import { unitsForKind } from "@/lib/bloom-gifts";
+import { createClient } from "@/lib/supabase/client";
+import { getMyNeighborhood, isNearby } from "@/lib/city-neighborhoods";
+import { NeighborhoodPicker } from "@/app/components/portal/neighborhood-picker";
 
 const PINK   = "#FF1F7D";
 const DARK   = "#1C1B1C";
@@ -1340,6 +1343,26 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
   // Review tracking
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
+  // Nearby — merges Happenings events with City places by neighborhood
+  const [nearbyHood, setNearbyHood] = useState<string | null>(null);
+  const [cityNearby, setCityNearby] = useState<{ id: string; name: string; category: string; neighborhood: string | null; href: string }[]>([]);
+  useEffect(() => {
+    setNearbyHood(getMyNeighborhood());
+    const supabase = createClient();
+    Promise.all([
+      supabase.from("city_trending").select("id,name,category,neighborhood").eq("status", "approved").limit(30),
+      supabase.from("restaurant_partners").select("id,name,restaurant_type,neighborhood,slug").limit(30),
+    ]).then(([trending, partners]) => {
+      const fromTrending = (trending.data ?? []).map((r: { id: string; name: string; category: string; neighborhood: string | null }) => ({
+        id: `t-${r.id}`, name: r.name, category: r.category, neighborhood: r.neighborhood, href: "/member/city",
+      }));
+      const fromPartners = (partners.data ?? []).map((r: { id: string; name: string; restaurant_type: string; neighborhood: string | null; slug: string }) => ({
+        id: `p-${r.id}`, name: r.name, category: r.restaurant_type, neighborhood: r.neighborhood, href: "/member/city",
+      }));
+      setCityNearby([...fromTrending, ...fromPartners]);
+    }).catch(() => {});
+  }, []);
+
   // Introductions
   const [intros,        setIntros]        = useState<IntroPost[]>([]);
   const [introsLoading, setIntrosLoading] = useState(false);
@@ -1484,7 +1507,7 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         <div style={{ height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px" }}>
           {/* Tab toggle */}
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px" }}>
-            {([["happenings","Happenings"],["intros","Intros"],["map","Map"]] as [HapTab, string][]).map(([t, label]) => (
+            {([["happenings","Happenings"],["intros","Intros"],["map","Nearby"]] as [HapTab, string][]).map(([t, label]) => (
               <button key={t} onClick={() => { setTab(t); setSearchOpen(false); setSearchQuery(""); }} style={{
                 padding: "5px 10px", borderRadius: 999, border: "none",
                 background: tab === t ? "rgba(255,255,255,0.95)" : "transparent",
@@ -1925,45 +1948,87 @@ export function HappeningsPage({ standalone = true }: { standalone?: boolean }) 
         )}
 
         {/* ── MAP TAB ── */}
-        {standalone && tab === "map" && (
+        {standalone && tab === "map" && (() => {
+          const nearbyEvents = events.filter(ev => ev.venue || ev.neighborhood)
+            .filter(ev => !nearbyHood || isNearby(nearbyHood, ev.neighborhood));
+          const nearbyPlaces = cityNearby.filter(p => !nearbyHood || isNearby(nearbyHood, p.neighborhood));
+          return (
           <div style={{ minHeight: "calc(100vh - 54px)", display: "flex", flexDirection: "column", padding: "20px 18px 24px" }}>
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>EVENT MAP</p>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Gatherings with a location show up here</p>
+            <div style={{ marginBottom: 14 }}>
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 900, letterSpacing: "0.18em", color: PINK }}>NEARBY</p>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>Happenings and City spots near you</p>
             </div>
+            <div style={{ marginBottom: 18 }}>
+              <NeighborhoodPicker value={nearbyHood} onChange={setNearbyHood} dark />
+            </div>
+
             {loading ? (
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: 16, color: "rgba(255,255,255,0.3)", textAlign: "center", padding: "40px 0" }}>Loading…</p>
-            ) : events.filter(ev => ev.venue || ev.neighborhood).length === 0 ? (
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "32px 24px", borderRadius: 24, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <p style={{ fontSize: 32, marginBottom: 12 }}>🗺</p>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 18, color: "rgba(255,255,255,0.85)", marginBottom: 8 }}>No map pins yet</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.5, maxWidth: 260 }}>
-                  When gatherings are posted with a venue or neighborhood, you&apos;ll see them here. Check the Happenings tab for what&apos;s live now.
-                </p>
-              </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {events.filter(ev => ev.venue || ev.neighborhood).map(ev => (
-                  <Link key={ev.id} href={`/member/happenings/${ev.slug ?? ev.id}`} style={{ textDecoration: "none" }}>
-                    <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 12, background: `${PINK}22`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <span style={{ fontSize: 16 }}>📍</span>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.15 }}>{ev.title}</p>
-                        <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
-                          {ev.venue ?? ev.neighborhood} · {fmtShort(ev.starts_at)}
-                          {ev.attending_count > 0 ? ` · ${ev.attending_count} going` : ""}
-                        </p>
-                      </div>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+              <>
+                {/* Happenings nearby */}
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>HAPPENINGS {nearbyHood ? `NEAR ${nearbyHood.toUpperCase()}` : ""}</p>
+                {nearbyEvents.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "20px 16px", borderRadius: 18, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 20 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
+                      {nearbyHood ? `No gatherings near ${nearbyHood} yet.` : "No gatherings with a location posted yet."}
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                    {nearbyEvents.map(ev => (
+                      <Link key={ev.id} href={`/member/happenings/${ev.slug ?? ev.id}`} style={{ textDecoration: "none" }}>
+                        <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 12, background: `${PINK}22`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <span style={{ fontSize: 16 }}>📍</span>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.15 }}>{ev.title}</p>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
+                              {ev.venue ?? ev.neighborhood} · {fmtShort(ev.starts_at)}
+                              {ev.attending_count > 0 ? ` · ${ev.attending_count} going` : ""}
+                            </p>
+                          </div>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                {/* City places nearby */}
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.16em", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>EAT · GO · SOLO {nearbyHood ? `NEAR ${nearbyHood.toUpperCase()}` : ""}</p>
+                {nearbyPlaces.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "20px 16px", borderRadius: 18, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
+                      {nearbyHood ? `No City spots near ${nearbyHood} yet.` : "No City spots yet — check Eat, Go, and Solo directly."}
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {nearbyPlaces.map(p => (
+                      <Link key={p.id} href={p.href} style={{ textDecoration: "none" }}>
+                        <div style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 12, background: `${PINK}22`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <span style={{ fontSize: 16 }}>✦</span>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: "white", lineHeight: 1.15 }}>{p.name}</p>
+                            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", color: "rgba(255,255,255,0.45)", marginTop: 4, textTransform: "uppercase" as const }}>
+                              {p.category} · {p.neighborhood ?? "NYC"}
+                            </p>
+                          </div>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
-        )}
+          );
+        })()}
 
       </div>
 
