@@ -117,54 +117,44 @@ function getPostDisplay(post: WallPost, idx: number) {
   };
 }
 
-// ── StorefrontWindow ──────────────────────────────────────────────────────────
-// Each room reads as its own illuminated shop window on the Avenue — same
-// brand pink awning + glass frame everywhere, differentiated by the emoji,
-// sign line, and a real "open" count, not by a different palette per room.
-function StorefrontWindow({ avenue, count }: { avenue: AvenueConfig; count: number | null }) {
-  return (
-    <Link href={avenue.href} style={{ textDecoration: "none", display: "block" }}>
-      <div style={{
-        borderRadius: 16,
-        overflow: "hidden",
-        background: "white",
-        border: "1px solid rgba(26,26,26,0.08)",
-        boxShadow: "0 4px 18px rgba(26,26,26,0.07)",
-      }}>
-        {/* Awning */}
-        <div style={{
-          background: `linear-gradient(150deg, ${PINK} 0%, #FF5BAD 100%)`,
-          padding: "6px 10px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: 6.5, fontWeight: 800, letterSpacing: "0.12em", color: "rgba(255,255,255,0.85)" }}>{avenue.signLine1}</span>
-          {count !== null && count > 0 && (
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 900, color: "white" }}>{count} open</span>
-          )}
-        </div>
+// ── Avenue signpost — a street of hanging signs down a lamppost line,
+// one per room, alternating sides. Same visual language as The City's
+// neighborhood signposts, so the two districts read as siblings. ────────────
+const SIGN_COLORS = [PINK, "#D86487", "#C0185F", PINK, "#E87BA8", "#D86487", "#C0185F"];
 
-        {/* Window glass */}
-        <div style={{
-          padding: "18px 14px 16px",
-          background: "linear-gradient(180deg, rgba(255,31,125,0.04) 0%, transparent 60%)",
-          textAlign: "center",
-        }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: "50%", margin: "0 auto 10px",
-            background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.18)",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
-          }}>
-            {avenue.emoji}
-          </div>
-          <p style={{
-            fontFamily: "var(--font-playfair)", fontSize: 17, fontWeight: 900,
-            fontStyle: "italic", color: "#1A1A1A", lineHeight: 1.1, margin: 0,
-          }}>{avenue.title}</p>
-          <p style={{
-            fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700,
-            color: "rgba(26,26,26,0.45)", letterSpacing: "0.04em", marginTop: 5,
-          }}>{avenue.tagline}</p>
-        </div>
+function AvenueSign({ avenue, count, side, swayClass }: {
+  avenue: AvenueConfig; count: number | null; side: "left" | "right"; swayClass: string;
+}) {
+  const color = SIGN_COLORS[AVENUES.indexOf(avenue) % SIGN_COLORS.length];
+  const pointer = (
+    <div style={{
+      width: 0, height: 0,
+      borderTop: "18px solid transparent", borderBottom: "18px solid transparent",
+      ...(side === "left" ? { borderRight: `16px solid ${color}` } : { borderLeft: `16px solid ${color}` }),
+    }} />
+  );
+  const tag = (
+    <div style={{
+      background: color,
+      padding: side === "left" ? "10px 18px 10px 10px" : "10px 10px 10px 18px",
+      borderRadius: side === "left" ? "0 8px 8px 0" : "8px 0 0 8px",
+    }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 7, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.7)" }}>{avenue.signLine1}</p>
+      <p style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1.15, whiteSpace: "nowrap" }}>{avenue.emoji} {avenue.title}</p>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 700, letterSpacing: "0.06em", color: "rgba(255,255,255,0.8)", marginTop: 2 }}>
+        {avenue.tagline}{count !== null && count > 0 ? ` · ${count} today` : ""}
+      </p>
+    </div>
+  );
+  return (
+    <Link href={avenue.href} style={{
+      textDecoration: "none",
+      alignSelf: side === "left" ? "flex-start" : "flex-end",
+      marginLeft: side === "left" ? "5%" : 0,
+      marginRight: side === "right" ? "5%" : 0,
+    }}>
+      <div className={swayClass} style={{ position: "relative", display: "inline-flex", alignItems: "center", filter: "drop-shadow(0 3px 8px rgba(26,26,26,0.14))" }}>
+        {side === "left" ? <>{pointer}{tag}</> : <>{tag}{pointer}</>}
       </div>
     </Link>
   );
@@ -249,6 +239,20 @@ export function AvenuePage() {
       <style>{`
         .lscroll::-webkit-scrollbar { display: none; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+        .ave-sign-0 { transform-origin: center center; animation: aveSway0 3.2s ease-in-out infinite; }
+        .ave-sign-1 { transform-origin: center center; animation: aveSway1 2.9s ease-in-out 0.5s infinite; }
+        .ave-sign-2 { transform-origin: center center; animation: aveSway2 3.5s ease-in-out 0.2s infinite; }
+        .ave-sign-3 { transform-origin: center center; animation: aveSway3 2.7s ease-in-out 0.8s infinite; }
+        .ave-sign-4 { transform-origin: center center; animation: aveSway4 3.1s ease-in-out 0.3s infinite; }
+        .ave-sign-5 { transform-origin: center center; animation: aveSway5 2.8s ease-in-out 0.7s infinite; }
+        .ave-sign-6 { transform-origin: center center; animation: aveSway6 3.3s ease-in-out 0.1s infinite; }
+        @keyframes aveSway0 { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(-4.5deg) translateY(1px); } }
+        @keyframes aveSway1 { 0%,100% { transform: rotate(2.5deg); } 50% { transform: rotate(4.5deg) translateY(1px); } }
+        @keyframes aveSway2 { 0%,100% { transform: rotate(-1.5deg); } 50% { transform: rotate(-3.5deg) translateY(1px); } }
+        @keyframes aveSway3 { 0%,100% { transform: rotate(1deg); } 50% { transform: rotate(3deg) translateY(1px); } }
+        @keyframes aveSway4 { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(-5.5deg) translateY(1px); } }
+        @keyframes aveSway5 { 0%,100% { transform: rotate(2deg); } 50% { transform: rotate(4.5deg) translateY(1px); } }
+        @keyframes aveSway6 { 0%,100% { transform: rotate(-1deg); } 50% { transform: rotate(-3deg) translateY(1px); } }
       `}</style>
 
       {/* ══ HEADER ═══════════════════════════════════════════════════════════════ */}
@@ -353,13 +357,28 @@ export function AvenuePage() {
         )}
       </div>
 
-      {/* ══ THE AVENUE — storefront windows ═════════════════════════════════ */}
+      {/* ══ THE AVENUE — a street of signposts, one per room ═════════════════ */}
       <div style={{ marginTop: 32, paddingBottom: 8 }}>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.22em", marginBottom: 16, padding: "0 24px" }}>THE AVENUE</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 24px" }}>
-          {AVENUES.map((avenue) => (
-            <StorefrontWindow key={avenue.href} avenue={avenue} count={roomCounts[avenue.roomKey] ?? null} />
-          ))}
+        <div style={{ padding: "0 24px", marginBottom: 4 }}>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 900, color: "rgba(26,26,26,0.5)", letterSpacing: "0.22em" }}>THE AVENUE</p>
+          <p style={{ fontFamily: "var(--font-caveat)", fontSize: 14, color: "rgba(26,26,26,0.4)", marginTop: 2 }}>tap a sign to explore</p>
+        </div>
+
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", padding: "18px 0 8px", minHeight: 420 }}>
+          <div style={{ width: 14, height: 14, borderRadius: "50%", background: PINK, border: "3px solid #FF5BAD", zIndex: 2 }} />
+          <div style={{ width: 8, height: "100%", position: "absolute", top: 14, background: `linear-gradient(180deg, ${PINK} 0%, #FF9CC8 100%)`, borderRadius: 4, zIndex: 1, opacity: 0.5 }} />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 12, width: "100%", alignItems: "center", zIndex: 2 }}>
+            {AVENUES.map((avenue, i) => (
+              <AvenueSign
+                key={avenue.href}
+                avenue={avenue}
+                count={roomCounts[avenue.roomKey] ?? null}
+                side={i % 2 === 0 ? "left" : "right"}
+                swayClass={`ave-sign-${i % 7}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

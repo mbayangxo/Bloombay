@@ -132,9 +132,9 @@ function DaySkyline({ width = 430, height = 700 }: { width?: number; height?: nu
   const bars: { y: number; bh: number; bw: number; idx: number }[] = [];
   let y = 0, s = 99, idx = 0;
   while (y < height) {
-    s = lcg(s); const bh = 9 + (s % 16);           // bar height 9–25 px
+    s = lcg(s); const bh = 26 + (s % 34);          // bar height 26–60 px — bigger, fewer bars
     s = lcg(s); const bw = Math.floor(width * (0.2 + (s % 1000) / 1000 * 0.72));  // bar width
-    s = lcg(s); const gap = 3 + (s % 6);            // gap between bars
+    s = lcg(s); const gap = 10 + (s % 16);          // gap between bars — more breathing room
     bars.push({ y, bh, bw, idx });
     y += bh + gap;
     idx++;
@@ -759,79 +759,30 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
             <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: "white", letterSpacing: "0.08em" }}>SIGNS</span>
           </button>
           </div>{/* end flex row of buttons */}
+
+          {/* Girl Gems + Girl Favs — small corner chips, not full cards */}
+          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+            <button onClick={() => onSelect("girl_gems")} style={{
+              display: "flex", alignItems: "center", gap: 5,
+              background: "rgba(255,255,255,0.22)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.4)", borderRadius: 999,
+              padding: "6px 11px 6px 8px", cursor: "pointer", WebkitTapHighlightColor: "transparent",
+            }}>
+              <span style={{ fontSize: 12 }}>💎</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>GIRL GEMS</span>
+            </button>
+            <button onClick={() => onSelect("girl_favs")} style={{
+              display: "flex", alignItems: "center", gap: 5,
+              background: "rgba(255,255,255,0.22)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.4)", borderRadius: 999,
+              padding: "6px 11px 6px 8px", cursor: "pointer", WebkitTapHighlightColor: "transparent",
+            }}>
+              <span style={{ fontSize: 12 }}>💗</span>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, color: "white", letterSpacing: "0.06em" }}>GIRL FAVS</span>
+            </button>
+          </div>
           </div>{/* end column wrapper */}
         </div>{/* end header row */}
-
-        {/* ── GIRL GEMS + GIRL FAVORITES — literal object tiles ── */}
-        <div style={{ padding: "6px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {/* Girl Gems — gemstone object */}
-          <button onClick={() => onSelect("girl_gems")}
-            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}>
-            <div style={{
-              background: "linear-gradient(145deg, #FDEEF7 0%, #FAD8ED 60%, #F8C8E8 100%)",
-              borderRadius: 20, padding: "16px 16px 14px",
-              border: "1px solid rgba(255,100,160,0.25)",
-              minHeight: 130, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
-              position: "relative" as const, overflow: "hidden",
-              boxShadow: "0 4px 20px rgba(255,31,125,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
-            }}>
-              {/* Gemstone SVG */}
-              <div style={{ position: "absolute", bottom: -8, right: -8 }}>
-                <svg width="72" height="64" viewBox="0 0 72 64" fill="none">
-                  <defs>
-                    <linearGradient id="gem1" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="rgba(255,180,220,0.9)"/>
-                      <stop offset="100%" stopColor="rgba(255,100,170,0.6)"/>
-                    </linearGradient>
-                  </defs>
-                  <polygon points="36,4 66,20 58,60 14,60 6,20" fill="url(#gem1)" stroke="rgba(255,31,125,0.2)" strokeWidth="1"/>
-                  <polygon points="36,4 66,20 36,34" fill="rgba(255,220,240,0.7)"/>
-                  <polygon points="36,4 6,20 36,34" fill="rgba(255,200,230,0.5)"/>
-                  <polygon points="36,34 66,20 58,60" fill="rgba(255,160,210,0.4)"/>
-                  <polygon points="36,34 6,20 14,60" fill="rgba(255,140,200,0.3)"/>
-                  <line x1="36" y1="4" x2="36" y2="34" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8"/>
-                </svg>
-              </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>GIRL GEMS</p>
-              <div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 700, color: "#3A0020", lineHeight: 1.15 }}>spots only<br/>we know</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK, marginTop: 10, letterSpacing: "0.06em" }}>EXPLORE →</p>
-              </div>
-            </div>
-          </button>
-
-          {/* Girl Favs — heart charm object */}
-          <button onClick={() => onSelect("girl_favs")}
-            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" as const, WebkitTapHighlightColor: "transparent" }}>
-            <div style={{
-              background: "linear-gradient(145deg, #FFF0F5 0%, #FFDFEE 60%, #FFD0E8 100%)",
-              borderRadius: 20, padding: "16px 16px 14px",
-              border: "1px solid rgba(255,31,125,0.18)",
-              minHeight: 130, display: "flex", flexDirection: "column" as const, justifyContent: "space-between",
-              position: "relative" as const, overflow: "hidden",
-              boxShadow: "0 4px 20px rgba(255,31,125,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
-            }}>
-              {/* Heart object SVG */}
-              <div style={{ position: "absolute", bottom: -8, right: -8 }}>
-                <svg width="68" height="62" viewBox="0 0 68 62" fill="none">
-                  <defs>
-                    <radialGradient id="heart1" cx="50%" cy="40%" r="60%">
-                      <stop offset="0%" stopColor="rgba(255,120,170,0.8)"/>
-                      <stop offset="100%" stopColor="rgba(200,0,80,0.5)"/>
-                    </radialGradient>
-                  </defs>
-                  <path d="M34 52 C34 52 4 36 4 18 C4 8 11 2 20 4 C26 5 32 10 34 14 C36 10 42 5 48 4 C57 2 64 8 64 18 C64 36 34 52 34 52Z" fill="url(#heart1)"/>
-                  <path d="M20 10 C16 12 14 16 15 20" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-                </svg>
-              </div>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: "7.5px", fontWeight: 800, letterSpacing: "0.2em", color: PINK }}>GIRL FAVS</p>
-              <div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 17, fontWeight: 700, color: "#3A0020", lineHeight: 1.15 }}>most saved<br/>this month</p>
-                <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: PINK, marginTop: 10, letterSpacing: "0.06em" }}>SEE ALL →</p>
-              </div>
-            </div>
-          </button>
-        </div>
 
         {/* Band list */}
         <div style={{ display: "flex", flexDirection: "column", gap: 5, padding: "0 14px 24px" }}>
@@ -887,7 +838,9 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
 // CITY LANDING  —  two-pane swipeable wrapper
 // ═══════════════════════════════════════════════════════════════════════════════
 function CityLanding({ onSelect }: { onSelect: (c: CityCategory) => void }) {
-  const [slide, setSlide] = useState(0);
+  // City Guide (slide 1) is the landing — the building-signs scroll (slide 0)
+  // is the secondary "SIGNS" view, reached by swiping or tapping the toggle.
+  const [slide, setSlide] = useState(1);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 

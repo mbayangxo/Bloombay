@@ -260,7 +260,10 @@ export function BottomNav({ user }: { user?: NavUser }) {
         <div style={{
           width: 40, height: 40, borderRadius: 13,
           display: "flex", alignItems: "center", justifyContent: "center",
-          background: active ? `${PINK}15` : "transparent",
+          // Every tile always has its own backing chip — never fully transparent —
+          // so the icon stays readable no matter how bright/dark the page's own
+          // hero image is directly underneath the bar.
+          background: active ? `${PINK}15` : (isDarkPage ? "rgba(255,255,255,0.10)" : "rgba(26,5,20,0.05)"),
           border: active ? `1.5px solid ${PINK}28` : "none",
         }}>
           {children}
@@ -285,7 +288,7 @@ export function BottomNav({ user }: { user?: NavUser }) {
           like it was "on top of" the header on scroll. */}
       <div className="fixed top-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: isDarkPage ? "rgba(18,4,16,0.62)" : "rgba(253,251,247,0.82)",
+          background: isDarkPage ? "rgba(18,4,16,0.85)" : "rgba(253,251,247,0.94)",
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
           paddingTop: "env(safe-area-inset-top, 0px)",
