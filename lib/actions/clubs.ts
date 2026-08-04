@@ -295,6 +295,21 @@ export async function getClubGatherings(clubId: string) {
   return data ?? [];
 }
 
+// ── Ownership ──────────────────────────────────────────────────────────────────
+
+export async function getMyOwnedClub(): Promise<{ id: string; name: string; slug: string } | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from("clubs")
+    .select("id, name, slug")
+    .eq("owner_id", user.id)
+    .limit(1)
+    .maybeSingle();
+  return data ?? null;
+}
+
 // ── Album / gallery ───────────────────────────────────────────────────────────
 
 export async function getClubAlbum(clubId: string): Promise<string[]> {

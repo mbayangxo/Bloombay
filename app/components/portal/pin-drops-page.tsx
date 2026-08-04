@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
-import { PinDropCompose } from "./pin-drop-compose";
+import { getMyOwnedClub } from "@/lib/actions/clubs";
 import "@/app/styles/bloom-entrance.css";
 
 const PINK = "#FF1F7D";
@@ -113,6 +114,9 @@ function PinPill({ pin, idx }: { pin: PinItem; idx: number }) {
 export function PinDropsPage() {
   const [pins, setPins]     = useState<PinItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownedClub, setOwnedClub] = useState<{ id: string; name: string; slug: string } | null | undefined>(undefined);
+
+  useEffect(() => { getMyOwnedClub().then(setOwnedClub).catch(() => setOwnedClub(null)); }, []);
 
   const loadPins = useCallback(() => {
     setLoading(true);
@@ -169,10 +173,21 @@ export function PinDropsPage() {
         </p>
       </div>
 
-      {/* Compose */}
-      <div style={{ padding: "0 22px 16px", position: "relative", zIndex: 2 }}>
-        <PinDropCompose onSent={loadPins} />
-      </div>
+      {/* Compose — club mamas only, sends to their club (regular members get a read-only feed) */}
+      {ownedClub && (
+        <div style={{ padding: "0 22px 16px", position: "relative", zIndex: 2 }}>
+          <Link href="/club-owner/comms" style={{
+            width: "100%", background: PINK, border: "none", borderRadius: 14,
+            padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 8, cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700,
+            letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "#fff",
+            textDecoration: "none",
+          }}>
+            <span style={{ fontSize: 16 }}>📍</span>
+            Send a pin drop to {ownedClub.name}
+          </Link>
+        </div>
+      )}
 
       {/* Scattered pills */}
       <div style={{
@@ -200,7 +215,9 @@ export function PinDropsPage() {
                 No pin drops yet
               </p>
               <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(255,255,255,0.38)", marginTop: 10, lineHeight: 1.5 }}>
-                Drop a pin for your bouquet, or wait for one from your club.
+                {ownedClub
+                  ? "Send one to your club above, or wait for one from a Bloomie."
+                  : "This is where pin drops from your club mama and friends show up."}
               </p>
             </div>
           </div>

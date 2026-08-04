@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { startConversation } from "@/lib/actions/direct-messages";
 import { FriendshipHealthSection } from "./friendship-health-section";
 import { SocialProofSection } from "./social-proof-section";
+import { BoardSection } from "./board-section";
 import { MyPortalsCard } from "@/app/components/portal/my-portals-card";
 import { portalLinksForAccount } from "@/lib/auth/portal-access";
 import type { UserRole } from "@/lib/auth/roles";
@@ -485,10 +486,11 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
   const [memberRole, setMemberRole] = useState<UserRole>("member");
   const [hasHosted, setHasHosted] = useState(false);
   const [isHost, setIsHost] = useState(false);
-  const [contentTab, setContentTab] = useState<"about" | "vibes" | "bloom_code">("about");
+  const [contentTab, setContentTab] = useState<"about" | "vibes" | "board">("about");
   const [templateId, setTemplateId] = useState<string>("bloom");
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [photoCount, setPhotoCount] = useState<number | null>(null);
+  const [showBloomCode, setShowBloomCode] = useState(false);
 
   // Real, persisted style choice — this used to only ever write to
   // localStorage, so it silently reset on any other device/session.
@@ -695,6 +697,44 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         onSave={(n, nb, b) => { setLocalName(n); setLocalNbhd(nb); setLocalBio(b); }}
       />
 
+      {/* Bloom Code — small button, not a full tab */}
+      <div style={{ padding: "0 16px 4px", background: PAPER }}>
+        <button
+          type="button"
+          onClick={() => setShowBloomCode(v => !v)}
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            background: "none", border: "none", cursor: "pointer", padding: "8px 2px",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="17" y1="17" x2="17" y2="17.01"/>
+          </svg>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", color: PINK }}>
+            {showBloomCode ? "HIDE BLOOM CODE" : "BLOOM CODE"}
+          </span>
+        </button>
+
+        {showBloomCode && (
+          <div style={{ padding: "4px 0 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, background: "white", borderRadius: 18, padding: "14px 16px", marginBottom: 10, boxShadow: "0 2px 12px rgba(255,31,125,0.07)" }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=88x88&color=1A0010&bgcolor=FFFFFF&data=https://bloombay.app/${displayHandle}&qzone=2`}
+                alt="Your QR Code" width={88} height={88} style={{ borderRadius: 10, flexShrink: 0 }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOM LINK</p>
+                <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginBottom: 8 }}>bloombay.app/{displayHandle}</p>
+                <button onClick={copyLink} style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "6px 14px" }}>
+                  {copied ? "Copied ✓" : "Copy link"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Work portals linked to this personal account */}
       <div style={{ padding: "12px 16px 0", background: PAPER }}>
         <MyPortalsCard
@@ -727,7 +767,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
 
       {/* ══════════ TABS ══════════ */}
       <div style={{ background: "white", borderBottom: "1px solid rgba(255,31,125,0.1)", display: "flex", padding: "0 20px" }}>
-        {(["about", "vibes", "bloom_code"] as const).map(tab => (
+        {(["about", "board", "vibes"] as const).map(tab => (
           <button key={tab} onClick={() => setContentTab(tab)} style={{
             flex: 1, background: "none", border: "none", cursor: "pointer",
             padding: "14px 0 12px",
@@ -738,7 +778,7 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
               fontFamily: "var(--font-jost)", fontSize: 9, fontWeight: 800, letterSpacing: "0.10em",
               color: contentTab === tab ? PINK : "rgba(0,0,0,0.3)",
               textTransform: "uppercase" as const,
-            }}>{tab === "about" ? "About" : tab === "vibes" ? "Your Vibe" : "Bloom Code"}</span>
+            }}>{tab === "about" ? "About" : tab === "board" ? "Board" : "Your Vibe"}</span>
           </button>
         ))}
       </div>
@@ -806,40 +846,9 @@ export function ApartmentPage({ user }: { user?: LoungeUser }) {
         </div>
       )}
 
-      {/* ══════════ BLOOM CODE TAB ══════════ */}
-      {contentTab === "bloom_code" && (
-        <div style={{ padding: "24px 20px 0" }}>
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 24 }}>
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.2em", color: "rgba(0,0,0,0.25)", marginBottom: 14 }}>YOUR QR CODE</p>
-            <div style={{ width: 180, height: 180, borderRadius: 20, background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.12)", display: "flex", alignItems: "center", justifyContent: "center", border: "3px solid white", overflow: "hidden" }}>
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=174x174&color=1A0010&bgcolor=FFFFFF&data=https://bloombay.app/${displayHandle}&qzone=2`}
-                alt="Your QR Code"
-                width={174} height={174}
-                style={{ borderRadius: 14 }}
-              />
-            </div>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 10 }}>Scan to find me on BloomBay</p>
-          </div>
-
-          <div style={{ background: "white", borderRadius: 20, padding: "16px 18px", marginBottom: 12, boxShadow: "0 2px 12px rgba(255,31,125,0.07)", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.28)", marginBottom: 4 }}>YOUR BLOOM LINK</p>
-              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, fontWeight: 700, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>bloombay.app/{displayHandle}</p>
-            </div>
-            <button onClick={copyLink} style={{ flexShrink: 0, fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "white", background: PINK, border: "none", cursor: "pointer", borderRadius: 999, padding: "8px 16px" }}>
-              {copied ? "Copied ✓" : "Copy"}
-            </button>
-          </div>
-
-          <div style={{ background: DARK, borderRadius: 20, padding: "16px 18px", position: "relative" as const, overflow: "hidden" }}>
-            <div style={{ position: "absolute" as const, top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,31,125,0.22),transparent 70%)" }} />
-            <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.22em", color: "rgba(255,31,125,0.65)", marginBottom: 6 }}>GIRL CODE</p>
-            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.55)" }}>
-              Your invite code isn’t available yet.
-            </p>
-          </div>
-        </div>
+      {/* ══════════ BOARD TAB ══════════ */}
+      {contentTab === "board" && currentUserId && (
+        <BoardSection userId={currentUserId} />
       )}
 
 

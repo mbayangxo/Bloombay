@@ -81,6 +81,29 @@ export async function uploadProfilePhoto(file: File, userId: string): Promise<st
   return supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
 }
 
+// Board post photo — reuses the profile-photos bucket under a board/ prefix.
+export async function uploadBoardPhoto(file: File, userId: string): Promise<string> {
+  const compressed = await prepare(file, 1000, 350);
+  const supabase = createClient();
+  const path = `${userId}/board/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+  const { error } = await supabase.storage
+    .from("profile-photos")
+    .upload(path, compressed, { upsert: false, contentType: "image/webp" });
+  if (error) throw error;
+  return supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
+}
+
+// Board post voice note — same bucket, audio content-type.
+export async function uploadBoardVoiceNote(blob: Blob, userId: string): Promise<string> {
+  const supabase = createClient();
+  const path = `${userId}/board/voice-${Date.now()}.m4a`;
+  const { error } = await supabase.storage
+    .from("profile-photos")
+    .upload(path, blob, { upsert: false, contentType: "audio/mp4" });
+  if (error) throw error;
+  return supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
+}
+
 export async function uploadHangerImage(file: File, listingId: string): Promise<string> {
   const compressed = await prepare(file, 800, 300);
   const supabase = createClient();
