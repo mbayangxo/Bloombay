@@ -77,6 +77,7 @@ function toCardData(ev: Event): EventCardData {
     spotsLeft: ev.spots_left ?? undefined,
     going: ev.attending_count,
     accentColor: ev.accent_color ?? undefined,
+    imageUrl: ev.image_url ?? undefined,
     href: `/member/happenings/${ev.slug ?? ev.id}`,
   };
 }

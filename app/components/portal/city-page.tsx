@@ -256,10 +256,12 @@ function BackBtn({ onBack, label = "CITY" }: { onBack: () => void; label?: strin
 
 // ── Weekly theme spotlight — "Best Croissants This Week", curated by the
 // city-theme-picks cron from REAL approved rows only (never invented). ──────
-interface CitySpotlight { theme: string; blurb: string | null; names: string[] }
+interface SpotlightCard { key: string; name: string; imageUrl: string | null; kind: "trending" | "partner"; item?: TrendingItem }
+interface CitySpotlight { theme: string; blurb: string | null; cards: SpotlightCard[] }
 
 function SpotlightBanner({ page, accent }: { page: "eat" | "go" | "solo"; accent: string }) {
   const [spotlight, setSpotlight] = useState<CitySpotlight | null>(null);
+  const [openTrending, setOpenTrending] = useState<TrendingItem | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -276,11 +278,18 @@ function SpotlightBanner({ page, accent }: { page: "eat" | "go" | "solo"; accent
 
       const r = row as { theme: string; blurb: string | null; trending_ids: string[]; partner_ids: string[] };
       const [{ data: t }, { data: p }] = await Promise.all([
-        r.trending_ids.length ? supabase.from("city_trending").select("name").in("id", r.trending_ids) : Promise.resolve({ data: [] }),
-        r.partner_ids.length ? supabase.from("restaurant_partners").select("name").in("id", r.partner_ids) : Promise.resolve({ data: [] }),
+        r.trending_ids.length ? supabase.from("city_trending").select("id,name,category,description,neighborhood,badge,image_url,save_count").in("id", r.trending_ids) : Promise.resolve({ data: [] }),
+        r.partner_ids.length ? supabase.from("restaurant_partners").select("id,name,cover_url,photo_urls").in("id", r.partner_ids) : Promise.resolve({ data: [] }),
       ]);
-      const names = [...(t ?? []), ...(p ?? [])].map((row2) => (row2 as { name: string }).name);
-      if (active && names.length > 0) setSpotlight({ theme: r.theme, blurb: r.blurb, names });
+
+      const trendingCards: SpotlightCard[] = ((t ?? []) as TrendingItem[]).map((row2) => ({
+        key: `t-${row2.id}`, name: row2.name, imageUrl: row2.image_url, kind: "trending" as const, item: row2,
+      }));
+      const partnerCards: SpotlightCard[] = ((p ?? []) as { id: string; name: string; cover_url: string | null; photo_urls: string[] | null }[]).map((row2) => ({
+        key: `p-${row2.id}`, name: row2.name, imageUrl: row2.cover_url ?? row2.photo_urls?.[0] ?? null, kind: "partner" as const,
+      }));
+      const cards = [...trendingCards, ...partnerCards];
+      if (active && cards.length > 0) setSpotlight({ theme: r.theme, blurb: r.blurb, cards });
     })();
     return () => { active = false; };
   }, [page]);
@@ -288,14 +297,32 @@ function SpotlightBanner({ page, accent }: { page: "eat" | "go" | "solo"; accent
   if (!spotlight) return null;
 
   return (
-    <div style={{ background: `${accent}12`, border: `1px solid ${accent}33`, borderRadius: 16, padding: "14px 16px", marginBottom: 14 }}>
-      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.16em", color: accent, marginBottom: 4 }}>✦ {spotlight.theme.toUpperCase()}</p>
-      {spotlight.blurb && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#555", marginBottom: 8 }}>{spotlight.blurb}</p>}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
-        {spotlight.names.map((n, i) => (
-          <span key={i} style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#444", background: "white", borderRadius: 999, padding: "4px 10px", border: `1px solid ${accent}22` }}>{n}</span>
+    <div style={{ marginBottom: 16 }}>
+      <p style={{ fontFamily: "var(--font-jost)", fontSize: 8, fontWeight: 800, letterSpacing: "0.16em", color: accent, marginBottom: 2 }}>✦ {spotlight.theme.toUpperCase()}</p>
+      {spotlight.blurb && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#666", marginBottom: 8 }}>{spotlight.blurb}</p>}
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" as const }}>
+        {spotlight.cards.map((c) => (
+          <button
+            key={c.key}
+            onClick={() => { if (c.kind === "trending" && c.item) setOpenTrending(c.item); }}
+            style={{
+              flexShrink: 0, width: 128, borderRadius: 16, overflow: "hidden", border: "none", cursor: "pointer", padding: 0,
+              background: "white", boxShadow: "0 3px 14px rgba(0,0,0,0.1)", textAlign: "left" as const,
+            }}
+          >
+            <div style={{ width: 128, height: 128, background: c.imageUrl ? undefined : `${accent}18`, position: "relative" as const }}>
+              {c.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={c.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>✦</div>
+              )}
+            </div>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, color: "#333", padding: "8px 10px", lineHeight: 1.3 }}>{c.name}</p>
+          </button>
         ))}
       </div>
+      {openTrending && <TrendingDetailSheet item={openTrending} onClose={() => setOpenTrending(null)} />}
     </div>
   );
 }
