@@ -10,6 +10,8 @@ import {
   joinWaitlist, leaveWaitlist, getWaitlistCounts, getMyWaitlistIds,
   leaveHostReview, getMyReviewedEventIds, getMyHostedCount,
   giveGatheringGift, takeBackGatheringGift, getGatheringFlowersForUser,
+  getGatheringAttendeesForMember, witnessAttendee, getWitnessedIds,
+  type AttendeeForWitness,
 } from "@/lib/actions/happenings";
 import { getTraditions, toggleFollowTradition, type Tradition } from "@/lib/actions/traditions";
 import { coverUrl } from "@/lib/images/supabase-transform";
@@ -548,17 +550,78 @@ function InviteFriendSheet({ ev, onClose }: { ev: Event; onClose: () => void }) 
 
 /* ── Post-event witness sheet ──────────────────────────────── */
 function WitnessSheet({ ev, onClose }: { ev: Event; onClose: () => void }) {
+  const [attendees, setAttendees] = useState<AttendeeForWitness[] | null>(null);
+  const [witnessed, setWitnessed] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getGatheringAttendeesForMember(ev.id), getWitnessedIds(ev.id)]).then(([a, w]) => {
+      if (cancelled) return;
+      setAttendees(a);
+      setWitnessed(new Set(w));
+    });
+    return () => { cancelled = true; };
+  }, [ev.id]);
+
+  async function handleWitness(userId: string) {
+    if (busy || witnessed.has(userId)) return;
+    setBusy(userId);
+    await witnessAttendee(ev.id, userId).catch(() => {});
+    setWitnessed(prev => new Set(prev).add(userId));
+    setBusy(null);
+  }
+
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", flexDirection: "column", justifyContent: "flex-end" }} onClick={onClose}>
       <div style={{ background: "rgba(0,0,0,0.5)", position: "absolute", inset: 0 }}/>
-      <div style={{ position: "relative", background: "#FFF8F2", borderRadius: "20px 20px 0 0", padding: "20px 20px 40px", zIndex: 1 }} onClick={e => e.stopPropagation()}>
+      <div style={{ position: "relative", background: "#FFF8F2", borderRadius: "20px 20px 0 0", padding: "20px 20px 40px", zIndex: 1, maxHeight: "78vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(0,0,0,0.15)", margin: "0 auto 16px" }}/>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.18em", color: PINK, marginBottom: 4 }}>WHO DID YOU MEET?</p>
         <p style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 900, fontStyle: "italic", color: "#1C1B1C", marginBottom: 16 }}>{ev.title}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#9A8070", lineHeight: 1.55, textAlign: "center", padding: "12px 8px 4px" }}>
-            No attendee list for this gathering yet. Witness notes will appear here once members check in.
-          </p>
+          {attendees === null ? (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#9A8070", textAlign: "center", padding: "12px 8px" }}>Loading…</p>
+          ) : attendees.length === 0 ? (
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#9A8070", lineHeight: 1.55, textAlign: "center", padding: "12px 8px 4px" }}>
+              No fellow attendees yet — this fills in as more women RSVP or check in.
+            </p>
+          ) : attendees.map(a => {
+            const done = witnessed.has(a.user_id);
+            return (
+              <div key={a.user_id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 2px" }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: "50%", flexShrink: 0, overflow: "hidden",
+                  background: `${PINK}22`, display: "flex", alignItems: "center", justifyContent: "center",
+                  position: "relative",
+                }}>
+                  {a.avatar_url ? (
+                    <Image src={coverUrl(a.avatar_url) ?? a.avatar_url} alt={a.full_name ?? "Bloomie"} fill unoptimized style={{ objectFit: "cover" }} />
+                  ) : (
+                    <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 15, color: PINK }}>
+                      {(a.full_name ?? "?").trim().charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <p style={{ flex: 1, fontFamily: "var(--font-jost)", fontSize: 13, fontWeight: 700, color: "#1C1B1C" }}>
+                  {a.full_name ?? "A Bloomie"}
+                </p>
+                <button
+                  onClick={() => handleWitness(a.user_id)}
+                  disabled={done || busy === a.user_id}
+                  style={{
+                    padding: "7px 14px", borderRadius: 999, border: "none",
+                    background: done ? "rgba(0,0,0,0.06)" : PINK,
+                    color: done ? "#9A8070" : "white",
+                    fontFamily: "var(--font-jost)", fontSize: "9.5px", fontWeight: 800, letterSpacing: "0.04em",
+                    cursor: done ? "default" : "pointer",
+                  }}
+                >
+                  {done ? "Witnessed ✓" : "I met her"}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -977,10 +1040,15 @@ function InvitationRsvpSheet({ ev, onClose, onGoing }: { ev: Event; onClose: () 
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  function submit() {
-    if (choice !== "going" || submitting) return;
+  async function submit() {
+    if (!choice || submitting) return;
     setSubmitting(true);
-    onGoing(ev.id);
+    if (choice === "going") {
+      onGoing(ev.id);
+    } else {
+      const { setRsvpStatus } = await import("@/lib/actions/happenings");
+      await setRsvpStatus(ev.id, choice === "maybe" ? "maybe" : "cant_go").catch(() => {});
+    }
     setSubmitting(false);
     setDone(true);
   }
@@ -995,10 +1063,10 @@ function InvitationRsvpSheet({ ev, onClose, onGoing }: { ev: Event; onClose: () 
           <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>{choice === "going" ? "🌸" : choice === "maybe" ? "🤞" : "💌"}</div>
             <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 22, color: "#111", marginBottom: 6 }}>
-              {choice === "going" ? "You're going!" : choice === "maybe" ? "Noted locally" : "They know you care."}
+              {choice === "going" ? "You're going!" : choice === "maybe" ? "RSVP saved" : "They know you care."}
             </p>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "#999" }}>
-              {choice === "going" ? "She'll see you there." : "Choose \"I'm going\" to save your RSVP."}
+              {choice === "going" ? "She'll see you there." : choice === "maybe" ? "You'll try to make it — she'll see that too." : "You let her know you can't make it."}
             </p>
           </div>
         ) : (
@@ -1013,23 +1081,21 @@ function InvitationRsvpSheet({ ev, onClose, onGoing }: { ev: Event; onClose: () 
             {/* 3-option picker */}
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               {([
-                { key: "going",  label: "I'm going",           emoji: "🌸", enabled: true },
-                { key: "maybe",  label: "I'll try to make it", emoji: "🤞", enabled: false },
-                { key: "cant",   label: "Can't make it",        emoji: "💌", enabled: false },
-              ] as { key: "going" | "maybe" | "cant"; label: string; emoji: string; enabled: boolean }[]).map(opt => (
+                { key: "going",  label: "I'm going",           emoji: "🌸" },
+                { key: "maybe",  label: "I'll try to make it", emoji: "🤞" },
+                { key: "cant",   label: "Can't make it",        emoji: "💌" },
+              ] as { key: "going" | "maybe" | "cant"; label: string; emoji: string }[]).map(opt => (
                 <button
                   key={opt.key}
                   type="button"
-                  disabled={!opt.enabled}
-                  onClick={() => opt.enabled && setChoice(opt.key)}
-                  title={opt.enabled ? undefined : "RSVP options beyond \"I'm going\" aren't saved yet"}
+                  onClick={() => setChoice(opt.key)}
                   style={{
                     flex: 1, padding: "12px 6px", borderRadius: 14, border: "none",
-                    cursor: opt.enabled ? "pointer" : "not-allowed",
+                    cursor: "pointer",
                     background: choice === opt.key ? `${PINK}18` : "white",
                     outline: choice === opt.key ? `2px solid ${PINK}` : "1px solid rgba(0,0,0,0.1)",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
-                    transition: "all 0.15s", opacity: opt.enabled ? 1 : 0.45,
+                    transition: "all 0.15s",
                   }}
                 >
                   <span style={{ fontSize: 20 }}>{opt.emoji}</span>

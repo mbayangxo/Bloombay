@@ -165,7 +165,58 @@ export async function getMyWaitlistIds(): Promise<string[]> {
   return (data ?? []).map((r: { event_id: string }) => r.event_id);
 }
 
+// ── Real RSVP status: going / maybe / can't go ────────────────────────────────
+
+export type RsvpStatus = "going" | "maybe" | "cant_go";
+
+export async function setRsvpStatus(gatheringId: string, status: RsvpStatus): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  await supabase
+    .from("gathering_attendance")
+    .upsert({ gathering_id: gatheringId, user_id: user.id, status }, { onConflict: "gathering_id,user_id" });
+}
+
+export async function getMyRsvpStatuses(): Promise<Record<string, RsvpStatus>> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return {};
+  const { data } = await supabase
+    .from("gathering_attendance")
+    .select("gathering_id, status")
+    .eq("user_id", user.id);
+  const out: Record<string, RsvpStatus> = {};
+  for (const row of (data ?? []) as { gathering_id: string; status: RsvpStatus }[]) {
+    out[row.gathering_id] = row.status;
+  }
+  return out;
+}
+
 // ── Post-event witnesses ──────────────────────────────────────────────────────
+
+export interface AttendeeForWitness { user_id: string; full_name: string | null; avatar_url: string | null }
+
+// Any confirmed attendee can see who else attended — gated by the
+// "attendance_read_fellow_attendees" RLS policy (only visible to a caller
+// who also has an attendance row for this gathering).
+export async function getGatheringAttendeesForMember(gatheringId: string): Promise<AttendeeForWitness[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("gathering_attendance")
+    .select("user_id, profiles!user_id(full_name, avatar_url)")
+    .eq("gathering_id", gatheringId)
+    .neq("user_id", user.id)
+    .limit(50);
+
+  return (data ?? []).map((r: Record<string, unknown>) => {
+    const p = r.profiles as { full_name?: string; avatar_url?: string } | null;
+    return { user_id: r.user_id as string, full_name: p?.full_name ?? null, avatar_url: p?.avatar_url ?? null };
+  });
+}
 
 export async function witnessAttendee(eventId: string, toUserId: string): Promise<void> {
   const supabase = await createClient();

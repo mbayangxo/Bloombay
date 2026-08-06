@@ -13,7 +13,6 @@ const INVITATION_STYLES: { id: string; label: string; emoji: string; desc: strin
   { id: "formal",    label: "Formal",       emoji: "🥂", desc: "Elegant serif dinner card" },
   { id: "launch",    label: "Launch",       emoji: "🚀", desc: "Dramatic dark launch party" },
 ];
-import { createEvent } from "@/lib/actions/happenings";
 
 const PINK = "#FF1F7D";
 const DARK = "#1C1B1C";
@@ -100,10 +99,25 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
   const [customColor, setCustom]    = useState(PINK);
   const [fontKey, setFont]          = useState("playfair");
   const [photoId, setPhoto]         = useState<string | null>(preset?.photoId ?? null);
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
   const [invStyle, setInvStyle]     = useState("default");
   const [uploading, setUploading]   = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [tempId]                    = useState(() => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`));
+
+  async function handlePhotoFile(file: File) {
+    setUploading(true);
+    try {
+      const { uploadEventPhoto } = await import("@/lib/storage/upload");
+      const url = await uploadEventPhoto(file, tempId);
+      setUploadedPhotoUrl(url);
+      setPhoto(null);
+    } catch {
+      /* upload failed — silently skip, user can retry or use stock */
+    }
+    setUploading(false);
+  }
   const fileRef                     = useRef<HTMLInputElement>(null);
 
   const TOTAL_STEPS = 4;
@@ -122,6 +136,7 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
     fontFamily: FONTS.find(f => f.key === fontKey)?.family,
     href: "#",
     invitationStyle: invStyle === "default" ? undefined : invStyle,
+    imageUrl: uploadedPhotoUrl ?? undefined,
   };
 
   function PreviewCard() {
@@ -333,18 +348,26 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 800, letterSpacing: "0.22em", color: "rgba(0,0,0,0.35)", marginBottom: 12 }}>PHOTO</p>
 
           {/* Upload button */}
-          <button onClick={() => fileRef.current?.click()} style={{
-            width: "100%", background: "white",
-            border: "2px dashed rgba(255,31,125,0.3)", borderRadius: 14,
-            padding: "14px", cursor: "pointer", marginBottom: 12,
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round">
-              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-            </svg>
-            <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: PINK }}>Upload your photo</span>
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={() => setUploading(false)} />
+          {uploadedPhotoUrl ? (
+            <div style={{ position: "relative", marginBottom: 12, borderRadius: 14, overflow: "hidden" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={uploadedPhotoUrl} alt="" style={{ width: "100%", height: 120, objectFit: "cover", display: "block" }} />
+              <button onClick={() => setUploadedPhotoUrl(null)} style={{ position: "absolute", top: 8, right: 8, width: 26, height: 26, borderRadius: "50%", background: "rgba(0,0,0,0.55)", border: "none", color: "white", cursor: "pointer", fontSize: 14 }}>×</button>
+            </div>
+          ) : (
+            <button onClick={() => fileRef.current?.click()} disabled={uploading} style={{
+              width: "100%", background: "white",
+              border: "2px dashed rgba(255,31,125,0.3)", borderRadius: 14,
+              padding: "14px", cursor: uploading ? "wait" : "pointer", marginBottom: 12,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2" strokeLinecap="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, color: PINK }}>{uploading ? "Uploading…" : "Upload your photo"}</span>
+            </button>
+          )}
+          <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) void handlePhotoFile(f); e.target.value = ""; }} />
 
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 600, color: "rgba(0,0,0,0.3)", textAlign: "center" as const, marginBottom: 12 }}>— or choose from stock —</p>
 
@@ -423,15 +446,21 @@ export function EventCreatePage({ initialKind, initialTitle }: { initialKind?: s
             setPublishError(null);
             try {
               const dateTime = new Date(`${date}T${time}`).toISOString();
-              await createEvent({
-                title,
-                description: description || undefined,
-                venue: location || undefined,
-                date_time: dateTime,
-                category: eventType === "gathering" ? "social" : eventType === "concert" ? "culture" : "social",
-                accent_color: accentColor,
-                photo_url: photoId ?? undefined,
+              const res = await fetch("/api/member/gatherings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  title,
+                  startsAt: dateTime,
+                  venue: location || undefined,
+                  description: description || undefined,
+                  eventType,
+                  posterVariant: eventType === "invitation" ? invStyle : undefined,
+                  imageUrl: uploadedPhotoUrl ?? undefined,
+                }),
               });
+              const json = await res.json().catch(() => ({}));
+              if (!res.ok || json.ok === false) throw new Error(json.error ?? "Failed to publish. Try again.");
               router.push("/member/happenings");
             } catch (e) {
               setPublishError((e as Error).message ?? "Failed to publish. Try again.");
