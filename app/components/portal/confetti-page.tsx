@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getEvents, type Event } from "@/lib/actions/events";
+import {
+  giveGatheringGift, takeBackGatheringGift, getGatheringFlowersForUser,
+} from "@/lib/actions/happenings";
+import type { GiftKind } from "@/lib/bloom-gifts";
 
 const PINK   = "#FF1F7D";
 const CREAM  = "#FDF8F2";
@@ -41,53 +46,51 @@ const CSS = `
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type CelebCategory = "all" | "birthday" | "win" | "milestone";
+type CelebType = "birthday" | "win" | "milestone" | "other";
 
 interface Celebration {
-  id: number;
-  type: "birthday" | "win" | "milestone";
-  name: string;
-  title: string;
-  detail: string;
+  ev: Event;
+  type: CelebType;
   month: string;
   day: number;
-  hearts: number;
-  avatarColor: string;
-  avatarInitial: string;
   accentColor: string;
   patternBg?: string;
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const CELEBRATIONS: Celebration[] = [
-  {
-    id: 1, type: "birthday", name: "Sami", title: "Sami's Birthday",
-    detail: "Dinner at Casa Cruz · 8:00PM",
-    month: "MAY", day: 26, hearts: 12,
-    avatarColor: "#FF1F7D", avatarInitial: "S",
-    accentColor: "#FF1F7D",
-  },
-  {
-    id: 2, type: "win", name: "Teni", title: "Teni's Promotion",
-    detail: "Celebrating the new chapter",
-    month: "MAY", day: 30, hearts: 8,
-    avatarColor: "#E8006A", avatarInitial: "T",
-    accentColor: "#A855F7",
-    patternBg: "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
-  },
-  {
-    id: 3, type: "milestone", name: "Maya", title: "Maya's New Apartment",
-    detail: "Housewarming dinner & girl time",
-    month: "JUN", day: 2, hearts: 6,
-    avatarColor: "#C80060", avatarInitial: "M",
-    accentColor: "#F59E0B",
-    patternBg: "repeating-linear-gradient(-45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
-  },
+const ACCENTS = ["#FF1F7D", "#A855F7", "#F59E0B", "#06B6D4", "#10B981"];
+const PATTERNS = [
+  undefined,
+  "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
+  "repeating-linear-gradient(-45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
 ];
+
+function classify(ev: Event): CelebType {
+  const t = `${ev.event_type ?? ""} ${ev.title}`.toLowerCase();
+  if (t.includes("birthday")) return "birthday";
+  if (t.includes("win") || t.includes("promotion") || t.includes("celebrat")) return "win";
+  if (t.includes("milestone") || t.includes("apartment") || t.includes("engagement") || t.includes("housewarming")) return "milestone";
+  return "other";
+}
+
+function toCelebration(ev: Event, idx: number): Celebration {
+  const d = new Date(ev.starts_at);
+  return {
+    ev,
+    type: classify(ev),
+    month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
+    day: d.getDate(),
+    accentColor: ACCENTS[idx % ACCENTS.length],
+    patternBg: PATTERNS[idx % PATTERNS.length],
+  };
+}
+
+const CELEB_EVENT_TYPES = new Set(["invitation", "private", "confetti", "spontaneous"]);
 
 const TYPE_ICON: Record<string, string> = {
   birthday: "🎀",
   win: "✨",
   milestone: "🏠",
+  other: "🎊",
 };
 
 // ── Confetti pieces (decorative) ──────────────────────────────────────────────
@@ -257,8 +260,17 @@ function EnvelopeHero() {
 }
 
 // ── Invitation Card ────────────────────────────────────────────────────────────
-function InvitationCard({ c }: { c: Celebration }) {
-  const [hearted, setHearted] = useState(false);
+function InvitationCard({ c, flower, onGive, onTakeBack }: {
+  c: Celebration;
+  flower: { units: number; myKind: GiftKind | null };
+  onGive: (kind: GiftKind) => void;
+  onTakeBack: () => void;
+}) {
+  const gave = flower.myKind !== null;
+  const ev = c.ev;
+  const detail = [ev.venue, new Date(ev.starts_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })]
+    .filter(Boolean).join(" · ") || (ev.host_name ? `Hosted by ${ev.host_name}` : "");
+  const initial = (ev.host_name ?? ev.title).trim().charAt(0).toUpperCase() || "🌸";
 
   return (
     <div style={{
@@ -311,41 +323,41 @@ function InvitationCard({ c }: { c: Celebration }) {
       <div style={{ padding: "10px 12px 0", display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{
           width: 38, height: 38, borderRadius: "50%",
-          background: `linear-gradient(135deg, ${c.avatarColor}, ${c.avatarColor}BB)`,
+          background: `linear-gradient(135deg, ${c.accentColor}, ${c.accentColor}BB)`,
           display: "flex", alignItems: "center", justifyContent: "center",
           border: "2px solid white",
-          boxShadow: `0 3px 10px ${c.avatarColor}44`,
+          boxShadow: `0 3px 10px ${c.accentColor}44`,
           flexShrink: 0,
         }}>
-          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white" }}>{c.avatarInitial}</span>
+          <span style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 900, fontSize: 16, color: "white" }}>{initial}</span>
         </div>
       </div>
 
       {/* Title + detail */}
       <div style={{ padding: "8px 12px 14px" }}>
-        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 14, color: DARK, lineHeight: 1.2, marginBottom: 4 }}>{c.title}</p>
-        <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>{c.detail}</p>
+        <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 14, color: DARK, lineHeight: 1.2, marginBottom: 4 }}>{ev.title}</p>
+        {detail && <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(0,0,0,0.45)", lineHeight: 1.4 }}>{detail}</p>}
       </div>
 
-      {/* Heart count */}
+      {/* Heart count + open */}
       <div style={{
         borderTop: "1px solid rgba(0,0,0,0.06)",
         padding: "8px 12px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <button
-          onClick={() => setHearted(h => !h)}
+          onClick={() => (gave ? onTakeBack() : onGive("flower"))}
           style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 5 }}
         >
-          <span style={{ fontSize: 16, color: hearted ? PINK : "rgba(0,0,0,0.22)" }}>{hearted ? "♥" : "♡"}</span>
-          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.35)" }}>{c.hearts + (hearted ? 1 : 0)}</span>
+          <span style={{ fontSize: 16, color: gave ? PINK : "rgba(0,0,0,0.22)" }}>{gave ? "♥" : "♡"}</span>
+          <span style={{ fontFamily: "var(--font-jost)", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.35)" }}>{flower.units}</span>
         </button>
-        <div style={{
+        <Link href={`/member/happenings/${ev.id}`} style={{
           background: c.accentColor, borderRadius: 999,
           width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
+        </Link>
       </div>
     </div>
   );
@@ -354,7 +366,7 @@ function InvitationCard({ c }: { c: Celebration }) {
 // ── Add card ──────────────────────────────────────────────────────────────────
 function AddCelebrationCard() {
   return (
-    <Link href="/member/happenings/confetti/new" style={{ textDecoration: "none", flexShrink: 0 }}>
+    <Link href="/member/happenings/create?kind=celebration" style={{ textDecoration: "none", flexShrink: 0 }}>
       <div style={{
         width: 130, height: "100%", minHeight: 200,
         background: "rgba(255,31,125,0.04)",
@@ -379,15 +391,8 @@ function AddCelebrationCard() {
 }
 
 // ── Recently Celebrated strip ─────────────────────────────────────────────────
-const RECENT = [
-  { label: "Nia's 30th", color: "linear-gradient(135deg,#FF1F7D,#c4005a)", initial: "N" },
-  { label: "Sara got the job", color: "linear-gradient(135deg,#A855F7,#7C3AED)", initial: "S" },
-  { label: "Zara's book launch", color: "linear-gradient(135deg,#F59E0B,#D97706)", initial: "Z" },
-  { label: "Good girls", color: "linear-gradient(135deg,#EC4899,#BE185D)", initial: "G" },
-  { label: "Girls trip", color: "linear-gradient(135deg,#06B6D4,#0284C7)", initial: "T" },
-];
-
-function RecentStrip() {
+function RecentStrip({ recent }: { recent: Celebration[] }) {
+  if (recent.length === 0) return null;
   return (
     <div style={{ marginTop: 28 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 18px", marginBottom: 12 }}>
@@ -395,21 +400,22 @@ function RecentStrip() {
         <span style={{ fontSize: 14 }}>🎊</span>
       </div>
       <div className="conf-scroll" style={{ display: "flex", gap: 0, overflowX: "auto", scrollbarWidth: "none" as const }}>
-        {RECENT.map((r, i) => (
-          <div key={i} style={{
+        {recent.map((c) => (
+          <Link key={c.ev.id} href={`/member/happenings/${c.ev.id}`} style={{
             flexShrink: 0, width: 100, height: 80, position: "relative",
-            background: r.color,
+            background: `linear-gradient(135deg, ${c.accentColor}, ${c.accentColor}CC)`,
             borderRight: "2px solid white",
             display: "flex", alignItems: "flex-end",
             padding: "0 0 6px 8px",
             overflow: "hidden",
+            textDecoration: "none",
           }}>
             {/* Silhouette pattern */}
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.2 }}>
               <div style={{ width: 32, height: 32, borderRadius: "50%", background: "white" }} />
             </div>
-            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "11px", color: "white", fontWeight: 700, lineHeight: 1.2, position: "relative", zIndex: 1 }}>{r.label}</p>
-          </div>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: "11px", color: "white", fontWeight: 700, lineHeight: 1.2, position: "relative", zIndex: 1 }}>{c.ev.title}</p>
+          </Link>
         ))}
       </div>
     </div>
@@ -419,6 +425,46 @@ function RecentStrip() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function ConfettiPage() {
   const [category, setCategory] = useState<CelebCategory>("all");
+  const [loading, setLoading] = useState(true);
+  const [celebrations, setCelebrations] = useState<Celebration[]>([]);
+  const [flowers, setFlowers] = useState<Record<string, { units: number; myKind: GiftKind | null }>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const events = await getEvents();
+      const matches = events.filter(ev => ev.event_type && CELEB_EVENT_TYPES.has(ev.event_type));
+      const cs = matches.map(toCelebration);
+      if (cancelled) return;
+      setCelebrations(cs);
+      setLoading(false);
+      if (cs.length) {
+        const f = await getGatheringFlowersForUser(cs.map(c => c.ev.id));
+        if (!cancelled) setFlowers(f);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  async function handleGive(id: string, kind: GiftKind) {
+    const prev = flowers[id] ?? { units: 0, myKind: null };
+    setFlowers(f => ({ ...f, [id]: { units: prev.units + (kind === "bouquet" ? 12 : 1), myKind: kind } }));
+    const res = await giveGatheringGift(id, kind === "bouquet" ? "bouquet" : "flower");
+    if (!res.gave) setFlowers(f => ({ ...f, [id]: prev }));
+  }
+
+  async function handleTakeBack(id: string) {
+    const prev = flowers[id] ?? { units: 0, myKind: null };
+    setFlowers(f => ({ ...f, [id]: { units: 0, myKind: null } }));
+    await takeBackGatheringGift(id).catch(() => setFlowers(f => ({ ...f, [id]: prev })));
+  }
+
+  const now = Date.now();
+  const upcoming = celebrations.filter(c => new Date(c.ev.starts_at).getTime() >= now)
+    .sort((a, b) => new Date(a.ev.starts_at).getTime() - new Date(b.ev.starts_at).getTime());
+  const recent = celebrations.filter(c => new Date(c.ev.starts_at).getTime() < now)
+    .sort((a, b) => new Date(b.ev.starts_at).getTime() - new Date(a.ev.starts_at).getTime())
+    .slice(0, 8);
 
   const CATS: { id: CelebCategory; label: string; icon: string }[] = [
     { id: "all",       label: "All Celebrations", icon: "🎉" },
@@ -428,8 +474,8 @@ export function ConfettiPage() {
   ];
 
   const filtered = category === "all"
-    ? CELEBRATIONS
-    : CELEBRATIONS.filter(c => c.type === category);
+    ? upcoming
+    : upcoming.filter(c => c.type === category);
 
   return (
     <div style={{ minHeight: "100vh", background: CREAM, paddingBottom: 110 }}>
@@ -463,16 +509,13 @@ export function ConfettiPage() {
                 <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
               </svg>
             </div>
-            {/* Bell with badge */}
-            <div style={{ position: "relative" }}>
+            {/* Bell */}
+            <Link href="/member/notifications" style={{ display: "flex" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="1.8" strokeLinecap="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
-              <div style={{ position: "absolute", top: -2, right: -2, width: 14, height: 14, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", border: "1.5px solid white" }}>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 900, color: "white" }}>3</span>
-              </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -523,7 +566,21 @@ export function ConfettiPage() {
             <span style={{ fontSize: 14 }}>✦</span>
           </div>
           <div className="conf-scroll" style={{ display: "flex", gap: 14, overflowX: "auto", padding: "4px 18px 24px", scrollbarWidth: "none" as const, alignItems: "flex-start" }}>
-            {filtered.map(c => <InvitationCard key={c.id} c={c} />)}
+            {loading ? (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(0,0,0,0.4)", padding: "20px 0" }}>Loading…</p>
+            ) : filtered.length === 0 ? (
+              <p style={{ fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(0,0,0,0.4)", padding: "20px 0", maxWidth: 220 }}>
+                No celebrations yet — plan a birthday, win, or milestone and it&apos;ll show up here.
+              </p>
+            ) : filtered.map(c => (
+              <InvitationCard
+                key={c.ev.id}
+                c={c}
+                flower={flowers[c.ev.id] ?? { units: 0, myKind: null }}
+                onGive={kind => handleGive(c.ev.id, kind)}
+                onTakeBack={() => handleTakeBack(c.ev.id)}
+              />
+            ))}
             <AddCelebrationCard />
           </div>
         </div>
@@ -540,7 +597,7 @@ export function ConfettiPage() {
         </div>
 
         {/* ── RECENTLY CELEBRATED ── */}
-        <RecentStrip />
+        <RecentStrip recent={recent} />
       </div>
     </div>
   );

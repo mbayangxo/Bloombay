@@ -82,6 +82,7 @@ const KIND_PRESETS: Record<string, { photoId?: string; eventType?: EventType }> 
   picnic:      { photoId: "walk" },
   "open-seat": { photoId: "dinner" },
   party:       { photoId: "party", eventType: "party" },
+  celebration: { photoId: "party", eventType: "invitation" },
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
