@@ -36,7 +36,7 @@ function formatMessageDate(iso: string): string {
 function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void }) {
   const [flapped, setFlapped]       = useState(false);
   const [revealed, setRevealed]     = useState(false);
-  const [response, setResponse]     = useState<"accepted" | "declined" | null>(null);
+  const [response, setResponse]     = useState<"accepted" | "declined" | "maybe" | null>(null);
   const [showNote, setShowNote]     = useState(false);
   const [note, setNote]             = useState("");
   const [noteSent, setNoteSent]     = useState(false);
@@ -44,11 +44,11 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
 
   const invitationId = typeof item.id === "string" && item.id.startsWith("inv-") ? item.id.slice(4) : null;
 
-  async function respond(status: "accepted" | "declined") {
+  async function respond(status: "accepted" | "declined" | "maybe") {
     if (responding) return;
     if (invitationId) {
       setResponding(true);
-      const res = await respondToInvitation(invitationId, status, status === "declined" ? note : undefined);
+      const res = await respondToInvitation(invitationId, status, status !== "accepted" ? note : undefined);
       setResponding(false);
       if (!res.ok) return;
     }
@@ -202,8 +202,8 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
               <div style={{ padding: "18px 22px 22px", borderTop: "1px solid rgba(200,84,106,0.08)" }}>
                 {response ? (
                   <div style={{ textAlign: "center", padding: "8px 0" }}>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: response === "accepted" ? PINK : "#999" }}>
-                      {response === "accepted" ? "You accepted ✦" : "You declined."}
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, color: response === "accepted" ? PINK : response === "maybe" ? "#C07080" : "#999" }}>
+                      {response === "accepted" ? "You accepted ✦" : response === "maybe" ? "You said maybe 🤞" : "You declined."}
                     </p>
                     {noteSent && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 13, color: "#C07080", marginTop: 6 }}>Your note was sent.</p>}
                   </div>
@@ -232,17 +232,22 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
                     )}
 
                     {/* Primary actions */}
-                    <div style={{ display: "flex", gap: 10 }}>
+                    <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => respond("accepted")}
                         disabled={responding}
-                        style={{ flex: 1, background: PINK, color: "white", border: "none", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
-                      >{note.trim() ? "ACCEPT + SEND NOTE →" : "ACCEPT →"}</button>
+                        style={{ flex: 1, background: PINK, color: "white", border: "none", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 11, letterSpacing: "0.08em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
+                      >{note.trim() ? "ACCEPT + NOTE" : "ACCEPT →"}</button>
+                      <button
+                        onClick={() => respond("maybe")}
+                        disabled={responding}
+                        style={{ flex: 1, background: "rgba(255,31,125,0.08)", color: "#C07080", border: `1.5px solid ${PINK}25`, borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
+                      >MAYBE 🤞</button>
                       <button
                         onClick={() => respond("declined")}
                         disabled={responding}
-                        style={{ flex: 1, background: "transparent", color: "#999", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 12, letterSpacing: "0.1em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
-                      >{note.trim() ? "DECLINE + SEND NOTE" : "DECLINE"}</button>
+                        style={{ flex: 1, background: "transparent", color: "#999", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
+                      >DECLINE</button>
                     </div>
 
                     {/* Toggle note */}

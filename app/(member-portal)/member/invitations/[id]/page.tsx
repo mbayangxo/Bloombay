@@ -13,7 +13,8 @@ const PINK = "#FF1F7D";
 const CREAM = "#FAF6F0";
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23000' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`;
 
-type InvitePhase = "sealed" | "opening" | "reading" | "accepted" | "declined";
+type InvitePhase = "sealed" | "opening" | "reading" | "accepted" | "declined" | "maybe";
+type RespondKind = "declined" | "maybe";
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -214,13 +215,30 @@ function Envelope({ invite, sealCracked, cardRising }: {
   );
 }
 
-// ── Decline note sheet ────────────────────────────────────────────────────────
-function DeclineSheet({ fromName, onSend, onCancel }: {
+// ── Respond note sheet (decline or "not sure yet") ─────────────────────────────
+const RESPOND_COPY: Record<RespondKind, { title: string; subtitle: string; defaultNote: (name: string) => string; button: string }> = {
+  declined: {
+    title: "Sending your apologies",
+    subtitle: "A note will be sent to",
+    defaultNote: (name) => `Hi ${name}! I'm so sorry, I can't make it — but thank you so much for thinking of me. I hope you all have the most amazing time! ♡`,
+    button: "Send My Apologies ✉",
+  },
+  maybe: {
+    title: "Let her know you're not sure yet",
+    subtitle: "A note will be sent to",
+    defaultNote: (name) => `Hi ${name}! Not 100% sure yet, but I'll let you know as soon as I can — really hope I can make it! ♡`,
+    button: "Send — I'll Let Her Know",
+  },
+};
+
+function RespondSheet({ kind, fromName, onSend, onCancel }: {
+  kind: RespondKind;
   fromName: string;
   onSend: (note: string) => void;
   onCancel: () => void;
 }) {
-  const [note, setNote] = useState(`Hi ${fromName}! I'm so sorry, I can't make it — but thank you so much for thinking of me. I hope you all have the most amazing time! ♡`);
+  const copy = RESPOND_COPY[kind];
+  const [note, setNote] = useState(copy.defaultNote(fromName));
 
   return (
     <div style={{
@@ -241,10 +259,10 @@ function DeclineSheet({ fromName, onSend, onCancel }: {
         <div style={{ width: 36, height: 4, borderRadius: 99, background: "rgba(0,0,0,0.12)", margin: "0 auto 20px" }} />
 
         <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 20, color: "rgba(0,0,0,0.82)", marginBottom: 4 }}>
-          Sending your apologies
+          {copy.title}
         </p>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: 11, color: "rgba(0,0,0,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
-          A note will be sent to {fromName}
+          {copy.subtitle} {fromName}
         </p>
 
         <div style={{
@@ -278,7 +296,7 @@ function DeclineSheet({ fromName, onSend, onCancel }: {
             marginBottom: 10,
           }}
         >
-          Send My Apologies ✉
+          {copy.button}
         </button>
         <button onClick={onCancel} style={{ width: "100%", background: "transparent", border: "none", padding: "10px", cursor: "pointer", fontFamily: "var(--font-jost)", fontSize: 12, color: "rgba(0,0,0,0.35)", fontWeight: 600 }}>
           Cancel
@@ -295,7 +313,7 @@ export default function InvitationDetailPage() {
 
   const [invite, setInvite] = useState<MemberInvitationWithSender | null | undefined>(undefined);
   const [phase, setPhase] = useState<InvitePhase>("sealed");
-  const [showDeclineSheet, setShowDeclineSheet] = useState(false);
+  const [respondSheet, setRespondSheet] = useState<RespondKind | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [responding, setResponding] = useState(false);
@@ -308,6 +326,7 @@ export default function InvitationDetailPage() {
       setInvite(data);
       if (data?.status === "accepted") setPhase("accepted");
       else if (data?.status === "declined") setPhase("declined");
+      else if (data?.status === "maybe") setPhase("maybe");
     });
   }, [id]);
 
@@ -328,13 +347,13 @@ export default function InvitationDetailPage() {
     if (res.ok) setPhase("accepted");
   }
 
-  async function handleDecline(note: string) {
+  async function handleRespondWithNote(kind: RespondKind, note: string) {
     if (!id || responding) return;
     setResponding(true);
-    const res = await respondToInvitation(id, "declined", note);
+    const res = await respondToInvitation(id, kind, note);
     setResponding(false);
-    setShowDeclineSheet(false);
-    if (res.ok) setPhase("declined");
+    setRespondSheet(null);
+    if (res.ok) setPhase(kind);
   }
 
   if (invite === undefined) {
@@ -520,7 +539,19 @@ export default function InvitationDetailPage() {
                 I&apos;m in — count me! 🌸
               </button>
               <button
-                onClick={() => setShowDeclineSheet(true)}
+                onClick={() => setRespondSheet("maybe")}
+                disabled={responding}
+                style={{
+                  width: "100%", padding: "14px 0", borderRadius: 50,
+                  background: "rgba(255,31,125,0.06)", color: PINK,
+                  fontSize: 12, fontWeight: 700,
+                  border: `1.5px solid ${PINK}25`, cursor: "pointer",
+                }}
+              >
+                Maybe — not sure yet 🤞
+              </button>
+              <button
+                onClick={() => setRespondSheet("declined")}
                 disabled={responding}
                 style={{
                   width: "100%", padding: "14px 0", borderRadius: 50,
@@ -583,13 +614,46 @@ export default function InvitationDetailPage() {
             </Link>
           </div>
         )}
+
+        {/* ── MAYBE ──────────────────────────────────────────────────────────── */}
+        {phase === "maybe" && (
+          <div style={{ maxWidth: 380, margin: "0 auto", textAlign: "center", padding: "40px 4px", animation: "cardReveal 0.4s ease forwards" }}>
+            <p style={{ fontSize: 44, marginBottom: 10 }}>🤞</p>
+            <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: 24, color: "#1C1B1C", marginBottom: 6 }}>Noted — not sure yet.</p>
+            <p style={{ fontFamily: "var(--font-caveat)", fontSize: 15, color: "rgba(255,31,125,0.55)", marginBottom: 28 }}>{fromName} knows you're thinking about it. Change your mind any time.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button
+                onClick={() => setPhase("reading")}
+                style={{
+                  padding: "14px 0", borderRadius: 50,
+                  background: `linear-gradient(135deg, ${PINK}, #C8005A)`,
+                  color: "white", fontSize: 13, fontWeight: 800,
+                  letterSpacing: "0.06em", border: "none", cursor: "pointer",
+                  boxShadow: `0 6px 24px ${PINK}44`,
+                }}
+              >
+                Actually, I know now →
+              </button>
+              <Link href="/member/messages?filter=invitations" style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: "13px 0", borderRadius: 50,
+                background: "rgba(255,31,125,0.07)", color: PINK,
+                border: `1.5px solid ${PINK}25`,
+                fontSize: 12, fontWeight: 700, textDecoration: "none",
+              }}>
+                Back to Mailbox
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
-      {showDeclineSheet && (
-        <DeclineSheet
+      {respondSheet && (
+        <RespondSheet
+          kind={respondSheet}
           fromName={fromName}
-          onSend={handleDecline}
-          onCancel={() => setShowDeclineSheet(false)}
+          onSend={note => handleRespondWithNote(respondSheet, note)}
+          onCancel={() => setRespondSheet(null)}
         />
       )}
     </div>

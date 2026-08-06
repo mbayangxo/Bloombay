@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type InvitationTemplate = "default" | "photo" | "scallop" | "newspaper" | "formal" | "launch";
-export type InvitationStatus = "pending" | "accepted" | "declined";
+export type InvitationStatus = "pending" | "accepted" | "declined" | "maybe";
 
 export interface MemberInvitation {
   id: string;
@@ -116,8 +116,8 @@ export async function markInvitationRead(invitationId: string): Promise<void> {
 
 export async function respondToInvitation(
   invitationId: string,
-  status: "accepted" | "declined",
-  declineNote?: string
+  status: "accepted" | "declined" | "maybe",
+  note?: string
 ): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -128,7 +128,7 @@ export async function respondToInvitation(
     .update({
       status,
       is_read: true,
-      decline_note: status === "declined" ? (declineNote?.trim() || null) : null,
+      decline_note: status === "declined" || status === "maybe" ? (note?.trim() || null) : null,
     })
     .eq("id", invitationId)
     .eq("to_user_id", user.id);
