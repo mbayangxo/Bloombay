@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { markInvitationRead } from "@/lib/actions/invitations";
+import { markInvitationRead, respondToInvitation } from "@/lib/actions/invitations";
 
 const PINK = "#FF1F7D";
 const GOLD = "#D4A853";
@@ -32,58 +32,6 @@ function formatMessageDate(iso: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-const MAILBOX_ITEMS: MailboxItem[] = [
-  {
-    id: 0, type: "founders-invitation", from: "BloomBay", initial: "✦", color: GOLD,
-    subject: "You are invited — Founding 100",
-    preview: "A letter from us to you. Personal. Private. Open when you're ready.",
-    date: "Jan 2026", opened: false,
-    body: "Dear Founding Member,\n\nYou were invited before BloomBay was anything.\n\nWhen this was only an idea — a feeling, really — you said yes. You showed up. You trusted something that hadn't proven itself yet.\n\nOf the women who were there in the beginning, you are one of the first 100. That number is permanent. That place is yours forever.\n\nNo matter how large BloomBay becomes, no matter how many women find their way here — you will always be one of the women who built it from nothing.\n\nWe are so grateful for you.\n\nWith love and intention,\nBloomBay ✦\n\n— You are Founding Member #47. Always.",
-  },
-  {
-    id: 200, type: "invitation", from: "Aminah M.", initial: "Am", color: "#FF69B4",
-    subject: "Girls Dinner · Carbone",
-    preview: "Aminah saved you a seat. Tonight 7:30 PM.",
-    date: "Tonight", opened: false,
-    body: "Aminah thought of you for this one. Tonight at Carbone — individual pay, intimate crowd. She's been hoping you'd come. Tonight, 7:30 PM.",
-  },
-  {
-    id: 201, type: "invitation", from: "Sofia K.", initial: "S", color: PINK,
-    subject: "Pilates + Matcha Morning",
-    preview: "Sofia and 2 others are going. Sunday 9 AM.",
-    date: "Sunday", opened: false,
-    body: "Sofia thought of you for this one. Pilates, then matcha after. Studio Bloom in Williamsburg. $20. Sunday 9 AM.",
-  },
-  {
-    id: 202, type: "invitation", from: "Girl Creatives", initial: "GC", color: "#EC4899",
-    subject: "MoMA + Froyo After",
-    preview: "Girl Creatives are going as a group. Saturday 2 PM.",
-    date: "Saturday", opened: false,
-    body: "The club is going together — MoMA then froyo after. $1 deposit hold. Saturday 2 PM. You'd fit right in.",
-  },
-  {
-    id: 203, type: "invitation", from: "African Girls Club", initial: "AG", color: "#FF69B4",
-    subject: "You've been invited to join",
-    preview: "African Girls Club would like to officially welcome you.",
-    date: "May 28", opened: false,
-    body: "You have been extended a formal invitation to join African Girls Club.\n\nThis is a curated circle of African women in NYC building community through culture, food, and joy.\n\nAccept your invitation to unlock full club access.",
-  },
-  {
-    id: 100, type: "letter", from: "Yande", initial: "Y", color: PINK,
-    subject: "June Letter from Yande",
-    preview: "To every woman who showed up for herself this month — I see you.",
-    date: "Jun 1", opened: false,
-    body: "Dear Bloom,\n\nThis month I watched women in our community choose softness in the hardest moments. I watched someone sit alone at a gallery opening and own it. I watched a first-time founder raise her hand at a dinner she almost didn't attend.\n\nThat is what BloomBay is. Not the events. Not the platform. The woman who almost didn't come — and did.\n\nWith love,\nYande ✦",
-  },
-  {
-    id: 105, type: "letter", from: "Yande", initial: "Y", color: PINK,
-    subject: "May Letter from Yande",
-    preview: "On rest, resistance, and the radical act of choosing yourself.",
-    date: "May 1", opened: true,
-    body: "Dear Bloom,\n\nRest is not something you earn. It is something you take.\n\nThis month's letter is about the women in our community who are learning — sometimes painfully — that choosing themselves is not selfish. It is the work.\n\nI love you for being here.\nYande ✦",
-  },
-];
-
 // ── Letter / Invitation Detail View ───────────────────────────────────────────
 function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void }) {
   const [flapped, setFlapped]       = useState(false);
@@ -92,6 +40,21 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
   const [showNote, setShowNote]     = useState(false);
   const [note, setNote]             = useState("");
   const [noteSent, setNoteSent]     = useState(false);
+  const [responding, setResponding] = useState(false);
+
+  const invitationId = typeof item.id === "string" && item.id.startsWith("inv-") ? item.id.slice(4) : null;
+
+  async function respond(status: "accepted" | "declined") {
+    if (responding) return;
+    if (invitationId) {
+      setResponding(true);
+      const res = await respondToInvitation(invitationId, status, status === "declined" ? note : undefined);
+      setResponding(false);
+      if (!res.ok) return;
+    }
+    setResponse(status);
+    if (note.trim()) setNoteSent(true);
+  }
 
   const isFounders   = item.type === "founders-invitation";
   const isInvitation = item.type === "invitation";
@@ -271,12 +234,14 @@ function LetterView({ item, onBack }: { item: MailboxItem; onBack: () => void })
                     {/* Primary actions */}
                     <div style={{ display: "flex", gap: 10 }}>
                       <button
-                        onClick={() => { setResponse("accepted"); if (note.trim()) setNoteSent(true); }}
-                        style={{ flex: 1, background: PINK, color: "white", border: "none", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", cursor: "pointer" }}
+                        onClick={() => respond("accepted")}
+                        disabled={responding}
+                        style={{ flex: 1, background: PINK, color: "white", border: "none", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 900, fontSize: 12, letterSpacing: "0.1em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
                       >{note.trim() ? "ACCEPT + SEND NOTE →" : "ACCEPT →"}</button>
                       <button
-                        onClick={() => { setResponse("declined"); if (note.trim()) setNoteSent(true); }}
-                        style={{ flex: 1, background: "transparent", color: "#999", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 12, letterSpacing: "0.1em", cursor: "pointer" }}
+                        onClick={() => respond("declined")}
+                        disabled={responding}
+                        style={{ flex: 1, background: "transparent", color: "#999", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 999, padding: "13px 0", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 12, letterSpacing: "0.1em", cursor: responding ? "default" : "pointer", opacity: responding ? 0.6 : 1 }}
                       >{note.trim() ? "DECLINE + SEND NOTE" : "DECLINE"}</button>
                     </div>
 
@@ -630,9 +595,7 @@ function MailboxInner() {
 
   const [section, setSection]       = useState<HubSection>(initial);
   const [activeItem, setActiveItem] = useState<MailboxItem | null>(null);
-  const [openedItems, setOpenedItems] = useState<Set<string | number>>(
-    new Set(MAILBOX_ITEMS.filter(i => i.opened).map(i => i.id))
-  );
+  const [openedItems, setOpenedItems] = useState<Set<string | number>>(new Set());
   const [allItems, setAllItems] = useState<MailboxItem[]>([]);
 
   useEffect(() => {
@@ -641,7 +604,7 @@ function MailboxInner() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const [{ data, error }, { data: invites, error: inviteError }] = await Promise.all([
+      const [{ data, error }, { data: invites, error: inviteError }, { data: myProfile }] = await Promise.all([
         supabase
           .from("yande_messages")
           .select("*")
@@ -654,7 +617,20 @@ function MailboxInner() {
           .eq("to_user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(20),
+        supabase
+          .from("profiles")
+          .select("is_founding_mother, founding_number")
+          .eq("id", user.id)
+          .maybeSingle(),
       ]);
+
+      const foundingItems: MailboxItem[] = myProfile?.is_founding_mother ? [{
+        id: "founders-welcome", type: "founders-invitation", from: "BloomBay", initial: "✦", color: GOLD,
+        subject: "You are invited — Founding 100",
+        preview: "A letter from us to you. Personal. Private. Open when you're ready.",
+        date: "", opened: true,
+        body: `Dear Founding Member,\n\nYou were invited before BloomBay was anything.\n\nWhen this was only an idea — a feeling, really — you said yes. You showed up. You trusted something that hadn't proven itself yet.\n\nOf the women who were there in the beginning, you are one of the first 100. That number is permanent. That place is yours forever.\n\nNo matter how large BloomBay becomes, no matter how many women find their way here — you will always be one of the women who built it from nothing.\n\nWe are so grateful for you.\n\nWith love and intention,\nBloomBay ✦${myProfile.founding_number ? `\n\n— You are Founding Member #${myProfile.founding_number}. Always.` : ""}`,
+      }] : [];
 
       const dbItems: MailboxItem[] = error || !data ? [] : data.map((row) => ({
         id: row.id as string,
@@ -689,7 +665,7 @@ function MailboxInner() {
         };
       });
 
-      const merged = [...dbItems, ...inviteItems];
+      const merged = [...foundingItems, ...dbItems, ...inviteItems];
 
       // Mark already-read DB messages in openedItems
       const readIds = merged.filter(i => i.opened).map(i => i.id);

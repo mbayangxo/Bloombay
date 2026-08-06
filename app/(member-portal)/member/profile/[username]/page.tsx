@@ -4,8 +4,18 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getBoardPosts, type BoardPost } from "@/lib/actions/board";
-import { sendInvitation } from "@/lib/actions/invitations";
+import { sendInvitation, type InvitationTemplate } from "@/lib/actions/invitations";
 import { startConversation } from "@/lib/actions/direct-messages";
+import { InvitationEventCard, type EventCardData } from "@/app/components/portal/event-card-templates";
+
+const INVITE_TEMPLATES: { id: InvitationTemplate; label: string; emoji: string }[] = [
+  { id: "default",   label: "Envelope",  emoji: "💌" },
+  { id: "photo",     label: "Photo",     emoji: "📸" },
+  { id: "scallop",   label: "Scallop",   emoji: "🎀" },
+  { id: "newspaper", label: "Newspaper", emoji: "📰" },
+  { id: "formal",    label: "Formal",    emoji: "🥂" },
+  { id: "launch",    label: "Launch",    emoji: "🚀" },
+];
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const PINK = "#FF1F7D";
@@ -53,7 +63,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   const [boardLoaded, setBoardLoaded] = useState(false);
   const [messaging, setMessaging] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [inviteTemplate, setInviteTemplate] = useState<InvitationTemplate>("default");
   const [inviteSubject, setInviteSubject] = useState("");
+  const [inviteVenue, setInviteVenue] = useState("");
+  const [inviteDate, setInviteDate] = useState("");
   const [inviteBody, setInviteBody] = useState("");
   const [inviteSending, setInviteSending] = useState(false);
   const [inviteSent, setInviteSent] = useState(false);
@@ -83,13 +96,35 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   async function handleSendInvite() {
     if (!profile?.id || !inviteSubject.trim()) return;
     setInviteSending(true);
-    const { ok } = await sendInvitation(profile.id, inviteSubject, inviteBody);
+    const { ok } = await sendInvitation({
+      toUserId: profile.id,
+      subject: inviteSubject,
+      body: inviteBody,
+      templateId: inviteTemplate,
+      venue: inviteVenue,
+      eventDate: inviteDate ? new Date(inviteDate).toISOString() : undefined,
+    });
     setInviteSending(false);
     if (ok) {
       setInviteSent(true);
-      setTimeout(() => { setInviteSent(false); setShowInvite(false); setInviteSubject(""); setInviteBody(""); }, 1600);
+      setTimeout(() => {
+        setInviteSent(false); setShowInvite(false);
+        setInviteSubject(""); setInviteBody(""); setInviteVenue(""); setInviteDate(""); setInviteTemplate("default");
+      }, 1600);
     }
   }
+
+  const invitePreview: EventCardData = {
+    id: "preview",
+    type: "invitation",
+    title: inviteSubject.trim() || "Your invitation",
+    location: inviteVenue.trim() || "TBD",
+    date: inviteDate ? new Date(inviteDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBD",
+    time: "",
+    accentColor: PINK,
+    invitationStyle: inviteTemplate,
+    href: "#",
+  };
 
   const name = profile?.name ?? username.charAt(0).toUpperCase() + username.slice(1);
   const initial = name.charAt(0).toUpperCase();
@@ -251,12 +286,45 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
         {showInvite && (
           <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: 14, marginBottom: 20 }}>
+            <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>CHOOSE A TEMPLATE</p>
+            <div style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 12, scrollbarWidth: "none" as const }}>
+              {INVITE_TEMPLATES.map(t => (
+                <button key={t.id} onClick={() => setInviteTemplate(t.id)} style={{
+                  flexShrink: 0, display: "flex", alignItems: "center", gap: 5,
+                  padding: "6px 11px", borderRadius: 999,
+                  background: inviteTemplate === t.id ? PINK : "rgba(255,255,255,0.07)",
+                  border: `1px solid ${inviteTemplate === t.id ? PINK : "rgba(255,255,255,0.14)"}`,
+                  color: "white", fontFamily: "var(--font-jost)", fontSize: 10, fontWeight: 700, cursor: "pointer",
+                }}>
+                  <span>{t.emoji}</span>{t.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+              <InvitationEventCard ev={invitePreview} />
+            </div>
+
             <input
               value={inviteSubject}
               onChange={e => setInviteSubject(e.target.value)}
               placeholder="Invite her to… (e.g. brunch Saturday)"
               style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", marginBottom: 8, boxSizing: "border-box" as const, outline: "none" }}
             />
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <input
+                value={inviteVenue}
+                onChange={e => setInviteVenue(e.target.value)}
+                placeholder="Where (optional)"
+                style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", boxSizing: "border-box" as const, outline: "none" }}
+              />
+              <input
+                type="date"
+                value={inviteDate}
+                onChange={e => setInviteDate(e.target.value)}
+                style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10, padding: "9px 12px", fontFamily: "var(--font-jost)", fontSize: 12, color: "white", boxSizing: "border-box" as const, outline: "none", colorScheme: "dark" as const }}
+              />
+            </div>
             <textarea
               value={inviteBody}
               onChange={e => setInviteBody(e.target.value)}
