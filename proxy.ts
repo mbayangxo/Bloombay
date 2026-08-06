@@ -10,6 +10,18 @@ import {
 export default async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  // Every redirect below MUST carry over any refreshed session cookies —
+  // otherwise a just-rotated Supabase refresh token gets silently dropped
+  // on nearly every navigation (redirects are extremely common here: login
+  // pages, onboarding, host-desk gating, wrong-portal), the browser keeps
+  // presenting the now-stale token, and the next refresh attempt fails,
+  // forcing a real logout. That's what was happening.
+  function redirect(url: URL): NextResponse {
+    const res = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((c) => res.cookies.set(c.name, c.value));
+    return res;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -38,7 +50,7 @@ export default async function proxy(request: NextRequest) {
     "/lounge": "/member/lounge",
   };
   if (oldToNew[pathname]) {
-    return NextResponse.redirect(new URL(oldToNew[pathname], request.url));
+    return redirect(new URL(oldToNew[pathname], request.url));
   }
 
   // ── GirlMate auth gates ───────────────────────────────────────────────────
@@ -49,10 +61,10 @@ export default async function proxy(request: NextRequest) {
 
   if (isGMProtected && !user) {
     const redirectTo = encodeURIComponent(pathname);
-    return NextResponse.redirect(new URL(`/girlmate/login?redirect=${redirectTo}`, request.url));
+    return redirect(new URL(`/girlmate/login?redirect=${redirectTo}`, request.url));
   }
   if (user && isGMAuthPage) {
-    return NextResponse.redirect(new URL("/girlmate/home", request.url));
+    return redirect(new URL("/girlmate/home", request.url));
   }
 
   const PROTECTED = ["/member", "/admin", "/founder", "/club-owner", "/partner", "/curator"];
@@ -75,14 +87,14 @@ export default async function proxy(request: NextRequest) {
     else if (pathname.startsWith("/curator"))    loginPath = "/curator/login";
     else if (pathname.startsWith("/founder"))    loginPath = "/founder/login";
     const redirectTo = encodeURIComponent(pathname);
-    return NextResponse.redirect(new URL(`${loginPath}?redirect=${redirectTo}`, request.url));
+    return redirect(new URL(`${loginPath}?redirect=${redirectTo}`, request.url));
   }
 
   // ── Authenticated on login page ───────────────────────────────────────────
   // /member/login is the one door everyone (any role) can use for the member app.
   if (user && isLoginPath) {
     if (pathname === "/member/login") {
-      return NextResponse.redirect(new URL("/member/home", request.url));
+      return redirect(new URL("/member/home", request.url));
     }
     const { data: profile } = await supabase
       .from("profiles")
@@ -98,12 +110,12 @@ export default async function proxy(request: NextRequest) {
       curator:    "/curator/dashboard",
     };
     if (pathname.startsWith("/founder") && role === "founder") {
-      return NextResponse.redirect(new URL("/founder/dashboard", request.url));
+      return redirect(new URL("/founder/dashboard", request.url));
     }
     if (pathname.startsWith("/club-owner") && (role === "club_owner" || role === "founder")) {
-      return NextResponse.redirect(new URL("/club-owner/dashboard", request.url));
+      return redirect(new URL("/club-owner/dashboard", request.url));
     }
-    return NextResponse.redirect(
+    return redirect(
       new URL(homes[role] ?? "/member/home", request.url)
     );
   }
@@ -124,7 +136,7 @@ export default async function proxy(request: NextRequest) {
           .update({ onboarding_completed: true })
           .eq("id", user.id);
       } else {
-        return NextResponse.redirect(new URL("/onboard?resume=1", request.url));
+        return redirect(new URL("/onboard?resume=1", request.url));
       }
     }
 
@@ -148,7 +160,7 @@ export default async function proxy(request: NextRequest) {
         }
       }
       if (!allowed) {
-        return NextResponse.redirect(new URL("/member/host/become", request.url));
+        return redirect(new URL("/member/host/become", request.url));
       }
     }
   }
@@ -178,7 +190,7 @@ export default async function proxy(request: NextRequest) {
       }
 
       if (!allowed) {
-        return NextResponse.redirect(
+        return redirect(
           new URL(`/member/home?notice=portal_denied&tried=${portal}`, request.url),
         );
       }
