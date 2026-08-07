@@ -13,6 +13,12 @@ export interface GirlFavorite {
   description: string;
 }
 
+export interface MenuHighlight {
+  item: string;
+  price: string;
+  note?: string;
+}
+
 export interface PartnerData {
   id: string;
   slug: string;
@@ -41,6 +47,12 @@ export interface PartnerData {
   menu_url: string | null;
   brand_color: string;
   visited_by: string[];
+  poster_template: string | null;
+  page_style: "bloom" | "fabmag";
+  menu_items: MenuHighlight[];
+  menu_template: string;
+  menu_accent: string;
+  menu_font: string;
 }
 
 export type PartnerUpdateFields = Partial<Omit<PartnerData, "id" | "slug" | "owner_id" | "visited_by">>;

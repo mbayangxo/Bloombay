@@ -101,20 +101,20 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   // ── Poster template ──────────────────────────────────────────────────────
-  const [posterTemplate, setPosterTemplate] = useState<string>("butter_love");
+  const [posterTemplate, setPosterTemplate] = useState<string>(partner.poster_template ?? "butter_love");
 
   // ── Page style template ───────────────────────────────────────────────────
-  const [pageStyle, setPageStyle] = useState<"bloom" | "fabmag">("bloom");
+  const [pageStyle, setPageStyle] = useState<"bloom" | "fabmag">(partner.page_style ?? "bloom");
 
   // ── Menu display template ─────────────────────────────────────────────────
-  const [menuTemplate, setMenuTemplate] = useState<string>("cafe_board");
-  const [menuAccent, setMenuAccent] = useState("#FF1F7D");
-  const [menuFont, setMenuFont] = useState("var(--font-playfair)");
+  const [menuTemplate, setMenuTemplate] = useState<string>(partner.menu_template ?? "cafe_board");
+  const [menuAccent, setMenuAccent] = useState(partner.menu_accent ?? "#FF1F7D");
+  const [menuFont, setMenuFont] = useState(partner.menu_font ?? "var(--font-playfair)");
 
   // ── Menu highlights ──────────────────────────────────────────────────────
   const [menuItems, setMenuItems] = useState<{ item: string; price: string; note: string }[]>(
-    (partner.girl_favorites ?? []).length > 0
-      ? []
+    (partner.menu_items ?? []).length > 0
+      ? partner.menu_items.map(m => ({ item: m.item, price: m.price, note: m.note ?? "" }))
       : [{ item: "", price: "", note: "" }]
   );
 
@@ -138,6 +138,12 @@ export function PartnerCMS({ partner }: { partner: PartnerData }) {
         girl_favorites: favoritesRaw.filter(f => f.name),
         reviews: reviews.filter(r => r.author && r.text),
         hours,
+        poster_template: posterTemplate,
+        page_style: pageStyle,
+        menu_items: menuItems.filter(m => m.item),
+        menu_template: menuTemplate,
+        menu_accent: menuAccent,
+        menu_font: menuFont,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

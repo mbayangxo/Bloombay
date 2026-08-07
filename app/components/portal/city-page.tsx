@@ -984,6 +984,9 @@ interface EatsPartner {
   accentColor: string;
   textColor: string;
   menuHighlights: { item: string; price: string; note?: string }[];
+  menuAccent: string;
+  menuFont: string;
+  ownerId: string | null;
   bloomieNote: string;
   // Profile (storefront) extras
   lovedBy: number;          // "LOVED BY N WOMEN"
@@ -1019,6 +1022,10 @@ interface RealPartnerRow {
   reviews: {author:string;text:string;rating:number}[] | null; instagram: string | null;
   hours: Record<string,string> | null; loved_by: string[] | null; visited_by: string[];
   photo_urls: string[];
+  menu_items: { item: string; price: string; note?: string }[] | null;
+  menu_accent: string | null;
+  menu_font: string | null;
+  owner_id: string | null;
 }
 
 function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
@@ -1045,7 +1052,12 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
     coverUrl: r.cover_url ?? r.photo_urls?.[0] ?? null,
     accentColor: heroColor,
     textColor: "#FFF",
-    menuHighlights: (r.girl_favorites ?? []).slice(0, 3).map(g => ({ item: g.name, price: "" })),
+    menuHighlights: (r.menu_items ?? []).length > 0
+      ? r.menu_items!
+      : (r.girl_favorites ?? []).slice(0, 3).map(g => ({ item: g.name, price: "" })),
+    menuAccent: r.menu_accent || heroColor,
+    menuFont: r.menu_font || "var(--font-playfair)",
+    ownerId: r.owner_id ?? null,
     bloomieNote: r.bloom_tips?.[0] ?? r.polaroid_caption ?? "",
     lovedBy: r.loved_by?.length ?? 0,
     poem: r.poem ?? r.tagline ?? "",
@@ -1068,12 +1080,15 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   const [realPartners, setRealPartners] = useState<EatsPartner[]>([]);
   const [reserveTarget, setReserveTarget] = useState<{ id: string; name: string } | null>(null);
   const [hood, setHood] = useState<string | null>(null);
+  const [myUserId, setMyUserId] = useState<string | null>(null);
   useEffect(() => { setHood(getMyNeighborhood()); }, []);
 
   useEffect(() => {
     // Fetch real restaurant partners from DB
     import("@/lib/supabase/client").then(({ createClient }) => {
-      createClient()
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => setMyUserId(data.user?.id ?? null));
+      supabase
         .from("restaurant_partners")
         .select("*")
         .order("bloom_notes", { ascending: false })
@@ -1091,7 +1106,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
   const filteredByType = filterEatsPartners(realPartners, activeFilter);
   const allPartners = hood ? filteredByType.filter(p => isNearby(hood, p.hood)) : filteredByType;
   const openPartner = filteredByType.find(p => p.id === profileId);
-  if (openPartner) return <PartnerStorefront partner={openPartner} onBack={() => setProfileId(null)} />;
+  if (openPartner) return <PartnerStorefront partner={openPartner} onBack={() => setProfileId(null)} isOwner={!!myUserId && openPartner.ownerId === myUserId} />;
 
   return (
     <div style={{
@@ -1381,10 +1396,10 @@ function MenuTemplate({ partner: p }: { partner: EatsPartner }) {
           borderBottom: i < p.menuHighlights.length - 1 ? `1px solid ${isFine ? "rgba(255,255,255,0.08)" : "rgba(180,90,40,0.1)"}` : "none",
         }}>
           <div style={{ flex: 1 }}>
-            <p style={{ fontFamily: isFine ? "var(--font-playfair)" : "var(--font-jost)", fontStyle: isFine ? "italic" : "normal", fontSize: 12, fontWeight: isFine ? 600 : 700, color: isFine ? "rgba(255,255,255,0.88)" : "#2A1A10", lineHeight: 1.2 }}>{item.item}</p>
+            <p style={{ fontFamily: p.menuFont, fontStyle: isFine ? "italic" : "normal", fontSize: 12, fontWeight: isFine ? 600 : 700, color: isFine ? "rgba(255,255,255,0.88)" : "#2A1A10", lineHeight: 1.2 }}>{item.item}</p>
             {item.note && <p style={{ fontFamily: "var(--font-caveat)", fontSize: 11, color: isFine ? `${p.accentColor}bb` : "#AA8060", marginTop: 2 }}>{item.note}</p>}
           </div>
-          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: isFine ? p.accentColor : "#FF9B70", marginLeft: 12, flexShrink: 0 }}>{item.price}</p>
+          <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, color: p.menuAccent, marginLeft: 12, flexShrink: 0 }}>{item.price}</p>
         </div>
       ))}
     </div>
@@ -1502,7 +1517,7 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
 
       {/* Edit page button — for partner owners */}
       {isOwner && (
-        <Link href={`/member/city/partners/${toSlug(p.name)}/edit`} style={{
+        <Link href={`/member/city/partners/${p.slug}/edit`} style={{
           position: "fixed", top: "calc(env(safe-area-inset-top,0px) + 58px)", right: 14, zIndex: 50,
           background: "rgba(255,31,125,0.9)", color: "white", borderRadius: 999,
           padding: "6px 14px", fontFamily: "var(--font-jost)", fontSize: "8px",
@@ -1676,12 +1691,14 @@ function PartnerStorefront({ partner: p, onBack, isOwner = false }: { partner: E
           {/* Menu peek */}
           <PaperCard rotate={0.8} style={{ padding: "13px 14px" }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.16em", color: BRAND, marginBottom: 8 }}>FROM THE MENU</p>
-            {p.menuHighlights.map((m, i) => (
+            {p.menuHighlights.length > 0 ? p.menuHighlights.map((m, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: i < p.menuHighlights.length - 1 ? 6 : 0 }}>
-                <span style={{ fontFamily: "var(--font-playfair)", fontSize: 11, fontStyle: "italic", color: "#3A2A1A", lineHeight: 1.2 }}>{m.item}</span>
-                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: ACCENT, marginLeft: 8, flexShrink: 0 }}>{m.price}</span>
+                <span style={{ fontFamily: p.menuFont, fontSize: 11, fontStyle: "italic", color: "#3A2A1A", lineHeight: 1.2 }}>{m.item}</span>
+                <span style={{ fontFamily: "var(--font-jost)", fontSize: "8.5px", fontWeight: 800, color: p.menuAccent, marginLeft: 8, flexShrink: 0 }}>{m.price}</span>
               </div>
-            ))}
+            )) : (
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: 12, color: "#B0A090" }}>Menu coming soon.</p>
+            )}
           </PaperCard>
         </div>
 
