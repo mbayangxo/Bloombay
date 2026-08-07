@@ -675,7 +675,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 36 }}>
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: PINK, marginBottom: 10 }}>YOUR TABLE IS HERE</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 900, color: INK, margin: 0, lineHeight: 1 }}>
+            <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(28px,4vw,48px)", fontWeight: 900, color: INK, margin: 0, lineHeight: 1 }}>
               Nights on{" "}
               <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300 }}>BloomBay</span>
               {" "}<Sparkle />
@@ -848,7 +848,7 @@ export function LandingPage() {
       <section style={{ padding: "80px 22px", background: PINK }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <p style={{ fontFamily: "var(--font-jost)", fontSize: "10px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,255,255,0.7)", marginBottom: 12, textAlign: "center" }}>HOW IT WORKS</p>
-          <h2 style={{ fontWeight: 900, fontSize: "clamp(22px,3.5vw,36px)", color: "white", marginBottom: 8, textAlign: "center" }}>
+          <h2 style={{ fontFamily: "var(--font-fraunces)", fontWeight: 900, fontSize: "clamp(22px,3.5vw,36px)", color: "white", marginBottom: 8, textAlign: "center" }}>
             From stranger to{" "}
             <span style={{ color: INK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300 }}>community</span>.
           </h2>
@@ -885,7 +885,7 @@ export function LandingPage() {
         <div style={{ position: "relative", textAlign: "center", maxWidth: 580 }}>
           <Sparkle color="#FF69B4" size={22} />
           <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.4)", fontSize: "clamp(14px,2vw,18px)", margin: "14px 0 6px", letterSpacing: "0.04em" }}>You haven&apos;t met your people yet.</p>
-          <p style={{ fontWeight: 900, color: "white", fontSize: "clamp(28px,5.5vw,56px)", lineHeight: 1.05, marginBottom: 10 }}>
+          <p style={{ fontFamily: "var(--font-fraunces)", fontWeight: 900, color: "white", fontSize: "clamp(28px,5.5vw,56px)", lineHeight: 1.05, marginBottom: 10 }}>
             Your social life{" "}
             <span style={{ color: PINK, fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, textShadow: "0 0 40px rgba(255,31,125,0.5)" }}>is waiting.</span>
           </p>

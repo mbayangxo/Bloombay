@@ -98,7 +98,7 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
 }
 
 .font-script {
@@ -509,7 +509,7 @@ body {
 }
 
 .moment-chip__mark {
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
   font-size: 1.1rem;
   color: var(--hot-pink);
 }
@@ -1036,7 +1036,7 @@ body {
 }
 
 .suite-logo {
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 500;
   letter-spacing: 0.35em;
@@ -1182,7 +1182,7 @@ body {
 
 .suite-card-title {
   margin-top: 0.35rem;
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
   font-size: clamp(1.35rem, 2.5vw, 1.85rem);
   font-weight: 500;
   line-height: 1.2;
@@ -1276,7 +1276,7 @@ body {
 .suite-wax-seal__b {
   position: relative;
   z-index: 1;
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-playfair), serif;
   font-size: 1.35rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.98);
@@ -1682,7 +1682,7 @@ body {
 }
 
 .flow-brand__word {
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-playfair), Georgia, serif;
   font-size: 1.35rem;
   font-weight: 500;
   letter-spacing: 0.28em;
@@ -1871,7 +1871,7 @@ body {
 }
 
 .flow-what-is__title {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-playfair), serif;
   font-size: 1rem;
   font-weight: 500;
   color: white;
@@ -1952,7 +1952,7 @@ body {
 
 .flow-panel__title {
   margin-top: 0.5rem;
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-playfair), serif;
   font-size: clamp(1.35rem, 4vw, 1.75rem);
   font-weight: 500;
   color: var(--ink);
@@ -2543,7 +2543,7 @@ body {
 
 .corr-letter-body--emphasis {
   margin-top: 0.5rem;
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-playfair), serif;
   font-size: 1rem;
   font-style: italic;
 }
@@ -2682,7 +2682,7 @@ body {
 }
 
 .corr-seal-action__b {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-playfair), serif;
   font-size: 0.85rem;
   font-weight: 600;
   color: white;
@@ -3051,7 +3051,7 @@ body {
 }
 
 .glimpse-card__title {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-playfair), serif;
   font-size: 1.05rem;
   font-weight: 500;
   line-height: 1.15;
