@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { BloomiesPlanner } from "@/app/components/portal/bloomies-planner";
+import Link from "next/link";
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 
@@ -86,7 +86,6 @@ function buildEventDatesFromPlanRooms(rooms: PlanRoom[]): Record<string, Calenda
 
 const CLUBS_LIST: { id: number; name: string; emoji: string; members: number }[] = [];
 const TICKET_IMAGES: Record<string, string> = {};
-const MEMORY_EVENTS: { id: string; name: string; date: string; poster: string; note: string; color: string }[] = [];
 
 type StickerPackId = "bloom" | "hearts" | "glam" | "stars" | "nyc";
 const STICKER_PACKS: Record<StickerPackId, string[]> = {
@@ -1285,8 +1284,6 @@ function NewPlanSheet({ onClose, onCreated }: { onClose: () => void; onCreated?:
 
 // ── WALLET TICKETS ────────────────────────────────────────────────────────────
 
-const POLAROID_ROTS = [-2.5, 1.8, -1.2, 2.2, -1.8, 1.5];
-
 // ── Ticket card (shared render) ───────────────────────────────────────────────
 
 function TicketCard({ room, status, onOpen }: { room: PlanRoom; status: "active" | "used" | "expired"; onOpen: () => void }) {
@@ -1619,7 +1616,6 @@ function PlansPageInner() {
   const searchParams = useSearchParams();
   const theme = THEME;
 
-  const [userId, setUserId] = useState<string | null>(null);
   const [view, setView]               = useState<View>("list");
   const [activeRoom, setActiveRoom]   = useState<PlanRoom | null>(null);
   const [ticketRoom, setTicketRoom]   = useState<PlanRoom | null>(null);
@@ -1629,9 +1625,6 @@ function PlansPageInner() {
   const [plansLoaded, setPlansLoaded] = useState(false);
 
   useEffect(() => {
-    void import("@/lib/supabase/client").then(({ createClient }) => {
-      createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
-    });
     fetch("/api/member/plans")
       .then(r => r.ok ? r.json() : null)
       .then((json: { plans?: PlanRoom[] } | null) => {
@@ -1685,10 +1678,6 @@ function PlansPageInner() {
           <button onClick={() => setShowCalendar(true)} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,31,125,0.08)", border: "1px solid rgba(255,31,125,0.18)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </button>
-          {/* New plan button */}
-          <button onClick={() => setShowNewPlan(true)} style={{ width: 32, height: 32, borderRadius: "50%", background: PINK, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,31,125,0.38)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
         </div>
       </div>
 
@@ -1713,8 +1702,11 @@ function PlansPageInner() {
                   <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,8vw,34px)", fontWeight: 900, fontStyle: "italic", color: "white", lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.12)" }}>
                     Your Plans.
                   </h1>
-                  <button onClick={() => setShowNewPlan(true)} style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flexShrink: 0, marginTop: 4 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <button onClick={() => setShowNewPlan(true)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 18px 12px 14px", borderRadius: 999, background: "white", border: "none", cursor: "pointer", boxShadow: "0 6px 22px rgba(0,0,0,0.22)", flexShrink: 0, marginTop: 4 }}>
+                    <div style={{ width: 26, height: 26, borderRadius: "50%", background: PINK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <span style={{ fontFamily: "var(--font-jost)", fontSize: 11, fontWeight: 900, color: PINK, letterSpacing: "0.04em" }}>NEW PLAN</span>
                   </button>
                 </div>
 
@@ -1809,48 +1801,43 @@ function PlansPageInner() {
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
             </div>
 
-            {/* Bloomies Planner™ — real live plans */}
-            {userId && <BloomiesPlanner userId={userId} />}
+            {/* Bloomies Planner™ — its own page, not a repeat of the plan rooms above */}
+            <div style={{ padding: "0 16px 22px" }}>
+              <Link href="/member/plans/planner" style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ borderRadius: 20, padding: "18px 20px", background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.1)", display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg,${PINK},#FF69B4)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 4px 14px ${PINK}44` }}>
+                    <span style={{ fontSize: 20 }}>🌸</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.5)", marginBottom: 2 }}>BLOOMIES PLANNER™</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 900, color: "#1A1A1A" }}>Plan something with your Bloomies</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.4" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </Link>
+            </div>
 
             {/* Ornamental divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 22px 0", marginBottom: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
               <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
               <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
             </div>
 
-            {/* Memories section — polaroid grid */}
+            {/* Memories — its own page */}
             <div style={{ padding: "0 16px 40px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <div>
-                  <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.28em", color: "rgba(255,31,125,0.5)", marginBottom: 3 }}>✦ MEMORIES</p>
-                  <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 900, fontStyle: "italic", color: "#1A1A1A", lineHeight: 1 }}>Your Story.</h3>
-                </div>
-                <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 13, color: "#bbb" }}>
-                  {MEMORY_EVENTS.length > 0 ? `${MEMORY_EVENTS.length} moments ✦` : "No memories yet"}
-                </p>
-              </div>
-              {MEMORY_EVENTS.length === 0 ? (
-                <div style={{ borderRadius: 16, border: "1px dashed rgba(255,31,125,0.2)", background: "rgba(255,255,255,0.6)", padding: "28px 20px", textAlign: "center" }}>
-                  <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, color: "#888", lineHeight: 1.5 }}>No memories yet — past plans will show up here.</p>
-                </div>
-              ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-                {MEMORY_EVENTS.map((ev, i) => (
-                  <div key={ev.id} style={{ transform: `rotate(${POLAROID_ROTS[i]}deg)`, transformOrigin: "center bottom", transition: "transform 0.2s" }}>
-                    <div style={{ background: "white", borderRadius: 4, padding: "5px 5px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.12), 0 1px 0 rgba(0,0,0,0.06)" }}>
-                      <div style={{ width: "100%", aspectRatio: "1", borderRadius: 2, overflow: "hidden", background: "#F0E8E0", position: "relative" }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={ev.poster} alt={ev.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 50%, ${ev.color}44 100%)` }} />
-                      </div>
-                      <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 10, color: "#888", textAlign: "center", marginTop: 5, lineHeight: 1.2 }}>{ev.note}</p>
-                      <p style={{ fontFamily: "var(--font-jost)", fontSize: "6px", fontWeight: 700, color: "#ccc", textAlign: "center", marginTop: 2, letterSpacing: "0.06em" }}>{ev.date}</p>
-                    </div>
+              <Link href="/member/plans/memories" style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ borderRadius: 20, padding: "18px 20px", background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.1)", display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "rgba(255,31,125,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ fontSize: 20 }}>✿</span>
                   </div>
-                ))}
-              </div>
-              )}
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.5)", marginBottom: 2 }}>MEMORIES</p>
+                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 900, color: "#1A1A1A" }}>Your Story.</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.4" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </Link>
             </div>
         </div>
       </div>

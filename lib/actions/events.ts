@@ -90,3 +90,37 @@ export async function getJoinedEventIds(): Promise<string[]> {
 
   return (data ?? []).map((r: { gathering_id: string }) => r.gathering_id);
 }
+
+export interface MemoryMoment {
+  id: string;
+  title: string;
+  starts_at: string;
+  image_url: string | null;
+  accent_color: string | null;
+}
+
+// Past events the member actually attended (RSVP'd to and the date has
+// passed) — the real "moments" for the Memories page, not invented content.
+export async function getMyMemories(): Promise<MemoryMoment[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("gathering_attendance")
+    .select("gatherings!inner(id, title, starts_at, image_url, accent_color)")
+    .eq("user_id", user.id)
+    .lt("gatherings.starts_at", new Date().toISOString())
+    .order("starts_at", { referencedTable: "gatherings", ascending: false })
+    .limit(12);
+
+  return (data ?? [])
+    .map((r: Record<string, unknown>) => r.gatherings as {
+      id: string; title: string; starts_at: string; image_url: string | null; accent_color: string | null;
+    } | null)
+    .filter((g): g is NonNullable<typeof g> => g !== null)
+    .map(g => ({
+      id: g.id, title: g.title, starts_at: g.starts_at,
+      image_url: g.image_url, accent_color: g.accent_color,
+    }));
+}

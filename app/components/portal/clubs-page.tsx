@@ -558,6 +558,29 @@ export function ClubsPage() {
         </div>
       </section>
 
+      {/* ══════════ CLUB RANKINGS — real, ranked by member count ══════════ */}
+      {clubs.length > 0 && (
+      <section style={{ padding: "0 18px 32px" }}>
+        <Link href="/member/clubs/rankings" style={{ textDecoration: "none" }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 14, padding: "16px 18px",
+            borderRadius: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+          }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(145deg,#D4A853,#8B6B1F)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 18 }}>🏆</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 15, fontWeight: 900, color: "white" }}>Club Rankings</p>
+              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>
+                #1 right now: {clubs[0].name} · {clubs[0].member_count ?? 0} members
+              </p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </Link>
+      </section>
+      )}
+
       {/* ══════════ NEAR YOU — polaroid neighbourhood cards ══════════ */}
       {nearYou.length > 0 && (
       <section style={{ padding: "0 0 60px" }}>
