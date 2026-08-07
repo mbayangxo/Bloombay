@@ -4,6 +4,7 @@ import "@/app/styles/bloom-entrance.css";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PushPin } from "./scrapbook";
 import { ReserveTableSheet } from "./reserve-table-sheet";
 import { createClient } from "@/lib/supabase/client";
@@ -771,14 +772,14 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 10 }}>ALL NEIGHBORHOODS</p>
                 {HOOD_INDEX.map(h => (
-                  <button key={h.slug} onClick={() => setSearchOpen(false)}
-                    style={{ width: "100%", background: "none", border: "none", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Link key={h.slug} href={`/member/city/neighborhoods/${h.slug}`}
+                    style={{ width: "100%", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.07)", textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white", margin: 0 }}>{h.name}</p>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", margin: 0, marginTop: 2 }}>{h.tags.slice(0,3).join(" · ")}</p>
                     </div>
                     <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>{h.borough.toUpperCase()}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
@@ -787,14 +788,14 @@ function CityMenuPanel({ onSelect, onSwipeBack }: { onSelect: (c: CityCategory) 
               <div>
                 <p style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 800, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: 10 }}>{searchResults.length} RESULT{searchResults.length > 1 ? "S" : ""}</p>
                 {searchResults.map(h => (
-                  <button key={h.slug} onClick={() => setSearchOpen(false)}
-                    style={{ width: "100%", background: "none", border: "none", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Link key={h.slug} href={`/member/city/neighborhoods/${h.slug}`}
+                    style={{ width: "100%", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.07)", textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: 15, fontWeight: 700, color: "white", margin: 0 }}>{h.name}</p>
                       <p style={{ fontFamily: "var(--font-jost)", fontSize: "9px", color: "rgba(255,255,255,0.4)", margin: 0, marginTop: 2 }}>{h.tags.slice(0,3).join(" · ")}</p>
                     </div>
                     <span style={{ fontFamily: "var(--font-jost)", fontSize: "8px", fontWeight: 700, color: PINK, letterSpacing: "0.08em" }}>{h.borough.toUpperCase()}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
@@ -968,6 +969,7 @@ type RestaurantType = "fine_dining" | "café" | "bar" | "bakery" | "casual";
 
 interface EatsPartner {
   id: number;
+  partnerId: string;
   slug: string;
   name: string;
   type: RestaurantType;
@@ -1013,7 +1015,7 @@ interface RealPartnerRow {
   tagline: string | null; about: string | null; bloom_notes: number; bloom_rating: number;
   price_range: string | null; brand_color: string; cover_url: string | null;
   poem: string | null; polaroid_caption: string | null; host_note: string | null;
-  bloom_tips: string[] | null; girl_favorites: {item:string;description:string}[] | null;
+  bloom_tips: string[] | null; girl_favorites: {name:string;description:string}[] | null;
   reviews: {author:string;text:string;rating:number}[] | null; instagram: string | null;
   hours: Record<string,string> | null; loved_by: string[] | null; visited_by: string[];
   photo_urls: string[];
@@ -1029,6 +1031,7 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
   const slug = r.slug || toSlug(r.name);
   return {
     id: idx + 100,
+    partnerId: r.id,
     slug,
     name: r.name,
     type: typeMap[r.restaurant_type?.toLowerCase() ?? ""] ?? "casual",
@@ -1042,7 +1045,7 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
     coverUrl: r.cover_url ?? r.photo_urls?.[0] ?? null,
     accentColor: heroColor,
     textColor: "#FFF",
-    menuHighlights: (r.girl_favorites ?? []).slice(0, 3).map(g => ({ item: g.item, price: "" })),
+    menuHighlights: (r.girl_favorites ?? []).slice(0, 3).map(g => ({ item: g.name, price: "" })),
     bloomieNote: r.bloom_tips?.[0] ?? r.polaroid_caption ?? "",
     lovedBy: r.loved_by?.length ?? 0,
     poem: r.poem ?? r.tagline ?? "",
@@ -1050,7 +1053,7 @@ function realToEatsPartner(r: RealPartnerRow, idx: number): EatsPartner {
     hostNote: r.host_note ? { from: "BloomBay", text: r.host_note } : { from: "BloomBay", text: r.about ?? "" },
     about: r.about ?? "",
     tips: r.bloom_tips ?? [],
-    girlFavorites: (r.girl_favorites ?? []).map(g => ({ item: g.item, note: g.description ?? "", tone: "#FFE8D0" })),
+    girlFavorites: (r.girl_favorites ?? []).map(g => ({ item: g.name, note: g.description ?? "", tone: "#FFE8D0" })),
     reviews: (r.reviews ?? []).map(rv => ({ name: rv.author, text: rv.text, ago: "recently" })),
     hours: r.hours ? Object.values(r.hours)[0] ?? "Daily" : "Daily",
     instagram: r.instagram ?? "",
@@ -1217,7 +1220,7 @@ function EatsPage({ onBack }: { onBack: () => void }) {
             <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.22em", color: "#FF9B70" }}>BLOOMIES PARTNERS</p>
           </div>
           {allPartners.map(p => (
-            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[p.slug] ?? 0} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: String(p.id), name: p.name })} />
+            <EatsPartnerCard key={p.id} partner={p} noteCount={noteCounts[p.slug] ?? 0} onOpen={() => setProfileId(p.id)} onReserve={() => setReserveTarget({ id: p.partnerId, name: p.name })} />
           ))}
         </div>
       </div>
@@ -2215,17 +2218,10 @@ function TrendingPage({ onBack }: { onBack: () => void }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // BLOOMIES FAVORITES  —  champagne rose, editorial luxury
 // ═══════════════════════════════════════════════════════════════════════════════
-const BLOOM_PICKS = [
-  { id: 1,  name: "Bar Pisellino",        cat: "DINING",     hood: "WEST VILLAGE",    stars: 5, saves: 312, note: "The martini. The marble bar. The people.",          accent: "#D4A070", bg: "#1A0C08" },
-  { id: 2,  name: "The Standard Spa",     cat: "SELF-CARE",  hood: "MEATPACKING",     stars: 5, saves: 284, note: "Book 3 weeks ahead. Worth every minute.",           accent: "#E8B0C0", bg: "#140A0C" },
-  { id: 3,  name: "Café Kitsuné",         cat: "COFFEE",     hood: "WEST VILLAGE",    stars: 5, saves: 256, note: "Matcha in the garden with a good book.",           accent: "#A8C890", bg: "#0C1408" },
-  { id: 4,  name: "Brooklyn Museum",      cat: "ART",        hood: "CROWN HEIGHTS",   stars: 4, saves: 198, note: "First Saturday of the month is free + a party.",    accent: "#9090D8", bg: "#08080E" },
-  { id: 5,  name: "Russ & Daughters",     cat: "BRUNCH",     hood: "LOWER EAST SIDE", stars: 5, saves: 176, note: "The appetizing plate. Every. Single. Time.",        accent: "#D8A050", bg: "#181008" },
-  { id: 6,  name: "Vessel (Hudson Yards)",cat: "ICONIC",     hood: "HUDSON YARDS",    stars: 4, saves: 154, note: "Go at sunset for the best light.",                  accent: "#C0B090", bg: "#101008" },
-];
+interface BloomPick { id: number; name: string; cat: string; hood: string; stars: number; saves: number; note: string; accent: string; bg: string }
 
 function BloomiesFavoritesPage({ onBack }: { onBack: () => void }) {
-  const picks: typeof BLOOM_PICKS = [];
+  const picks: BloomPick[] = [];
 
   return (
     <div style={{
@@ -2730,6 +2726,7 @@ type CityRootMode = "guide" | "map";
 
 export function CityPage() {
   const [mode, setMode] = useState<CityRootMode>("guide");
+  const router = useRouter();
   const [hoodQuery, setHoodQuery] = useState("");
   const [hoodOpen, setHoodOpen] = useState(false);
 
@@ -2824,7 +2821,7 @@ export function CityPage() {
                 overflow: "hidden", zIndex: 100,
               }}>
                 {hoodResults.map(h => (
-                  <button key={h.slug} onMouseDown={() => { setHoodQuery(h.name); setHoodOpen(false); }} style={{
+                  <button key={h.slug} onMouseDown={() => { setHoodQuery(h.name); setHoodOpen(false); router.push(`/member/city/neighborhoods/${h.slug}`); }} style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
                     width: "100%", padding: "9px 12px", border: "none", background: "transparent",
                     cursor: "pointer", textAlign: "left" as const,

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { saveVenue, unsaveVenue } from "@/lib/actions/venue-saves";
 
 // ── Real data type ─────────────────────────────────────────────────────────────
 
@@ -86,6 +88,14 @@ export default function PlacesPage() {
         setLoaded(true);
       })
       .catch(() => setLoaded(true));
+
+    (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("venue_saves").select("venue_id").eq("user_id", user.id);
+      setSaved(new Set((data ?? []).map((r: { venue_id: string }) => r.venue_id)));
+    })();
   }, []);
 
   const shown = !loaded
@@ -100,7 +110,11 @@ export default function PlacesPage() {
 
   function toggleSave(e: React.MouseEvent, id: string) {
     e.preventDefault();
-    setSaved(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    const wasSaved = saved.has(id);
+    setSaved(s => { const n = new Set(s); wasSaved ? n.delete(id) : n.add(id); return n; });
+    void (wasSaved ? unsaveVenue(id) : saveVenue(id)).catch(() => {
+      setSaved(s => { const n = new Set(s); wasSaved ? n.add(id) : n.delete(id); return n; });
+    });
   }
 
   return (
