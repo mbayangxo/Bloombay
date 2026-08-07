@@ -1802,7 +1802,7 @@ function PlansPageInner() {
             </div>
 
             {/* Bloomies Planner™ — its own page, not a repeat of the plan rooms above */}
-            <div style={{ padding: "0 16px 22px" }}>
+            <div style={{ padding: "0 16px 40px" }}>
               <Link href="/member/plans/planner" style={{ textDecoration: "none", display: "block" }}>
                 <div style={{ borderRadius: 20, padding: "18px 20px", background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.1)", display: "flex", alignItems: "center", gap: 14 }}>
                   <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg,${PINK},#FF69B4)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 4px 14px ${PINK}44` }}>
@@ -1811,29 +1811,6 @@ function PlansPageInner() {
                   <div style={{ flex: 1 }}>
                     <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.5)", marginBottom: 2 }}>BLOOMIES PLANNER™</p>
                     <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 900, color: "#1A1A1A" }}>Plan something with your Bloomies</p>
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.4" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </Link>
-            </div>
-
-            {/* Ornamental divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 22px", marginBottom: 18 }}>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,31,125,0.18))" }} />
-              <span style={{ fontSize: 9, color: "rgba(255,31,125,0.38)" }}>✦</span>
-              <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg, rgba(255,31,125,0.18), transparent)" }} />
-            </div>
-
-            {/* Memories — its own page */}
-            <div style={{ padding: "0 16px 40px" }}>
-              <Link href="/member/plans/memories" style={{ textDecoration: "none", display: "block" }}>
-                <div style={{ borderRadius: 20, padding: "18px 20px", background: "white", boxShadow: "0 4px 20px rgba(255,31,125,0.1)", display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "rgba(255,31,125,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ fontSize: 20 }}>✿</span>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontFamily: "var(--font-jost)", fontSize: "7px", fontWeight: 800, letterSpacing: "0.24em", color: "rgba(255,31,125,0.5)", marginBottom: 2 }}>MEMORIES</p>
-                    <p style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: 16, fontWeight: 900, color: "#1A1A1A" }}>Your Story.</p>
                   </div>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={PINK} strokeWidth="2.4" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
