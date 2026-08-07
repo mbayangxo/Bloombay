@@ -160,7 +160,7 @@ export default function ConfirmationPage() {
         </div>
         <div style={{ flex: 1, padding: "0 20px calc(env(safe-area-inset-bottom, 0px) + 100px)", animation: "slideUp 0.38s ease" }}>
           <EventTicket data={data} qrUrl={qrUrl} />
-          <button onClick={() => router.push(`/member/plans?event=${id}`)} style={{ width: "100%", marginTop: 18, padding: "15px", borderRadius: 18, background: PINK, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", color: "white", boxShadow: `0 6px 24px rgba(255,31,125,0.32)` }}>
+          <button onClick={() => router.push(data.type === "gathering" ? `/member/plan/${id}` : "/member/plans")} style={{ width: "100%", marginTop: 18, padding: "15px", borderRadius: 18, background: PINK, border: "none", cursor: "pointer", fontFamily: "var(--font-jost)", fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", color: "white", boxShadow: `0 6px 24px rgba(255,31,125,0.32)` }}>
             Go to plan room →
           </button>
           <Link href="/member/plans" style={{ display: "block", marginTop: 12, fontFamily: "var(--font-jost)", fontSize: 11, color: "var(--bb-text-muted)", textDecoration: "none", textAlign: "center" }}>
@@ -277,7 +277,7 @@ export default function ConfirmationPage() {
 
         {/* Plan room CTA */}
         <button
-          onClick={() => router.push(`/member/plans?event=${id}`)}
+          onClick={() => router.push(data.type === "gathering" ? `/member/plan/${id}` : "/member/plans")}
           style={{ width: "100%", padding: "16px 18px", borderRadius: 18, background: "var(--bb-card)", border: "1.5px solid var(--bb-border-strong)", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, textAlign: "left" }}
         >
           <div style={{ width: 44, height: 44, borderRadius: 10, background: `${PINK}09`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
