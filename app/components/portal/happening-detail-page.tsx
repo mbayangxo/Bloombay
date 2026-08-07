@@ -30,7 +30,6 @@ import { AttendeeAvatars } from "@/app/components/portal/happening/attendee-avat
 import { ChemistryPreview } from "@/app/components/portal/happening/chemistry-preview";
 import { InvestmentBreakdown } from "@/app/components/portal/happening/investment-breakdown";
 import { RsvpCountdown } from "@/app/components/portal/happening/rsvp-countdown";
-import { SeatTicketStub } from "@/app/components/portal/happening/seat-ticket-stub";
 
 type RsvpPhase = "choose" | "confirm" | "done";
 type MySeat = { seat_number: number | null; table_number: number | null };
@@ -227,6 +226,17 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
     );
   }
 
+  const isGoing = existing === "going";
+
+  function shareHappening() {
+    const link = typeof window !== "undefined" ? `${window.location.origin}/member/happenings/${gathering!.slug}` : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ title: gathering!.title, url: link }).catch(() => {});
+    } else if (typeof navigator !== "undefined") {
+      navigator.clipboard.writeText(link).catch(() => {});
+    }
+  }
+
   return (
     <div className="min-h-screen pb-24" style={{ background: "#FDFAF5" }}>
       <div className="px-5 pt-12 max-w-md mx-auto">
@@ -235,9 +245,9 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
             type="button"
             onClick={() => router.back()}
             className="text-sm font-semibold"
-            style={{ color: "#FF1F7D" }}
+            style={{ color: "#FF1F7D", fontFamily: "var(--font-jost)" }}
           >
-            ← Happenings
+            ← Back to Happenings
           </button>
           <div className="flex items-center gap-2">
             <FlowerButton
@@ -248,13 +258,17 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
               onTakeBack={onTakeBackGift}
               disabled={!canEngage}
             />
-            <Link
-              href="/member/gems"
-              className="text-[11px] font-bold tracking-wide"
-              style={{ color: "#888", textDecoration: "none" }}
+            <button
+              type="button"
+              onClick={shareHappening}
+              aria-label="Share"
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+              style={{ background: "white", border: "1.5px solid #E8E8E8" }}
             >
-              My gems
-            </Link>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+            </button>
             <button
               type="button"
               onClick={onToggleGem}
@@ -280,11 +294,26 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
           </div>
         </div>
 
+        {/* Eyebrow */}
+        <p className="text-[10px] font-bold tracking-[0.22em] uppercase mb-2" style={{ fontFamily: "var(--font-jost)", color: accent }}>
+          {isGoing ? "✦ SEAT DETAIL" : poster.category}
+        </p>
+
+        {/* Headline */}
+        <h1 className="text-4xl font-bold mb-2 leading-[0.98]" style={{ fontFamily: "var(--font-fraunces)", color: "#111", letterSpacing: "-0.01em" }}>
+          {gathering.title}
+        </h1>
+
+        {/* Location + date, pink */}
+        <p className="text-sm font-semibold mb-1" style={{ color: accent, fontFamily: "var(--font-jost)" }}>
+          📍 {poster.location}
+        </p>
+        <p className="text-sm font-semibold mb-4" style={{ color: accent, fontFamily: "var(--font-jost)" }}>
+          {poster.date} · {poster.time}
+        </p>
+
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <span className="text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full" style={{ border: "1px solid #E8E8E8", color: "#666" }}>
-            {poster.category}
-          </span>
+        <div className="flex flex-wrap gap-1.5 mb-4">
           <span className="text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full text-white" style={{ background: "#111" }}>
             Women Only
           </span>
@@ -294,11 +323,6 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
             </span>
           )}
         </div>
-
-        {/* Headline */}
-        <h1 className="text-3xl font-bold mb-4 leading-[1.05]" style={{ fontFamily: "var(--font-playfair)", color: "#111" }}>
-          {gathering.title}
-        </h1>
 
         <div className="mb-2 relative">
           <PosterRenderer data={{ ...poster, ctaLabel: undefined, href: undefined }} />
@@ -364,31 +388,64 @@ export function HappeningDetailPage({ slug }: { slug: string }) {
 
         {existing === "going" ? (
           <div className="flex flex-col gap-2.5">
-            <SeatTicketStub
-              seatNumber={mySeat?.seat_number ?? null}
-              tableNumber={mySeat?.table_number ?? null}
-              tableSize={gathering.table_size ?? 8}
-              accent={accent}
-            />
-            <div
-              className="w-full py-4 rounded-2xl text-center font-bold"
-              style={{ background: "rgba(255,31,125,0.07)", color: "#FF1F7D" }}
-            >
-              You&apos;re going ✓ — ticket in Plans
+            {/* YOUR SEAT / RSVP STATUS — unified dark card, matching the seat-detail reference */}
+            <div className="rounded-3xl overflow-hidden" style={{ background: "#161016" }}>
+              <div className="flex px-5 py-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex-1">
+                  <p className="text-[9px] font-bold tracking-widest uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-jost)" }}>YOUR SEAT</p>
+                  <p className="text-2xl font-bold" style={{ color: "white", fontFamily: "var(--font-fraunces)" }}>
+                    {mySeat?.table_number ? `Table ${mySeat.table_number}` : "Seated"}
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    {mySeat?.seat_number ? `Seat ${mySeat.seat_number} · ` : ""}Table of {gathering.table_size ?? 8} women
+                  </p>
+                </div>
+                <div className="flex-1 text-right">
+                  <p className="text-[9px] font-bold tracking-widest uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-jost)" }}>RSVP STATUS</p>
+                  <span className="inline-block text-xs font-bold px-3 py-1 rounded-full" style={{ background: `${accent}22`, color: accent, border: `1px solid ${accent}55` }}>
+                    Confirmed ✓
+                  </span>
+                  {pricing.totalCents > 0 && (
+                    <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>Paid in full ✦</p>
+                  )}
+                </div>
+              </div>
+              {pricing.totalCents > 0 && (
+                <div className="px-5 py-4">
+                  <InvestmentBreakdown gathering={gathering} accent={accent} />
+                </div>
+              )}
             </div>
-            <Link
-              href={savedPlan?.planRoomHref ?? `/member/plan/${gathering.slug}`}
-              className="w-full py-4 rounded-2xl font-bold text-white text-center"
-              style={{ background: accent }}
-            >
-              Open plan room →
-            </Link>
+
+            {/* WHO YOU'LL BE WITH + chemistry */}
+            <div className="rounded-3xl p-5 bg-white flex flex-col gap-4" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
+              <AttendeeAvatars gatheringId={gathering.id} accent={accent} />
+              <ChemistryPreview gatheringId={gathering.id} accent={accent} />
+            </div>
+
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={shareHappening}
+                className="flex-1 py-4 rounded-2xl font-bold text-center"
+                style={{ background: "rgba(0,0,0,0.06)", color: "#444" }}
+              >
+                Invite a Bloomie
+              </button>
+              <Link
+                href={savedPlan?.planRoomHref ?? `/member/plan/${gathering.slug}`}
+                className="flex-1 py-4 rounded-2xl font-bold text-white text-center"
+                style={{ background: accent }}
+              >
+                Plan Room →
+              </Link>
+            </div>
             <Link
               href="/member/plans"
               className="w-full py-3.5 rounded-2xl font-bold text-center"
               style={{ background: "rgba(0,0,0,0.06)", color: "#444" }}
             >
-              View in Plans
+              View ticket in Plans
             </Link>
           </div>
         ) : existing === "debating" ? (

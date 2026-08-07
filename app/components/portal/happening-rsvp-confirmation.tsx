@@ -55,10 +55,10 @@ export function HappeningRsvpConfirmation({
           ✦ CONFIRMED
         </p>
         <h1
-          className="text-3xl font-bold italic mb-2"
-          style={{ fontFamily: "var(--font-playfair)", color: "#111" }}
+          className="text-3xl font-bold mb-2"
+          style={{ fontFamily: "var(--font-fraunces)", color: "#111" }}
         >
-          You&apos;re going.
+          You&apos;re <span style={{ color: accent, fontStyle: "italic", fontWeight: 600 }}>going</span>.
         </h1>
         <p className="text-sm mb-6 leading-relaxed" style={{ color: "#888" }}>
           Your ticket is in Plans. The plan room is unlocked for this happening.

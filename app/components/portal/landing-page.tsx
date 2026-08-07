@@ -805,9 +805,9 @@ export function LandingPage() {
       ══════════════════════════════════════════════════════ */}
       <Reveal>
       <div style={{ background: IVORY, padding: "48px 22px 40px", borderTop: "1px solid #ecddd4", overflow: "hidden" }}>
-        <p style={{ fontFamily: "var(--font-fraunces)", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(38px, 9vw, 88px)", color: INK, lineHeight: 0.95, letterSpacing: "-0.02em", margin: 0, maxWidth: 860 }}>
+        <p style={{ fontFamily: "var(--font-fraunces)", fontWeight: 700, fontSize: "clamp(38px, 9vw, 88px)", color: INK, lineHeight: 0.95, letterSpacing: "-0.02em", margin: 0, maxWidth: 860 }}>
           Women are{" "}
-          <span style={{ color: PINK }}>gathering.</span>
+          <span style={{ color: PINK, fontStyle: "italic", fontWeight: 600 }}>gathering.</span>
         </p>
         <p style={{ fontFamily: "var(--font-jost)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#bbb", marginTop: 20 }}>
           NEW YORK CITY &nbsp;·&nbsp; EST. 2025 &nbsp;·&nbsp; BLOOMBAY
