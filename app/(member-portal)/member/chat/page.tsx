@@ -44,7 +44,7 @@ interface Message {
   isMe?: boolean;
   isSticker?: boolean;
   mediaUrl?: string | null;
-  mediaType?: "text" | "image" | "audio" | "gif";
+  mediaType?: "text" | "image" | "audio" | "gif" | "video";
 }
 
 interface ChatMember {
@@ -470,6 +470,7 @@ function ComposerBar({
   onPhotoSend,
   onGifSend,
   onVoiceSend,
+  onVideoSend,
   sending,
 }: {
   draft: string;
@@ -479,6 +480,7 @@ function ComposerBar({
   onPhotoSend?: (file: File) => void;
   onGifSend?: (file: File) => void;
   onVoiceSend?: (file: File) => void;
+  onVideoSend?: (file: File) => void;
   sending?: boolean;
 }) {
   const [showStickers, setShowStickers] = useState(false);
@@ -487,6 +489,7 @@ function ComposerBar({
   const [recSecs, setRecSecs] = useState(0);
   const photoRef = useRef<HTMLInputElement>(null);
   const gifRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -565,6 +568,17 @@ function ComposerBar({
           if (file) onGifSend?.(file);
         }}
       />
+      <input
+        ref={videoRef}
+        type="file"
+        accept="video/mp4,video/quicktime,video/webm"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) onVideoSend?.(file);
+        }}
+      />
       {showStickers && (
         <div style={{ borderBottom: "1px solid rgba(255,31,125,0.12)", background: "rgba(255,255,255,0.97)" }}>
           <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none", padding: "10px 12px 6px" }}>
@@ -613,6 +627,7 @@ function ComposerBar({
           { icon: "😊", label: "Stickers", onClick: () => setShowStickers((v) => !v), active: showStickers },
           { icon: recording ? "⏹" : "🎤", label: recording ? "Stop" : "Voice", onClick: () => { void toggleVoice(); }, active: recording },
           { icon: "🖼️", label: "Photo", onClick: () => photoRef.current?.click(), active: false },
+          { icon: "🎬", label: "Video", onClick: () => videoRef.current?.click(), active: false },
           { icon: "🎞️", label: "GIF", onClick: () => gifRef.current?.click(), active: false },
         ].map(({ icon, label, onClick, active }) => (
           <button
@@ -696,6 +711,21 @@ function Bubble({ msg, showName }: { msg: Message; showName?: boolean }) {
               style={{ width: "100%", display: "block", maxHeight: 320, objectFit: "cover" }}
             />
             {msg.text && msg.text !== "📷 Photo" && msg.text !== "GIF" && (
+              <p style={{
+                margin: 0, padding: "8px 12px", fontSize: 13,
+                background: msg.isMe ? PINK : "#FFFFFF", color: msg.isMe ? "white" : "#111",
+              }}>
+                {msg.text}
+              </p>
+            )}
+          </div>
+        ) : msg.mediaType === "video" && msg.mediaUrl ? (
+          <div style={{
+            borderRadius: msg.isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+            overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.12)", maxWidth: 240,
+          }}>
+            <video controls src={msg.mediaUrl} style={{ width: "100%", display: "block", maxHeight: 320 }} />
+            {msg.text && msg.text !== "🎥 Video" && (
               <p style={{
                 margin: 0, padding: "8px 12px", fontSize: 13,
                 background: msg.isMe ? PINK : "#FFFFFF", color: msg.isMe ? "white" : "#111",
@@ -829,7 +859,7 @@ function useThreadMessages(convoId: string) {
   const send = useCallback(
     async (
       text: string,
-      opts?: { asSticker?: boolean; media?: { url: string; type: "image" | "audio" | "gif" } },
+      opts?: { asSticker?: boolean; media?: { url: string; type: "image" | "audio" | "gif" | "video" } },
     ) => {
       const trimmed = text.trim();
       const media = opts?.media;
@@ -845,7 +875,9 @@ function useThreadMessages(convoId: string) {
             ? "GIF"
             : media?.type === "audio"
               ? "🎤 Voice note"
-              : "");
+              : media?.type === "video"
+                ? "🎥 Video"
+                : "");
       setMsgs((prev) => [
         ...prev,
         {
@@ -874,12 +906,12 @@ function useThreadMessages(convoId: string) {
   );
 
   const sendMediaFile = useCallback(
-    async (file: File, type: "image" | "audio" | "gif") => {
+    async (file: File, type: "image" | "audio" | "gif" | "video") => {
       if (sending) return;
       setSending(true);
       setSendError(null);
       const tempId = `temp:${Date.now()}`;
-      const label = type === "image" ? "📷 Photo" : type === "gif" ? "GIF" : "🎤 Voice note";
+      const label = type === "image" ? "📷 Photo" : type === "gif" ? "GIF" : type === "video" ? "🎥 Video" : "🎤 Voice note";
       // Optimistic local preview while uploading
       const localPreview = URL.createObjectURL(file);
       setMsgs((prev) => [
@@ -1027,6 +1059,7 @@ function ThreadShell({
           onPhotoSend={(file) => { void sendMediaFile(file, "image"); }}
           onGifSend={(file) => { void sendMediaFile(file, "gif"); }}
           onVoiceSend={(file) => { void sendMediaFile(file, "audio"); }}
+          onVideoSend={(file) => { void sendMediaFile(file, "video"); }}
         />
       </div>
     </div>

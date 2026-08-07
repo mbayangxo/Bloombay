@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type MessageMediaType = "text" | "image" | "audio" | "gif";
+export type MessageMediaType = "text" | "image" | "audio" | "gif" | "video";
 
 export interface ConversationSummary {
   id: string;
@@ -30,10 +30,12 @@ function previewForMessage(content: string | null | undefined, mediaType?: strin
   if (mediaType === "image") return content?.trim() || "📷 Photo";
   if (mediaType === "gif") return content?.trim() || "GIF";
   if (mediaType === "audio") return content?.trim() || "🎤 Voice note";
+  if (mediaType === "video") return content?.trim() || "🎥 Video";
   const legacy = parseLegacyMediaContent(content ?? "");
   if (legacy.media_type === "image") return "📷 Photo";
   if (legacy.media_type === "gif") return "GIF";
   if (legacy.media_type === "audio") return "🎤 Voice note";
+  if (legacy.media_type === "video") return "🎥 Video";
   return content?.trim() || "Start a conversation";
 }
 
@@ -43,13 +45,13 @@ function parseLegacyMediaContent(content: string): {
   media_url: string | null;
   media_type: MessageMediaType;
 } {
-  const m = content.match(/^BBMEDIA:(image|audio|gif):(https?:\/\/\S+)$/);
+  const m = content.match(/^BBMEDIA:(image|audio|gif|video):(https?:\/\/\S+)$/);
   if (!m) {
     return { content, media_url: null, media_type: "text" };
   }
   const media_type = m[1] as MessageMediaType;
   return {
-    content: media_type === "image" ? "📷 Photo" : media_type === "gif" ? "GIF" : "🎤 Voice note",
+    content: media_type === "image" ? "📷 Photo" : media_type === "gif" ? "GIF" : media_type === "video" ? "🎥 Video" : "🎤 Voice note",
     media_url: m[2],
     media_type,
   };
@@ -246,7 +248,7 @@ export async function getMessages(conversationId: string, limit = 50): Promise<D
 export async function sendMessage(
   conversationId: string,
   content: string,
-  media?: { url: string; type: "image" | "audio" | "gif" },
+  media?: { url: string; type: "image" | "audio" | "gif" | "video" },
 ): Promise<void> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -257,7 +259,7 @@ export async function sendMessage(
   const mediaUrl = media?.url ?? null;
 
   if (mediaType === "text" && !trimmed) throw new Error("Message is empty");
-  if ((mediaType === "image" || mediaType === "audio" || mediaType === "gif") && !mediaUrl) {
+  if (mediaType !== "text" && !mediaUrl) {
     throw new Error("Media upload failed");
   }
 
@@ -269,7 +271,9 @@ export async function sendMessage(
         ? "GIF"
         : mediaType === "audio"
           ? "🎤 Voice note"
-          : "");
+          : mediaType === "video"
+            ? "🎥 Video"
+            : "");
 
   // Prefer structured media columns; fall back to encoded content if migration not applied yet.
   const withMedia = await supabase
@@ -308,22 +312,25 @@ export async function sendMessage(
 export async function sendChatMediaMessage(
   conversationId: string,
   formData: FormData,
-): Promise<{ ok: true; mediaUrl: string; mediaType: "image" | "audio" | "gif" } | { ok: false; error: string }> {
+): Promise<{ ok: true; mediaUrl: string; mediaType: "image" | "audio" | "gif" | "video" } | { ok: false; error: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in" };
 
   const file = formData.get("file");
   const kindRaw = String(formData.get("kind") ?? "image");
-  const kind = (kindRaw === "audio" || kindRaw === "gif" ? kindRaw : "image") as "image" | "audio" | "gif";
+  const kind = (["audio", "gif", "video"].includes(kindRaw) ? kindRaw : "image") as "image" | "audio" | "gif" | "video";
 
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, error: "No file selected" };
   }
 
-  const maxBytes = kind === "audio" ? 10 * 1024 * 1024 : 6 * 1024 * 1024;
+  const maxBytes = kind === "audio" ? 10 * 1024 * 1024 : kind === "video" ? 30 * 1024 * 1024 : 6 * 1024 * 1024;
   if (file.size > maxBytes) {
-    return { ok: false, error: kind === "audio" ? "Voice note must be under 10MB" : "Photo must be under 6MB" };
+    return {
+      ok: false,
+      error: kind === "audio" ? "Voice note must be under 10MB" : kind === "video" ? "Video must be under 30MB" : "Photo must be under 6MB",
+    };
   }
 
   // Must be a participant
@@ -344,10 +351,11 @@ export async function sendChatMediaMessage(
   if (!names.has("chat-media")) {
     const created = await admin.storage.createBucket("chat-media", {
       public: true,
-      fileSizeLimit: 10485760,
+      fileSizeLimit: 31457280,
       allowedMimeTypes: [
         "image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif",
         "audio/webm", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/x-m4a", "audio/aac",
+        "video/mp4", "video/quicktime", "video/webm",
       ],
     });
     if (created.error) {
@@ -358,16 +366,18 @@ export async function sendChatMediaMessage(
     }
   }
 
-  const mime = file.type || (kind === "gif" ? "image/gif" : kind === "audio" ? "audio/webm" : "image/jpeg");
+  const mime = file.type || (kind === "gif" ? "image/gif" : kind === "audio" ? "audio/webm" : kind === "video" ? "video/mp4" : "image/jpeg");
   const extFromName = file.name.includes(".") ? file.name.split(".").pop()!.toLowerCase() : "";
   const ext =
     kind === "gif"
       ? "gif"
       : kind === "audio"
         ? (mime.includes("mp4") || mime.includes("m4a") ? "m4a" : mime.includes("mpeg") ? "mp3" : "webm")
-        : (["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"].includes(extFromName)
-          ? (extFromName === "jpeg" ? "jpg" : extFromName)
-          : mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : mime.includes("gif") ? "gif" : "jpg");
+        : kind === "video"
+          ? (mime.includes("quicktime") ? "mov" : mime.includes("webm") ? "webm" : "mp4")
+          : (["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"].includes(extFromName)
+            ? (extFromName === "jpeg" ? "jpg" : extFromName)
+            : mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : mime.includes("gif") ? "gif" : "jpg");
 
   const path = `${user.id}/chat/${kind}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { data: uploaded, error: upErr } = await admin.storage
