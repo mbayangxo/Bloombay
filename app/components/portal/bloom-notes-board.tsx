@@ -10,8 +10,8 @@ import {
   giveNoteGift,
   takeBackNoteGift,
   toggleSaveNote,
-  type BloomNote,
 } from "@/lib/actions/bloom-notes";
+import type { BloomNote } from "@/lib/bloom-notes/shared";
 import { FlowerButton } from "@/app/components/shared/flower-button";
 import type { GiftKind } from "@/lib/bloom-gifts";
 import { unitsForKind } from "@/lib/bloom-gifts";

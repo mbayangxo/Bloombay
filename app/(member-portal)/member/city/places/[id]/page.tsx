@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { BloomNotesBoard } from "@/app/components/portal/bloom-notes-board";
+import { isVenueSaved, saveVenue, unsaveVenue } from "@/lib/actions/venue-saves";
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const BLUE  = "#1E4A8C";
@@ -73,6 +74,7 @@ function CertifiedSeal() {
 export default function VenuePage() {
   const params = useParams<{ id: string }>();
   const [saved, setSaved] = useState(false);
+  const [savingPending, setSavingPending] = useState(false);
   const [venue, setVenue] = useState<VenueDetail | null>(null);
 
   useEffect(() => {
@@ -82,6 +84,20 @@ export default function VenuePage() {
       .then(data => { if (data) setVenue(data); })
       .catch(() => {});
   }, [params.id]);
+
+  useEffect(() => {
+    if (!venue?.id) return;
+    isVenueSaved(venue.id).then(setSaved).catch(() => {});
+  }, [venue?.id]);
+
+  async function handleToggleSave() {
+    if (!venue?.id || savingPending) return;
+    setSavingPending(true);
+    const next = !saved;
+    setSaved(next);
+    await (next ? saveVenue(venue.id) : unsaveVenue(venue.id)).catch(() => setSaved(!next));
+    setSavingPending(false);
+  }
 
   const name       = venue?.name ?? "";
   const location   = venue?.location ?? "";
@@ -270,7 +286,7 @@ export default function VenuePage() {
 
       {/* ── SAVE TO MY WORLD (sticky bottom) ────────────────────────── */}
       <div style={{ position: "fixed", bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)", left: 0, right: 0, padding: "12px 18px", background: `linear-gradient(to top, ${CREAM} 60%, transparent)`, zIndex: 60 }}>
-        <button onClick={() => setSaved(s => !s)}
+        <button onClick={handleToggleSave} disabled={savingPending}
           style={{
             width: "100%", padding: "15px", borderRadius: 999,
             background: saved ? "#111" : `linear-gradient(135deg, ${PINK}, #FF69B4)`,
